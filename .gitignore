@@ -1,0 +1,11 @@
+
+# Build artifacts
+/ivay-backend/target/
+/ivay-backend/build/
+/ivay-frontend/node_modules/
+/ivay-frontend/build/
+
+# Maven
+/ivay-backend/mvnw.cmd
+/ivay-backend/mvnw
+/ivay-backend/.mvn
