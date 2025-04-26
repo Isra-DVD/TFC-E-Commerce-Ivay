@@ -1,4 +1,4 @@
-package com.ivay.mappers.cartitem;
+package com.ivay.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

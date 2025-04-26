@@ -1,4 +1,4 @@
-package com.ivay.mappers.supplier;
+package com.ivay.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
