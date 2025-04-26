@@ -11,10 +11,10 @@ import com.ivay.entity.User;
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "role", ignore = true) 
-    @Mapping(target = "orders", ignore = true) 
-    @Mapping(target = "addresses", ignore = true) 
-    @Mapping(target = "cartItems", ignore = true) 
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "orders", ignore = true)
+    @Mapping(target = "addresses", ignore = true)
+    @Mapping(target = "cartItems", ignore = true)
     User toUser(UserRequestDto userRequestDto);
 
     @Mapping(source = "role.id", target = "roleId")
