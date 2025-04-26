@@ -1,4 +1,4 @@
-package com.ivay.mappers.category;
+package com.ivay.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,4 +1,4 @@
-package com.ivay.dtos.exception;
+package com.ivay.exception;
 
 public class ResourceNotFoundException extends RuntimeException{
 	

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.ivay.dtos.categorydto.CategoryRequestDto;
 import com.ivay.dtos.categorydto.CategoryResponseDto;
-import com.ivay.dtos.exception.ResourceNotFoundException;
 import com.ivay.dtos.productdto.ProductResponseDto;
 import com.ivay.entity.Category;
-import com.ivay.mappers.category.CategoryMapper;
-import com.ivay.mappers.product.ProductMapper;
+import com.ivay.exception.ResourceNotFoundException;
+import com.ivay.mappers.CategoryMapper;
+import com.ivay.mappers.ProductMapper;
 import com.ivay.repository.CategoryRepository;
 import com.ivay.service.CategoryService;
 

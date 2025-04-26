@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.ivay.dtos.exception.ResourceNotFoundException;
 import com.ivay.dtos.orderitemdto.OrderItemResponseDto;
 import com.ivay.entity.OrderItem;
-import com.ivay.mappers.orderitem.OrderItemMapper;
+import com.ivay.exception.ResourceNotFoundException;
+import com.ivay.mappers.OrderItemMapper;
 import com.ivay.repository.OrderItemRepository;
 import com.ivay.repository.OrderRepository;
 import com.ivay.repository.ProductRepository;
