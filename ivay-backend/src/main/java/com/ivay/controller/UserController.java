@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
 import com.ivay.dtos.api.ApiResponseDto;
-import com.ivay.service.UserService;
+import com.ivay.service.UserEntityService;
 
 import jakarta.validation.Valid;
 
@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserEntityService userService;
 
     @GetMapping
     public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {

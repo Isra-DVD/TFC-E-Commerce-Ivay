@@ -10,7 +10,7 @@ import com.ivay.dtos.cartitemdto.CartItemResponseDto;
 import com.ivay.dtos.cartitemdto.UpdateCartItemQuantityDto;
 import com.ivay.entity.CartItem;
 import com.ivay.entity.Product;
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.CartItemMapper;
 import com.ivay.repository.CartItemRepository;
@@ -41,7 +41,7 @@ public class CartItemServiceImpl implements CartItemService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(CART_ITEM_NOT_FOUND, cartItemId)));
     }
 
-    private User validateAndGetUser(Long userId) {
+    private UserEntity validateAndGetUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND, userId)));
     }
@@ -76,7 +76,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         log.info("Attempting to add/update cart item for user {} and product {}", userId, productId);
 
-        User user = validateAndGetUser(userId);
+        UserEntity user = validateAndGetUser(userId);
         Product product = validateAndGetProduct(productId);
 
         Optional<CartItem> existingCartItemOpt = cartItemRepository.findByUser_IdAndProduct_Id(userId, productId);

@@ -30,5 +30,5 @@ public class Role {
     private String roleName;
 
     @OneToMany(mappedBy = "role")
-    private List<User> users;
+    private List<UserEntity> users;
 }

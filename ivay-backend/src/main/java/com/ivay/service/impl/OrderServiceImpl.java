@@ -14,7 +14,7 @@ import com.ivay.dtos.orderitemdto.create.CreateOrderItemRequestDto;
 import com.ivay.entity.Order;
 import com.ivay.entity.OrderItem;
 import com.ivay.entity.Product;
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.OrderItemMapper;
 import com.ivay.mappers.OrderMapper;
@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ORDER_NOT_FOUND, orderId)));
     }
 
-    private User validateAndGetUser(Long userId) {
+    private UserEntity validateAndGetUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(USER_NOT_FOUND, userId)));
     }
@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto createOrder(CreateOrderRequestDto createOrderRequestDto) {
         log.info("Attempting to create order for user id: {}", createOrderRequestDto.getUserId());
 
-        User user = validateAndGetUser(createOrderRequestDto.getUserId());
+        UserEntity user = validateAndGetUser(createOrderRequestDto.getUserId());
 
         Order order = new Order();
         order.setUser(user);

@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode(exclude = {"orders", "addresses", "cartItems"})
 @Entity
 @Table(name = "ecommerce2_users")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

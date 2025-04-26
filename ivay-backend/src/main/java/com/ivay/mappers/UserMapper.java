@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -15,8 +15,8 @@ public interface UserMapper {
     @Mapping(target = "orders", ignore = true)
     @Mapping(target = "addresses", ignore = true)
     @Mapping(target = "cartItems", ignore = true)
-    User toUser(UserRequestDto userRequestDto);
+    UserEntity toUser(UserRequestDto userRequestDto);
 
     @Mapping(source = "role.id", target = "roleId")
-    UserResponseDto toUserResponse(User user);
+    UserResponseDto toUserResponse(UserEntity user);
 }

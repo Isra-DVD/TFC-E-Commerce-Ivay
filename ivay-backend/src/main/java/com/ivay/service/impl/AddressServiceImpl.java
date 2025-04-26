@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.ivay.dtos.addressdto.AddressRequestDto;
 import com.ivay.dtos.addressdto.AddressResponseDto;
 import com.ivay.entity.Address;
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.AddressMapper;
 import com.ivay.repository.AddressRepository;
@@ -45,7 +45,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public List<AddressResponseDto> getAddressesByUserId(Long userId) {
-        User user = userRepository.findById(userId)
+        UserEntity user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
         return user.getAddresses()
             .stream()
@@ -55,7 +55,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressResponseDto createAddress(AddressRequestDto addressRequestDto) {
-        User user = userRepository.findById(addressRequestDto.getUserId())
+        UserEntity user = userRepository.findById(addressRequestDto.getUserId())
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
         Address address = addressMapper.toAddress(addressRequestDto);
         address.setUser(user);
@@ -67,7 +67,7 @@ public class AddressServiceImpl implements AddressService {
     public AddressResponseDto updateAddress(Long id, AddressRequestDto addressRequestDto) {
         Address existing = addressRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
-        User user = userRepository.findById(addressRequestDto.getUserId())
+        UserEntity user = userRepository.findById(addressRequestDto.getUserId())
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
         existing.setUser(user);
         existing.setAddress(addressRequestDto.getAddress());

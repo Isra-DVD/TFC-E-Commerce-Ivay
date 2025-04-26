@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
 import com.ivay.entity.Role;
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.UserMapper;
 import com.ivay.repository.UserRepository;
-import com.ivay.service.UserService;
+import com.ivay.service.UserEntityService;
 import com.ivay.repository.RoleRepository;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserEntityServiceImpl implements UserEntityService {
 
     @Autowired
     private UserRepository userRepository;
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(Long id) {
-        User user = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         return userMapper.toUserResponse(user);
     }
@@ -46,15 +46,15 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         Role role = roleRepository.findById(userRequestDto.getRoleId())
             .orElseThrow(() -> new ResourceNotFoundException("Role with id: " + userRequestDto.getRoleId() + " not found"));
-        User user = userMapper.toUser(userRequestDto);
+        UserEntity user = userMapper.toUser(userRequestDto);
         user.setRole(role);
-        User saved = userRepository.save(user);
+        UserEntity saved = userRepository.save(user);
         return userMapper.toUserResponse(saved);
     }
 
     @Override
     public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
-        User existingUser = userRepository.findById(id)
+        UserEntity existingUser = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         Role role = roleRepository.findById(userRequestDto.getRoleId())
             .orElseThrow(() -> new ResourceNotFoundException("Role with id: " + userRequestDto.getRoleId() + " not found"));
@@ -69,13 +69,13 @@ public class UserServiceImpl implements UserService {
         existingUser.setCredentialNoExpired(userRequestDto.getCredentialNoExpired());
         existingUser.setRole(role);
         
-        User updated = userRepository.save(existingUser);
+        UserEntity updated = userRepository.save(existingUser);
         return userMapper.toUserResponse(updated);
     }
 
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         userRepository.delete(user);
     }

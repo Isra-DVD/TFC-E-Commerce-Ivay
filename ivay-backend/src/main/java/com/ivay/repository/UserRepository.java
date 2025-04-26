@@ -3,18 +3,18 @@ package com.ivay.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ivay.entity.User;
+import com.ivay.entity.UserEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<UserEntity> findByEmailIgnoreCase(String email);
 
-    List<User> findByNameContainingIgnoreCase(String name);
+    List<UserEntity> findByNameContainingIgnoreCase(String name);
 
-    List<User> findByRole_Id(Long roleId);
+    List<UserEntity> findByRole_Id(Long roleId);
 
 }
