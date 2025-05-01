@@ -1,13 +1,19 @@
 package com.ivay.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(exclude = {"orders", "addresses", "cartItems"})
 @EqualsAndHashCode(exclude = {"orders", "addresses", "cartItems"})
 @Entity

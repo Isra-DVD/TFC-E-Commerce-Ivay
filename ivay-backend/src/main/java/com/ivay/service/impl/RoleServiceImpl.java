@@ -40,8 +40,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponseDto createRole(RoleRequestDto roleRequestDto) {
-        Role role = new Role();
-        role.setRoleName(roleRequestDto.getRoleName());
+        Role role = Role.builder()
+        				.roleName(roleRequestDto.getRoleName())
+        				.build();
         Role savedRole = roleRepository.save(role);
         return roleMapper.toRoleResponse(savedRole);
     }
