@@ -192,7 +192,7 @@ function Header() {
                         <IconButton
                             color="inherit"
                             component={RouterLink}
-                            to="/profile" // TODO: Update path
+                            to="/login" // TODO: Update path
                             sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}
                         >
                             <PersonOutlineIcon />

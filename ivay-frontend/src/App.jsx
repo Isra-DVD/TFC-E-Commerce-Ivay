@@ -1,18 +1,15 @@
+// src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Box, CssBaseline, ThemeProvider, createTheme, Typography } from '@mui/material'; // Added Typography
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './components/pages/HomePage';
-// FUTURE IMPORTS
-// import ProductListPage from './components/pages/ProductListPage';
-// import ProductDetailPage from './components/pages/ProductDetailPage';
-// import CartPage from './components/pages/CartPage';
-// import ProfilePage from './components/pages/ProfilePage';
+import LoginPage from './components/pages/LoginPage';
+import RegisterPage from './components/pages/RegisterPage';
 
-import { colors, layout } from './constants/styles'; // Import constants
+import { colors } from './constants/styles'; // Assuming layout constants are not needed here directly
 
-// Create a basic theme using constants 
 const theme = createTheme({
   palette: {
     primary: colors.primary,
@@ -23,36 +20,53 @@ const theme = createTheme({
   },
 });
 
+const LayoutWrapper = () => {
+  const location = useLocation();
+  const authPaths = ['/login', '/register'];
+  const isAuthPage = authPaths.includes(location.pathname);
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh', // Ensure the root Box takes full viewport height
+        backgroundColor: colors.background.default, // Apply background to the whole page
+      }}
+    >
+      {!isAuthPage && <Header />}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1, // Allows this Box to take up remaining space
+          py: isAuthPage ? 0 : 4, // Vertical padding for non-auth pages
+          // px: isAuthPage ? 0 : 2, // Horizontal padding for non-auth pages - Container in pages will handle this
+
+          // Centering styles for auth pages
+          display: isAuthPage ? 'flex' : 'block',
+          flexDirection: isAuthPage ? 'column' : 'initial', // Ensure column for potential multiple children
+          alignItems: isAuthPage ? 'center' : 'initial',
+          justifyContent: isAuthPage ? 'center' : 'initial',
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<Box sx={{ p: 4, textAlign: 'center' }}><Typography variant="h4">404 - Página no encontrada</Typography></Box>} />
+        </Routes>
+      </Box>
+      {!isAuthPage && <Footer />}
+    </Box>
+  );
+}
 
 function App() {
   return (
-    <ThemeProvider theme={theme}> {/* Apply the theme */}
-      <CssBaseline /> {/* Normalizes CSS across browsers */}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Router>
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Header />
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              pb: 4,
-              backgroundColor: colors.background.default,
-            }}
-          >
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              {/* Add routes for other pages */}
-              {/* <Route path="/products" element={<ProductListPage />} /> */}
-              {/* <Route path="/products/:productId" element={<ProductDetailPage />} /> */}
-              {/* <Route path="/category/:categoryName" element={<ProductListPage />} /> */}
-              {/* <Route path="/cart" element={<CartPage />} /> */}
-              {/* <Route path="/profile" element={<ProfilePage />} /> */}
-              {/* Add a 404 Not Found route */}
-              <Route path="*" element={<div>404 Not Found</div>} />
-            </Routes>
-          </Box>
-          <Footer />
-        </Box>
+        <LayoutWrapper />
       </Router>
     </ThemeProvider>
   );
