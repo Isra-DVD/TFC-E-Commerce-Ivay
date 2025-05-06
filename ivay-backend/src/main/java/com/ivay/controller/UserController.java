@@ -26,6 +26,8 @@ import jakarta.validation.Valid;
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(origins = "http://localhost:5173/")
 @Tag(name = "User", description = "Endpoints para gestión de usuarios")
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:5173/")
 public class UserController {
 
 	@Autowired
