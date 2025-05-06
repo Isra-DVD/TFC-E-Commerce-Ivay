@@ -33,6 +33,12 @@ public class SecurityConfig {
 	        .cors(Customizer.withDefaults())
 	        .authorizeHttpRequests(auth -> auth
 
+	        		 .requestMatchers(
+	        	              "/doc/swagger-ui.html",
+	        	              "/doc/swagger-ui/**",
+	        	              "/v3/api-docs/**"
+	        	          ).permitAll()
+	        		
 	        		.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 	        		
 	        		.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
@@ -93,8 +99,6 @@ public class SecurityConfig {
 	        		.requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 	        		.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 	        		.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
-	        		
-	            //.requestMatchers("/api/**").permitAll()
 	        )
 	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
