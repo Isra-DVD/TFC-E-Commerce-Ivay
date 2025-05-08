@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.ivay.dtos.userdto.ChangePasswordRequestDto;
+import com.ivay.dtos.userdto.UpdateProfileRequestDto;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
 import com.ivay.entity.Role;
@@ -89,5 +92,37 @@ public class UserEntityServiceImpl implements UserEntityService {
 		UserEntity user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
 		userRepository.delete(user);
+	}
+
+	@Override
+	public UserResponseDto getByUsername(String username) {
+		UserEntity currentUser = userRepository.findUserEntityByName(username)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+		return userMapper.toUserResponse(currentUser);
+	}
+
+	@Override
+	public UserResponseDto updateProfile(String username, UpdateProfileRequestDto UpdateProfileRequestDto) {
+		UserEntity existingUser = userRepository.findUserEntityByName(username)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+		existingUser.setName(UpdateProfileRequestDto.getName());
+		existingUser.setEmail(UpdateProfileRequestDto.getEmail());
+		existingUser.setPhone(UpdateProfileRequestDto.getPhone());
+		UserEntity savedUser = userRepository.save(existingUser);
+		return userMapper.toUserResponse(savedUser);
+	}
+
+	@Override
+	public void changePassword(String username, ChangePasswordRequestDto dto) {
+		UserEntity user = userRepository.findUserEntityByName(username)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+		if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+			throw new BadCredentialsException("Current password is incorrect");
+		}
+
+		user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+		userRepository.save(user);
 	}
 }
