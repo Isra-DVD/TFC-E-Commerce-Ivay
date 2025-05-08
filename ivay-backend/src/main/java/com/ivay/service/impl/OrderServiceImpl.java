@@ -1,6 +1,5 @@
 package com.ivay.service.impl;
 
-import jakarta.persistence.EntityManager; 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.OrderItemMapper;
 import com.ivay.mappers.OrderMapper;
-import com.ivay.repository.OrderItemRepository;
 import com.ivay.repository.OrderRepository;
 import com.ivay.repository.ProductRepository;
 import com.ivay.repository.UserRepository;
@@ -37,7 +35,6 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
