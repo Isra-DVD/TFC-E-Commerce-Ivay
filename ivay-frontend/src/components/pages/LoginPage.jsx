@@ -1,107 +1,118 @@
-import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
-    Box,
-    TextField,
-    Button,
-    Typography,
-    Link as MuiLink,
-    CircularProgress,
-    Alert
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import AuthLayout from '../layout/AuthLayout';
-import AuthService from '../../service/auth.service'; // Your auth service
-// import { useAuth } from '../../context/AuthContext'; // Assuming you'll have an AuthContext
-import logo from '../../assets/images/ivay-logo.png';
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Link as MuiLink,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import AuthLayout from "../layout/AuthLayout";
+import AuthService from "../../service/auth.service";
 
 function LoginPage() {
-    const navigate = useNavigate();
-    // const { login: contextLogin } = useAuth(); // From your AuthContext
-    const [formData, setFormData] = useState({
-        email: '', // Assuming backend uses 'email' for login field (adjust if 'nombre')
-        password: '',
-    });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleChange = (event) => {
-        setFormData({ ...formData, [event.target.name]: event.target.value });
-    };
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setLoading(true);
-        setError('');
-        try {
-            // Use the DTO structure your backend expects for AuthLoginRequestDto
-            const authLoginRequest = {
-                email: formData.email, // or username if that's what your backend expects
-                password: formData.password,
-            };
-            const authResponse = await AuthService.login(authLoginRequest);
-            console.log('Login successful:', authResponse);
-            // TODO: Store token and user data (e.g., contextLogin(authResponse.token, authResponse.user);)
-            localStorage.setItem('authToken', authResponse.token); // Example: store token
-            localStorage.setItem('user', JSON.stringify(authResponse.user)); // Example: store user
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      // Llamada al servicio con { username, password }
+      const authResponse = await AuthService.login({
+        username: formData.username,
+        password: formData.password,
+      });
+      // authResponse → { accessToken, tokenType }
+      const token = authResponse.tokenType + authResponse.accessToken;
+      // Guardar token
+      localStorage.setItem("authToken", token);
+      // Configurar encabezado por defecto de axios
+      AuthService.setAuthHeader(token);
+      // Redirigir al dashboard o página principal
+      navigate("/");
+    } catch (err) {
+      setError(
+        err.message || "Error al iniciar sesión. Verifica tus credenciales."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            navigate('/'); // Redirect to home page or dashboard after login
-        } catch (err) {
-            console.error("Login error:", err);
-            setError(err.message || 'Error al iniciar sesión. Verifique sus credenciales.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <AuthLayout pageTitle="Iniciar Sesión" formIcon={<LockOutlinedIcon />}>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%', maxWidth: 400 }}>
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Correo Electrónico / Nombre" // Label can be "Correo Electrónico"
-                    name="email" // Change to "username" if backend expects that
-                    autoComplete="email"
-                    autoFocus
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={loading}
-                />
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Contraseña"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    disabled={loading}
-                />
-                {/* TODO: Add "Forgot password?" link if needed */}
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                    disabled={loading}
-                >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Iniciar Sesión'}
-                </Button>
-                <Box sx={{ textAlign: 'center' }}>
-                    <MuiLink component={RouterLink} to="/register" variant="body2">
-                        {"¿No tienes cuenta? Crea una"}
-                    </MuiLink>
-                </Box>
-            </Box>
-        </AuthLayout>
-    );
+  return (
+    <AuthLayout pageTitle="Iniciar Sesión" formIcon={<LockOutlinedIcon />}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
+        sx={{ mt: 1, width: "100%", maxWidth: 400 }}
+      >
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="username"
+          label="Usuario / Correo"
+          name="username"
+          autoComplete="username"
+          autoFocus
+          value={formData.username}
+          onChange={handleChange}
+          disabled={loading}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Contraseña"
+          type="password"
+          id="password"
+          autoComplete="current-password"
+          value={formData.password}
+          onChange={handleChange}
+          disabled={loading}
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+          disabled={loading}
+        >
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Iniciar Sesión"
+          )}
+        </Button>
+        <Box sx={{ textAlign: "center" }}>
+          <MuiLink component={RouterLink} to="/register" variant="body2">
+            ¿No tienes cuenta? Regístrate
+          </MuiLink>
+        </Box>
+      </Box>
+    </AuthLayout>
+  );
 }
 
 export default LoginPage;
