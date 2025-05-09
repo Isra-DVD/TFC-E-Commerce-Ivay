@@ -40,8 +40,8 @@ function LoginPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Error al iniciar sesión. Verifica tus credenciales."
+        err.message ||
+        "Error al iniciar sesión. Verifica tus credenciales."
       );
     } finally {
       setLoading(false);

@@ -64,8 +64,8 @@ function RegisterPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Error al registrar la cuenta."
+        err.message ||
+        "Error al registrar la cuenta."
       );
     } finally {
       setLoading(false);
