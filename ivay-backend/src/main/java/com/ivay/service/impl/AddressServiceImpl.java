@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.ivay.dtos.addressdto.AddressRequestDto;
@@ -19,66 +23,102 @@ import com.ivay.service.AddressService;
 @Service
 public class AddressServiceImpl implements AddressService {
 
-    @Autowired
-    private AddressRepository addressRepository;
+	@Autowired
+	private AddressRepository addressRepository;
 
-    @Autowired
-    private AddressMapper addressMapper;
+	@Autowired
+	private AddressMapper addressMapper;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public List<AddressResponseDto> getAllAddresses() {
-        return addressRepository.findAll()
-            .stream()
-            .map(addressMapper::toAddressResponse)
-            .collect(Collectors.toList());
-    }
+	@Override
+	public List<AddressResponseDto> getAllAddresses() {
+		return addressRepository.findAll()
+				.stream()
+				.map(addressMapper::toAddressResponse)
+				.collect(Collectors.toList());
+	}
 
-    @Override
+	@Override
     public AddressResponseDto getAddressById(Long id) {
         Address address = addressRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+
+        boolean isAdmin = auth.getAuthorities().stream()
+        									   .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPERADMIN"));
+
+        if (!isAdmin && !address.getUser().getName().equals(currentUsername)) {
+            throw new AccessDeniedException("You are not allowed to access this address");
+        }
+
         return addressMapper.toAddressResponse(address);
     }
+	
+	
+	@Override
+	public List<AddressResponseDto> getAddressesByUserId(Long userId) {
+		UserEntity user = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+		return user.getAddresses()
+				.stream()
+				.map(addressMapper::toAddressResponse)
+				.collect(Collectors.toList());
+	}
 
-    @Override
-    public List<AddressResponseDto> getAddressesByUserId(Long userId) {
-        UserEntity user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
-        return user.getAddresses()
-            .stream()
-            .map(addressMapper::toAddressResponse)
-            .collect(Collectors.toList());
-    }
+	@Override
+	public AddressResponseDto createAddress(AddressRequestDto addressRequestDto, String username) {
 
-    @Override
-    public AddressResponseDto createAddress(AddressRequestDto addressRequestDto) {
-        UserEntity user = userRepository.findById(addressRequestDto.getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
-        Address address = addressMapper.toAddress(addressRequestDto);
-        address.setUser(user);
-        Address saved = addressRepository.save(address);
-        return addressMapper.toAddressResponse(saved);
-    }
+		UserEntity current = userRepository.findUserEntityByName(username)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
-    @Override
-    public AddressResponseDto updateAddress(Long id, AddressRequestDto addressRequestDto) {
-        Address existing = addressRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
-        UserEntity user = userRepository.findById(addressRequestDto.getUserId())
-            .orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
-        existing.setUser(user);
-        existing.setAddress(addressRequestDto.getAddress());
-        Address updated = addressRepository.save(existing);
-        return addressMapper.toAddressResponse(updated);
-    }
+		boolean isAdmin = current.getRole().getRoleName().equals("ADMIN") 
+				|| current.getRole().getRoleName().equals("SUPERADMIN");
 
-    @Override
-    public void deleteAddress(Long id) {
-        Address address = addressRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
-        addressRepository.delete(address);
-    }
+		if (!isAdmin && !current.getId().equals(addressRequestDto.getUserId())) {
+			throw new AccessDeniedException("No tienes permiso para crear direcciones de otro usuario");
+		}
+
+		UserEntity user = userRepository.findById(addressRequestDto.getUserId())
+				.orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
+
+		Address address = addressMapper.toAddress(addressRequestDto);
+		address.setUser(user);
+		Address savedAddress = addressRepository.save(address);
+
+		return addressMapper.toAddressResponse(savedAddress);
+	}
+
+	@Override
+	public AddressResponseDto updateAddress(Long id, AddressRequestDto addressRequestDto, String username) {
+
+		UserEntity currentUser = userRepository.findUserEntityByName(username)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+		boolean isAdmin = currentUser.getRole().getRoleName().equals("ADMIN") || currentUser.getRole().getRoleName().equals("SUPERADMIN");
+
+		if (!isAdmin && !currentUser.getId().equals(addressRequestDto.getUserId())) {
+			throw new AccessDeniedException("No tienes permiso para modificar direcciones de otro usuario");
+		}
+
+		Address existingAddress = addressRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
+		UserEntity user = userRepository.findById(addressRequestDto.getUserId())
+				.orElseThrow(() -> new ResourceNotFoundException("User with id: " + addressRequestDto.getUserId() + " not found"));
+
+		existingAddress.setUser(user);
+		existingAddress.setAddress(addressRequestDto.getAddress());
+
+		Address updatedAddress = addressRepository.save(existingAddress);
+		return addressMapper.toAddressResponse(updatedAddress);
+	}
+
+	@Override
+	public void deleteAddress(Long id) {
+		Address address = addressRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Address with id: " + id + " not found"));
+		addressRepository.delete(address);
+	}
 }

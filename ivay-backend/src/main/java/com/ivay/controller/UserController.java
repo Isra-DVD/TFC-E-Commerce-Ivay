@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.ivay.dtos.userdto.ChangePasswordRequestDto;
 import com.ivay.dtos.userdto.UpdateProfileRequestDto;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
@@ -17,6 +18,7 @@ import com.ivay.dtos.api.ApiResponseDto;
 import com.ivay.service.UserEntityService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,7 +30,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(origins = "http://localhost:5173/")
-@Tag(name = "User", description = "Endpoints para gestión de usuarios")
+@Tag(name = "User", description = "Endpoints for managing users")
 public class UserController {
 
 	@Autowired
@@ -222,11 +224,7 @@ public class UserController {
 	public ResponseEntity<ApiResponseDto<UserResponseDto>> getMyProfile(Authentication authToken) {
 		String username = authToken.getName();
 		UserResponseDto profile = userService.getByUsername(username);
-		ApiResponseDto<UserResponseDto> resp = new ApiResponseDto<>(
-				"Profile fetched successfully",
-				HttpStatus.OK.value(),
-				profile
-				);
+		ApiResponseDto<UserResponseDto> resp = new ApiResponseDto<>("Profile fetched successfully", HttpStatus.OK.value(),profile);
 		return ResponseEntity.ok(resp);
 	}
 
@@ -253,5 +251,49 @@ public class UserController {
 		UserResponseDto updated = userService.updateProfile(username, updateProfileRequestDto);
 		ApiResponseDto<UserResponseDto> resp = new ApiResponseDto<>("Profile updated successfully", HttpStatus.OK.value(), updated);
 		return ResponseEntity.ok(resp);
+	}
+
+	@Operation(
+			summary     = "Change own password",
+			description = "Allows the authenticated user to change their password by providing the current one and a new one",
+			tags        = { "User" },
+			security    = @SecurityRequirement(name = "bearerAuth")
+			)
+	@ApiResponses({
+		@ApiResponse(
+				responseCode = "204",
+				description  = "Password changed successfully",
+				content      = @Content
+				),
+		@ApiResponse(
+				responseCode = "400",
+				description  = "Validation error (e.g. new password doesn't meet constraints)",
+				content      = @Content(
+						mediaType = MediaType.APPLICATION_JSON_VALUE,
+						schema    = @Schema(implementation = ApiError.class)
+						)
+				),
+		@ApiResponse(
+				responseCode = "401",
+				description  = "Not authenticated or invalid token",
+				content      = @Content
+				),
+		@ApiResponse(
+				responseCode = "403",
+				description  = "Current password is incorrect",
+				content      = @Content(
+						mediaType = MediaType.APPLICATION_JSON_VALUE,
+						schema    = @Schema(implementation = ApiError.class)
+						)
+				)
+	})
+	@PatchMapping(value = "/me/password",consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> changePassword(
+			@Parameter(hidden = true) Authentication authToken,
+			@Valid @RequestBody ChangePasswordRequestDto dto
+			) {
+		String username = authToken.getName();
+		userService.changePassword(username, dto);
+		return ResponseEntity.noContent().build();
 	}
 }

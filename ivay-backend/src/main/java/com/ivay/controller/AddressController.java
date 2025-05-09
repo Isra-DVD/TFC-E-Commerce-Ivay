@@ -6,13 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.ivay.dtos.addressdto.AddressRequestDto;
 import com.ivay.dtos.addressdto.AddressResponseDto;
 import com.ivay.dtos.api.ApiError;
 import com.ivay.dtos.api.ApiResponseDto;
+import com.ivay.dtos.userdto.UserResponseDto;
 import com.ivay.service.AddressService;
+import com.ivay.service.UserEntityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +33,9 @@ public class AddressController {
 
 	@Autowired
 	private AddressService addressService;
+
+	@Autowired
+	private UserEntityService userService;
 
 	@Operation(
 			summary     = "Fetch all addresses",
@@ -106,10 +113,8 @@ public class AddressController {
 			@Parameter(description = "Address identifier", required = true)
 			@PathVariable Long id
 			) {
-		AddressResponseDto dto = addressService.getAddressById(id);
-		ApiResponseDto<AddressResponseDto> response =
-				new ApiResponseDto<>("Address fetched successfully", HttpStatus.OK.value(), dto);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		AddressResponseDto AddressResponseDto = addressService.getAddressById(id);
+		return ResponseEntity.ok(new ApiResponseDto<>("Address fetched successfully", 200, AddressResponseDto));
 	}
 
 	@Operation(
@@ -160,103 +165,77 @@ public class AddressController {
 	}
 
 	@Operation(
-			summary     = "Create a new address",
-			description = "Add a new address to the database",
-			tags        = { "Address" }
+			summary = "Create a new address",
+			description = "Add a new address to the database. Sólo el propio usuario o un ADMIN/SUPERADMIN puede crearlo.",
+			tags = { "Address" }
 			)
 	@ApiResponses({
-		@ApiResponse(
-				responseCode = "201",
-				description  = "Address created successfully",
-				content      = @Content(
+		@ApiResponse(responseCode = "201", description = "Address created successfully",
+				content = @Content(
 						mediaType = MediaType.APPLICATION_JSON_VALUE,
-						schema    = @Schema(
+						schema = @Schema(
 								implementation = ApiResponseDto.class,
-								subTypes      = { AddressResponseDto.class },
-								example = """
-										{
-										  "timestamp": "2025-05-06T16:15:00.000Z",
-										  "message": "Address created successfully",
-										  "code": 201,
-										  "data": { "id": 4, "userId": 8, "address": "321 Pine St" }
-										}
-										"""
+								subTypes = { AddressResponseDto.class }
 								)
 						)
 				),
-		@ApiResponse(
-				responseCode = "400",
-				description  = "Invalid input",
-				content      = @Content(
-						mediaType = MediaType.APPLICATION_JSON_VALUE,
-						schema    = @Schema(implementation = ApiError.class)
-						)
+		@ApiResponse(responseCode = "400", description = "Invalid input",
+		content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+		schema = @Schema(implementation = ApiError.class))
+				),
+		@ApiResponse(responseCode = "403", description = "Forbidden: no permiso para crear esta dirección",
+		content = @Content
 				)
 	})
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponseDto<AddressResponseDto>> create(
-			@Parameter(description = "Address object", required = true, schema = @Schema(implementation = AddressRequestDto.class))
-			@Valid @RequestBody AddressRequestDto dto
-			) {
-		AddressResponseDto created = addressService.createAddress(dto);
-		ApiResponseDto<AddressResponseDto> response =
-				new ApiResponseDto<>("Address created successfully", HttpStatus.CREATED.value(), created);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	public ResponseEntity<ApiResponseDto<AddressResponseDto>> create(@Valid @RequestBody AddressRequestDto dto, Authentication auth) {
+
+		AddressResponseDto created = addressService.createAddress(dto, auth.getName());
+
+		ApiResponseDto<AddressResponseDto> resp = new ApiResponseDto<>("Address created successfully", HttpStatus.CREATED.value(), created);
+
+		return new ResponseEntity<>(resp, HttpStatus.CREATED);
 	}
 
+
 	@Operation(
-			summary     = "Update an existing address",
-			description = "Update the details of an existing address using its ID",
-			tags        = { "Address" }
+			summary = "Update an existing address",
+			description = "Update the details of an existing address. Sólo el propio usuario o un ADMIN/SUPERADMIN puede modificarla.",
+			tags = { "Address" }
 			)
 	@ApiResponses({
-		@ApiResponse(
-				responseCode = "200",
-				description  = "Address updated successfully",
-				content      = @Content(
+		@ApiResponse(responseCode = "200", description = "Address updated successfully",
+				content = @Content(
 						mediaType = MediaType.APPLICATION_JSON_VALUE,
-						schema    = @Schema(
+						schema = @Schema(
 								implementation = ApiResponseDto.class,
-								subTypes      = { AddressResponseDto.class },
-								example = """
-										{
-										  "timestamp": "2025-05-06T16:20:00.000Z",
-										  "message": "Address updated successfully",
-										  "code": 200,
-										  "data": { "id": 1, "userId": 5, "address": "123 Main St, Apt 2" }
-										}
-										"""
+								subTypes = { AddressResponseDto.class }
 								)
 						)
 				),
-		@ApiResponse(
-				responseCode = "400",
-				description  = "Invalid input",
-				content      = @Content(
-						mediaType = MediaType.APPLICATION_JSON_VALUE,
-						schema    = @Schema(implementation = ApiError.class)
-						)
+		@ApiResponse(responseCode = "400", description = "Invalid input",
+		content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+		schema = @Schema(implementation = ApiError.class))
 				),
-		@ApiResponse(
-				responseCode = "404",
-				description  = "Address not found",
-				content      = @Content(
-						mediaType = MediaType.APPLICATION_JSON_VALUE,
-						schema    = @Schema(implementation = ApiError.class)
-						)
+		@ApiResponse(responseCode = "403", description = "Forbidden: no permiso para actualizar esta dirección",
+		content = @Content
+				),
+		@ApiResponse(responseCode = "404", description = "Address not found",
+		content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+		schema = @Schema(implementation = ApiError.class))
 				)
 	})
 	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ApiResponseDto<AddressResponseDto>> update(
-			@Parameter(description = "Address identifier", required = true)
-			@PathVariable Long id,
-			@Parameter(description = "Updated address object", required = true, schema = @Schema(implementation = AddressRequestDto.class))
-			@Valid @RequestBody AddressRequestDto dto
+			@Parameter(description = "Address identifier", required = true) @PathVariable Long id,
+			@Valid @RequestBody AddressRequestDto dto,
+			Authentication auth
 			) {
-		AddressResponseDto updated = addressService.updateAddress(id, dto);
-		ApiResponseDto<AddressResponseDto> response =
+		AddressResponseDto updated = 
+				addressService.updateAddress(id, dto, auth.getName());
+		ApiResponseDto<AddressResponseDto> resp = 
 				new ApiResponseDto<>("Address updated successfully", HttpStatus.OK.value(), updated);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		return ResponseEntity.ok(resp);
 	}
 
 	@Operation(

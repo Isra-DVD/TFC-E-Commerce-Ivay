@@ -20,7 +20,7 @@ function RegisterPage() {
     phone: "",
     password: "",
     confirmPassword: "",
-    roleId: 4, // ROLE_USER por defecto
+    roleId: 4,
     isEnabled: true,
     accountNoExpired: true,
     accountNoLocked: true,
@@ -46,7 +46,6 @@ function RegisterPage() {
 
     setLoading(true);
     try {
-      // Construye el DTO según tu backend
       const dto = {
         name: formData.name,
         email: formData.email,
@@ -63,7 +62,6 @@ function RegisterPage() {
       setSuccess("¡Cuenta creada con éxito! Redirigiendo al login…");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      // Muestra el mensaje de error que venga del backend o uno genérico
       setError(
         err.response?.data?.message ||
           err.message ||

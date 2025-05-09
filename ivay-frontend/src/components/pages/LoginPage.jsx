@@ -11,10 +11,11 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import AuthLayout from "../layout/AuthLayout";
-import AuthService from "../../service/auth.service";
+import { useAuth } from "../../context/AuthContext";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -31,22 +32,16 @@ function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      // Llamada al servicio con { username, password }
-      const authResponse = await AuthService.login({
+      await login({
         username: formData.username,
         password: formData.password,
       });
-      // authResponse → { accessToken, tokenType }
-      const token = authResponse.tokenType + authResponse.accessToken;
-      // Guardar token
-      localStorage.setItem("authToken", token);
-      // Configurar encabezado por defecto de axios
-      AuthService.setAuthHeader(token);
-      // Redirigir al dashboard o página principal
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (err) {
       setError(
-        err.message || "Error al iniciar sesión. Verifica tus credenciales."
+        err.response?.data?.message ||
+          err.message ||
+          "Error al iniciar sesión. Verifica tus credenciales."
       );
     } finally {
       setLoading(false);

@@ -1,4 +1,3 @@
-// src/service/cartItem.service.js
 import axios from "axios";
 import { API_BASE_URL } from "../constants/api";
 
@@ -11,8 +10,8 @@ const USER_API_URL = `${API_BASE_URL}/users`; // For user-specific cart endpoint
  * @returns {Promise<Object>} Cart item response DTO.
  */
 const getCartItemById = async (cartItemId) => {
-    const response = await axios.get(`${CART_ITEM_API_URL}/${cartItemId}`);
-    return response.data.data;
+  const response = await axios.get(`${CART_ITEM_API_URL}/${cartItemId}`);
+  return response.data.data;
 };
 
 /**
@@ -21,8 +20,8 @@ const getCartItemById = async (cartItemId) => {
  * @returns {Promise<Array>} Array of cart item response DTOs.
  */
 const getCartItemsByUserId = async (userId) => {
-    const response = await axios.get(`${USER_API_URL}/${userId}/cart-items`);
-    return response.data.data;
+  const response = await axios.get(`${USER_API_URL}/${userId}/cart-items`);
+  return response.data.data;
 };
 
 /**
@@ -31,8 +30,8 @@ const getCartItemsByUserId = async (userId) => {
  * @returns {Promise<Object>} The added/updated cart item response DTO.
  */
 const addOrUpdateCartItem = async (cartItemRequestDto) => {
-    const response = await axios.post(CART_ITEM_API_URL, cartItemRequestDto);
-    return response.data.data;
+  const response = await axios.post(CART_ITEM_API_URL, cartItemRequestDto);
+  return response.data.data;
 };
 
 /**
@@ -42,8 +41,11 @@ const addOrUpdateCartItem = async (cartItemRequestDto) => {
  * @returns {Promise<Object>} The updated cart item response DTO.
  */
 const updateCartItemQuantity = async (cartItemId, updateDto) => {
-    const response = await axios.patch(`${CART_ITEM_API_URL}/${cartItemId}/quantity`, updateDto);
-    return response.data.data;
+  const response = await axios.patch(
+    `${CART_ITEM_API_URL}/${cartItemId}/quantity`,
+    updateDto
+  );
+  return response.data.data;
 };
 
 /**
@@ -52,7 +54,7 @@ const updateCartItemQuantity = async (cartItemId, updateDto) => {
  * @returns {Promise<void>}
  */
 const deleteCartItem = async (cartItemId) => {
-    await axios.delete(`${CART_ITEM_API_URL}/${cartItemId}`);
+  await axios.delete(`${CART_ITEM_API_URL}/${cartItemId}`);
 };
 
 /**
@@ -61,16 +63,16 @@ const deleteCartItem = async (cartItemId) => {
  * @returns {Promise<void>}
  */
 const clearUserCart = async (userId) => {
-    await axios.delete(`${USER_API_URL}/${userId}/cart-items`);
+  await axios.delete(`${USER_API_URL}/${userId}/cart-items`);
 };
 
 const CartItemService = {
-    getCartItemById,
-    getCartItemsByUserId,
-    addOrUpdateCartItem,
-    updateCartItemQuantity,
-    deleteCartItem,
-    clearUserCart,
+  getCartItemById,
+  getCartItemsByUserId,
+  addOrUpdateCartItem,
+  updateCartItemQuantity,
+  deleteCartItem,
+  clearUserCart,
 };
 
 export default CartItemService;

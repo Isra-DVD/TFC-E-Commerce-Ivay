@@ -9,8 +9,8 @@ const ORDER_ITEM_API_URL = `${API_BASE_URL}/order-items`;
  * @returns {Promise<Object>} Order item response DTO.
  */
 const getOrderItemById = async (orderItemId) => {
-    const response = await axios.get(`${ORDER_ITEM_API_URL}/${orderItemId}`);
-    return response.data.data;
+  const response = await axios.get(`${ORDER_ITEM_API_URL}/${orderItemId}`);
+  return response.data.data;
 };
 
 /**
@@ -20,8 +20,8 @@ const getOrderItemById = async (orderItemId) => {
  * @returns {Promise<Array>} Array of order item response DTOs.
  */
 const getOrderItemsByOrderId = async (orderId) => {
-    const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/items`);
-    return response.data.data;
+  const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/items`);
+  return response.data.data;
 };
 
 /**
@@ -31,15 +31,16 @@ const getOrderItemsByOrderId = async (orderId) => {
  * @returns {Promise<Array>} Array of order item response DTOs.
  */
 const getOrderItemsByProductId = async (productId) => {
-    const response = await axios.get(`${API_BASE_URL}/products/${productId}/order-items`);
-    return response.data.data;
+  const response = await axios.get(
+    `${API_BASE_URL}/products/${productId}/order-items`
+  );
+  return response.data.data;
 };
 
-
 const OrderItemService = {
-    getOrderItemById,
-    getOrderItemsByOrderId, // Exposed for convenience, calls Order endpoint
-    getOrderItemsByProductId, // Exposed for convenience, calls Product endpoint
+  getOrderItemById,
+  getOrderItemsByOrderId,
+  getOrderItemsByProductId,
 };
 
 export default OrderItemService;
