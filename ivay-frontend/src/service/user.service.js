@@ -62,7 +62,11 @@ const getMyProfile = async () => {
 };
 
 const updateMyProfile = async (profileDto) => {
-  const response = await axios.put(`${USER_API_URL}/me`, profileDto);
+  console.log(profileDto);
+
+  const response = await axios.put(`${USER_API_URL}/me/profile`, profileDto);
+  console.log(response);
+
   return response.data.data;
 };
 

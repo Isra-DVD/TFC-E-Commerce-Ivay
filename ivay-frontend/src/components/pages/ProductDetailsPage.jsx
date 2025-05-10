@@ -1,6 +1,5 @@
-// src/components/pages/ProductDetailPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link as RouterLink, useNavigate } from "react-router-dom"; // Added useNavigate
+import { useParams, Link as RouterLink, useNavigate } from "react-router-dom";
 import {
     Container,
     Grid,
@@ -16,8 +15,6 @@ import {
     Chip,
 } from "@mui/material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-// ArrowBackIcon is no longer needed if we remove the button
-// import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import ProductService from "../../service/product.service";
 import CartItemService from "../../service/cartItem.service";
@@ -28,7 +25,7 @@ import { colors, layout } from "../../constants/styles";
 const ProductDetailsPage = () => {
     const { productId } = useParams();
     const { user, isAuthenticated } = useAuth();
-    const navigate = useNavigate(); // Keep for potential navigation like redirecting to login
+    const navigate = useNavigate();
 
     const [product, setProduct] = useState(null);
     const [similarProducts, setSimilarProducts] = useState([]);
@@ -40,7 +37,7 @@ const ProductDetailsPage = () => {
         const fetchProductData = async () => {
             setLoading(true);
             setError("");
-            setCartMessage({ type: "", text: "" }); // Reset cart message on product change
+            setCartMessage({ type: "", text: "" });
             try {
                 const productData = await ProductService.getProductById(productId);
                 setProduct(productData);
@@ -70,11 +67,8 @@ const ProductDetailsPage = () => {
     const handleAddToCart = async () => {
         if (!product) return;
 
-        // Check if user is authenticated and user object with ID is available
         if (!isAuthenticated || !user || !user.id) {
             setCartMessage({ type: "warning", text: "Por favor, inicia sesión para añadir al carrito." });
-            // Optionally, redirect to login after a delay or provide a login button
-            // setTimeout(() => navigate("/login", { state: { from: location } }), 2000);
             return;
         }
 
@@ -83,7 +77,7 @@ const ProductDetailsPage = () => {
             const cartItemDto = {
                 userId: user.id,
                 productId: product.id,
-                quantity: 1, // Assuming always add 1 for now. Could add a quantity selector later.
+                quantity: 1,
             };
             await CartItemService.addOrUpdateCartItem(cartItemDto);
             setCartMessage({ type: "success", text: "¡Producto añadido al carrito!" });
@@ -128,13 +122,13 @@ const ProductDetailsPage = () => {
         <Container maxWidth={layout.containerMaxWidth} sx={{ py: { xs: 2, md: 4 } }}>
             {/* Main Product Info Box */}
             <Paper
-                elevation={3} // Add some elevation like the reference
+                elevation={3}
                 sx={{
-                    p: { xs: 2, md: 3 }, // Adjust padding as needed
-                    mb: 4, // Margin below this box before "Similar Products"
+                    p: { xs: 2, md: 3 },
+                    mb: 4,
                     border: `1px solid ${colors.grey[300]}`,
-                    borderRadius: 2, // Match AuthLayout borderRadius
-                    overflow: 'hidden', // Ensures border radius is respected by children
+                    borderRadius: 2,
+                    overflow: 'hidden',
                     backgroundColor: colors.background.paper,
                 }}
             >
@@ -143,14 +137,13 @@ const ProductDetailsPage = () => {
                     <Grid
                         item
                         xs={12}
-                        md={5} // Adjust column split, e.g. 5 for image, 7 for details
+                        md={5}
                         sx={{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            // Vertical separator for md and up
                             borderRight: { md: `1px solid ${colors.grey[300]}` },
-                            pr: { md: 30 }, // Padding right for the image column before the separator
+                            pr: { md: 30 },
                         }}
                     >
                         <CardMedia
@@ -159,26 +152,25 @@ const ProductDetailsPage = () => {
                             alt={product.name}
                             sx={{
                                 width: "100%",
-                                maxWidth: 400, // Max width for the image itself
+                                maxWidth: 400,
                                 maxHeight: { xs: 300, md: 450 },
                                 objectFit: "contain",
-                                // Removed individual border for image as it's now in a Paper
                             }}
                         />
                     </Grid>
 
                     {/* Product Details - Right Column */}
-                    <Grid item xs={12} md={7} sx={{ pl: { md: 3 } }}> {/* Padding left for details column */}
+                    <Grid item xs={12} md={7} sx={{ pl: { md: 3 } }}>
                         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                             {product.name}
                         </Typography>
 
                         <Paper
-                            variant="outlined" // Or elevation={0} and custom styling
+                            variant="outlined"
                             sx={{
                                 p: 2,
                                 my: 2,
-                                backgroundColor: "rgba(245, 245, 245, 0.8)", // Light grey, slightly transparent
+                                backgroundColor: "rgba(245, 245, 245, 0.8)",
                                 border: `1px solid ${colors.grey[300]}`,
                                 borderRadius: 1,
                             }}
@@ -205,33 +197,32 @@ const ProductDetailsPage = () => {
                             {product.discount > 0 && (
                                 <Chip
                                     label={`-${Math.round(product.discount * 100)}%`}
-                                    color="secondary" // This is orange in your theme
+                                    color="secondary"
                                     size="small"
                                     sx={{ ml: 2, fontWeight: 'bold', fontSize: '0.8rem' }}
                                 />
                             )}
                         </Box>
 
-                        {/* Optional: Stock Information */}
-                        {/* <Typography variant="body2" sx={{ color: product.stock > 0 ? 'green' : 'red', mb: 2, fontWeight: 'medium' }}>
-              {product.stock > 0 ? `En stock (${product.stock} unidades)` : 'Agotado temporalmente'}
-            </Typography> */}
+                        <Typography variant="body2" sx={{ color: product.stock > 0 ? 'green' : 'red', mb: 2, fontWeight: 'medium' }}>
+                            {product.stock > 0 ? `En stock (${product.stock} unidades)` : 'Agotado temporalmente'}
+                        </Typography>
 
                         <Button
                             variant="contained"
                             startIcon={<AddShoppingCartIcon />}
                             onClick={handleAddToCart}
-                            disabled={!product /* || product.stock === 0 */} // Re-enable stock check if needed
+                            disabled={!product || product.stock === 0}
                             size="large"
                             sx={{
                                 mt: 2,
                                 mb: 1,
                                 fontWeight: "bold",
-                                backgroundColor: "#673AB7", // Purple from mockup
+                                backgroundColor: "#673AB7",
                                 '&:hover': {
                                     backgroundColor: "#512DA8",
                                 },
-                                px: 3, // Add some horizontal padding to the button
+                                px: 3,
                             }}
                         >
                             Añadir al carrito

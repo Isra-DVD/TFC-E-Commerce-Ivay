@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
+import UserService from "../service/user.service";
 
 const AuthContext = createContext();
 const API_BASE_URL = "http://localhost:8081/api";
@@ -34,6 +35,24 @@ export const AuthProvider = ({ children }) => {
     const jwt = data.accessToken;
     localStorage.setItem("authToken", jwt);
     setToken(jwt);
+    if (data.user && data.user.id) {
+      setUser(data.user);
+    } else if (data.userId) {
+      try {
+        const profile = await UserService.getMyProfile();
+        setUser(profile);
+      } catch (error) {
+        console.error("Failed to fetch profile after login:", error);
+        setUser({ id: data.userId });
+      }
+    } else {
+      try {
+        const profile = await UserService.getMyProfile();
+        setUser(profile);
+      } catch (error) {
+        console.error("Failed to fetch profile after login and no user info in response:", error);
+      }
+    }
     return data;
   };
 
@@ -43,6 +62,28 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
   };
+
+  useEffect(() => {
+    const fetchUserOnLoad = async () => {
+      if (token && !user) {
+        setLoading(true);
+        try {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          const profile = await UserService.getMyProfile();
+          setUser(profile);
+        } catch (error) {
+          console.error("Session expired or invalid token:", error);
+          logout();
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchUserOnLoad();
+  }, [token]);
 
   return (
     <AuthContext.Provider
