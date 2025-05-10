@@ -101,6 +101,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
+						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
 						)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

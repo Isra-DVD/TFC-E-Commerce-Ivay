@@ -45,13 +45,6 @@ export const AuthProvider = ({ children }) => {
         console.error("Failed to fetch profile after login:", error);
         setUser({ id: data.userId });
       }
-    } else {
-      try {
-        const profile = await UserService.getMyProfile();
-        setUser(profile);
-      } catch (error) {
-        console.error("Failed to fetch profile after login and no user info in response:", error);
-      }
     }
     return data;
   };
