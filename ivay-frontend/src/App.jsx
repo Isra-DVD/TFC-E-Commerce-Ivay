@@ -27,6 +27,7 @@ import DetailsPage from "./components/pages/DetailsPage";
 
 import { colors } from "./constants/styles";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import ProductDetailsPage from "./components/pages/ProductDetailsPage";
 
 const theme = createTheme({
   palette: {
@@ -86,6 +87,7 @@ const LayoutWrapper = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/products/:productId" element={<ProductDetailsPage />} />
           <Route
             path="/me"
             element={

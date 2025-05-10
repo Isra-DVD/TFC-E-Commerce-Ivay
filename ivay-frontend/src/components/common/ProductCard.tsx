@@ -59,7 +59,7 @@ const ProductCard = ({ product }) => {
             p: 1,
             bgcolor: "#fff",
           }}
-          image={product.imageUrl || "/placeholder-product.png"}
+          image={product.imageUrl || "/intel-product.jpg"}
           alt={product.name}
         />
       </Link>
