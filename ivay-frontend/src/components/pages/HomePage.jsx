@@ -13,7 +13,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { layout } from "../../constants/styles";
+import { colors, layout } from "../../constants/styles";
 import ProductCard from "../common/ProductCard";
 
 const FeatureIcon = ({ feature }) => (
@@ -141,12 +141,13 @@ function HomePage() {
             <Button
               component={RouterLink}
               to="/products/top-sellers" // TODO: Update path
+              sx={{ color: "black" }}
               endIcon={<ArrowForwardIcon />}
             >
               Ver más
             </Button>
           </Box>
-          <Grid container spacing={{ xs: 1, sm: 2 }}>
+          <Grid container spacing={{ xs: 1, sm: 4.5 }}>
             {topProducts.map((product) => (
               <Grid item xs={6} sm={4} md={2} key={`top-${product.id}`}>
                 <ProductCard product={product} />
@@ -234,12 +235,13 @@ function HomePage() {
             <Button
               component={RouterLink}
               to="/products/sin-iva" // TODO: Update path
+              sx={{ color: "black" }}
               endIcon={<ArrowForwardIcon />}
             >
               Ver más
             </Button>
           </Box>
-          <Grid container spacing={{ xs: 1, sm: 2 }}>
+          <Grid container spacing={{ xs: 1, sm: 4.5 }}>
             {sinIvaProducts.map((product) => (
               <Grid item xs={6} sm={4} md={2} key={`siniva-${product.id}`}>
                 <ProductCard product={product} />

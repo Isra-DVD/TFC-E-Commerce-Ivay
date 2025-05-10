@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
             position: "absolute",
             top: 8,
             left: 8,
-            backgroundColor: colors.primary.main,
+            backgroundColor: colors.primary.light,
             color: "white",
             p: "2px 6px",
             borderRadius: 1,
@@ -103,7 +103,11 @@ const ProductCard = ({ product }) => {
         </Typography>
 
         {/* Price */}
-        <Typography variant="h6" color="primary.main" sx={{ mt: "auto" }}>
+        <Typography
+          variant="h6"
+          color="primary.light"
+          sx={{ mt: "auto", fontWeight: "bold" }}
+        >
           €{product.price.toFixed(2)}
         </Typography>
       </CardContent>

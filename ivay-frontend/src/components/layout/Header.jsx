@@ -119,16 +119,15 @@ function Header() {
       </Typography>
       <Divider />
       <List>
-        <ListItem button component={RouterLink} to="/">
+        <ListItem button="true" component={RouterLink} to="/">
           <ListItemIcon>
-            {" "}
-            <HomeIcon />{" "}
+            <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="Inicio" />
         </ListItem>
         {drawerCategories.map((item) => (
           <ListItem
-            button
+            button="true"
             key={item.text}
             component={RouterLink}
             to={item.path}
@@ -148,7 +147,6 @@ function Header() {
       navigate("/login");
     }
   };
-
 
   return (
     <>
