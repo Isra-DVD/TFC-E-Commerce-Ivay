@@ -11,9 +11,11 @@ import {
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import AuthLayout from "../layout/AuthLayout";
 import UserService from "../../service/user.service.js";
+import { useAuth } from "../../context/AuthContext";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -59,8 +61,9 @@ function RegisterPage() {
       };
 
       await UserService.createUser(dto);
-      setSuccess("¡Cuenta creada con éxito! Redirigiendo al login…");
-      setTimeout(() => navigate("/login"), 1500);
+      await login({ username: formData.name, password: formData.password });
+      setSuccess("¡Cuenta creada con éxito! Iniciando sesión…");
+      navigate("/me", { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -118,9 +121,10 @@ function RegisterPage() {
         />
         <TextField
           margin="normal"
+          required
           fullWidth
           id="phone"
-          label="Teléfono (opcional)"
+          label="Teléfono"
           name="phone"
           autoComplete="tel"
           value={formData.phone}

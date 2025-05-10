@@ -96,9 +96,10 @@ public class SecurityConfig {
 
 						.requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("SUPERADMIN","ADMIN")
+						.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
 						.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
 						)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

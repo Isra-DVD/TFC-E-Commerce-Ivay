@@ -1,3 +1,8 @@
+INSERT INTO ecommerce2_roles (role_name) VALUES
+('ROLE_SUPERADMIN'),
+('ROLE_ADMIN'),
+('ROlE USER');
+
 -- 2. Categories
 INSERT INTO ecommerce2_categories (name) VALUES
 ('Electronics'),
@@ -10,6 +15,17 @@ INSERT INTO ecommerce2_suppliers (name, email, address, phone) VALUES
 ('TechGlobal Supplies', 'sales@techglobal.com', '123 Innovation Drive, Tech City', '555-0101'),
 ('Bookworm Distribution', 'orders@bookwormdist.com', '456 Library Lane, Readsville', '555-0102'),
 ('FashionForward Inc.', 'contact@fashionforward.com', '789 Style Street, Trendytown', '555-0103');
+
+-- 4. Users
+-- Example passwords (replace with real hashes):
+-- 'password123' -> $2a$10$bHXOEiBwsRvKjE3EqF/95ubc8QO7.22XzYy7PzXz1j5s9WfQ2x5jS
+-- 'userpass'    -> $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p9LtvU/3W6g5lwYRebgKZa
+-- 'pass4charlie'-> $2a$10$4JG9OStQDz/mP1Q4tJ9/8uL1Ff6/1K9U6bZ.9Fw3J/3L9Fv.7D/6O
+INSERT INTO ecommerce2_users (name, email, password, phone, is_enabled, account_no_expired, account_no_locked, credential_no_expired, role_id) VALUES
+('Alice Admin', 'alice@example.com', 'PASSWORD1', '555-0104', 1, 1, 1, 1, 1),
+('Bob User', 'bob@example.com', 'PASSWORD2', '555-0105', 1, 1, 1, 1, 2),
+('Charlie User', 'charlie@example.com', 'PASSWORD3', '555-0106', 0, 1, 1, 1, 2), -- Disabled user
+('David Shopper', 'david@example.com', 'PASSWORD4', '555-0107', 1, 1, 0, 1, 2); -- Locked user
 
 -- 5. Addresses
 INSERT INTO ecommerce2_addresses (user_id, address) VALUES
