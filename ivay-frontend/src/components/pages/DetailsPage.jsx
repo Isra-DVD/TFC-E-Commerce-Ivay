@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  Box,
   Container,
+  Box,
+  Grid,
+  Paper,
   Typography,
   TextField,
   Button,
   CircularProgress,
   Alert,
 } from "@mui/material";
-import AuthService from "../../service/auth.service";
-import UserService from "../../service/user.service";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import UserService from "../../service/user.service";
+import { colors } from "../../constants/styles";
+import logo from "../../assets/images/ivay-logo.png";
 
 export default function DetailsPage() {
-  const { logout, user, setUser } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -25,31 +31,27 @@ export default function DetailsPage() {
     phone: "",
     address: "",
   });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
     async function fetchProfile() {
       try {
-        if (user) {
-          setForm({
-            name: user.name || "",
-            email: user.email || "",
-            phone: user.phone || "",
-            address: user.address || "",
-          });
-        } else {
-          const data = await UserService.getMyProfile();
-          setForm({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            address: data.address || "",
-          });
-        }
+        const data = user || (await UserService.getMyProfile());
+        setForm({
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          address: data.address || "",
+        });
       } catch (e) {
         setError("No se pudo cargar el perfil.");
-        if (e.response && e.response.status === 401) {
+        if (e.response?.status === 401) {
           logout();
           navigate("/login", { replace: true });
         }
@@ -58,38 +60,44 @@ export default function DetailsPage() {
       }
     }
     fetchProfile();
-  }, [user, setUser, logout, navigate]);
+  }, [user, logout, navigate]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+
+  const handleChangePasswordForm = (e) =>
+    setPasswordForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSaveDetails = async () => {
     setError("");
     setSuccess("");
     try {
-      const updatedUser = await UserService.updateMyProfile(form);
+      await UserService.updateMyProfile(form);
       setSuccess("Datos actualizados con éxito.");
       setReadOnly(true);
-    } catch (e) {
+    } catch {
       setError("Error actualizando datos.");
     }
   };
 
-  const handleChangePassword = async () => {
+  const handleSavePassword = async () => {
     setError("");
     setSuccess("");
-    const current = prompt("Contraseña actual:");
-    const next = prompt("Nueva contraseña:");
-    if (!current || !next) return;
+    const { currentPassword, newPassword, confirmPassword } = passwordForm;
+    if (newPassword !== confirmPassword) {
+      setError("Las nuevas contraseñas no coinciden.");
+      return;
+    }
     try {
-      await UserService.changePassword({
-        currentPassword: current,
-        newPassword: next,
-      });
+      await UserService.changePassword({ currentPassword, newPassword });
       setSuccess("Contraseña cambiada con éxito.");
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     } catch (e) {
-      setError(e.response?.data?.message || "Error cambiando la contraseña.");
+      setError(e.response?.data?.message || "Error al cambiar la contraseña.");
     }
   };
 
@@ -100,86 +108,262 @@ export default function DetailsPage() {
 
   if (loading) {
     return (
-      <Box textAlign="center" mt={4}>
-        <CircularProgress />
-      </Box>
+      <Container component="main" maxWidth="lg">
+        <Box display="flex" justifyContent="center" mb={3}>
+          <Box
+            component="img"
+            src={logo}
+            alt="IVAY Logo"
+            sx={{ height: 100 }}
+          />
+        </Box>
+        <Grid
+          container
+          component={Paper}
+          elevation={3}
+          sx={{
+            overflow: "hidden",
+            borderRadius: 2,
+            maxWidth: 1000,
+            margin: "0 auto",
+          }}
+        >
+          <Grid
+            item
+            md={5}
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              justifyContent: "center",
+              borderRight: `1px solid ${colors.grey[300]}`,
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            <CircularProgress />
+          </Grid>
+          <Grid item xs={12} md={7} sx={{ p: 4, textAlign: "center" }}>
+            <CircularProgress />
+          </Grid>
+        </Grid>
+      </Container>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Mi Perfil
-      </Typography>
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {success}
-        </Alert>
-      )}
-
-      <TextField
-        fullWidth
-        label="Nombre"
-        name="name"
-        value={form.name}
-        onChange={handleChange}
-        margin="normal"
-        InputProps={{ readOnly }}
-      />
-      <TextField
-        fullWidth
-        label="Email"
-        name="email"
-        value={form.email}
-        onChange={handleChange}
-        margin="normal"
-        InputProps={{ readOnly }}
-      />
-      <TextField
-        fullWidth
-        label="Teléfono"
-        name="phone"
-        value={form.phone}
-        onChange={handleChange}
-        margin="normal"
-        InputProps={{ readOnly }}
-      />
-      <TextField
-        fullWidth
-        label="Dirección"
-        name="address"
-        value={form.address}
-        onChange={handleChange}
-        margin="normal"
-        InputProps={{ readOnly }}
-      />
-
-      <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
-        {readOnly ? (
-          <Button variant="contained" onClick={() => setReadOnly(false)}>
-            Editar
-          </Button>
-        ) : (
-          <Button variant="contained" onClick={handleSaveDetails}>
-            Guardar
-          </Button>
-        )}
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleChangePassword}
-        >
-          Cambiar contraseña
-        </Button>
-        <Button variant="text" color="error" onClick={handleLogout}>
-          Cerrar sesión
-        </Button>
+    <Container component="main" maxWidth="lg">
+      {/* Logo en el centro */}
+      <Box display="flex" justifyContent="center" mb={3}>
+        <Box component="img" src={logo} alt="IVAY Logo" sx={{ height: 100 }} />
       </Box>
+
+      <Grid
+        container
+        component={Paper}
+        elevation={3}
+        sx={{
+          overflow: "hidden",
+          borderRadius: 2,
+          maxWidth: 1000,
+          margin: "0 auto",
+        }}
+      >
+        {/* IZQUIERDA: Beneficios + Cerrar sesión */}
+        <Grid
+          item
+          md={5}
+          sx={{
+            display: { xs: "none", md: "flex" },
+            alignItems: "center",
+            justifyContent: "center",
+            borderRight: `1px solid ${colors.grey[300]}`,
+            backgroundColor: "#f9f9f9",
+          }}
+        >
+          <Box
+            sx={{
+              p: { xs: 2, md: 14 },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ mb: 3, fontWeight: "bold" }}
+            >
+              Beneficios
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: 2,
+                maxWidth: 300,
+                width: "100%",
+              }}
+            >
+              <ManageAccountsOutlinedIcon
+                sx={{ mr: 1.5, color: colors.primary.main }}
+              />
+              <Typography>Gestiona tus pedidos fácilmente.</Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: 4,
+                maxWidth: 400,
+                width: "100%",
+              }}
+            >
+              <FavoriteBorderOutlinedIcon
+                sx={{ mr: 1.5, color: colors.primary.main }}
+              />
+              <Typography>Guarda tus productos favoritos.</Typography>
+            </Box>
+
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: colors.primary.light,
+                color: "#fff",
+                "&:hover": {
+                  backgroundColor: colors.primary.dark,
+                },
+              }}
+              startIcon={<ExitToAppOutlinedIcon />}
+              onClick={handleLogout}
+            >
+              Cerrar sesión
+            </Button>
+          </Box>
+        </Grid>
+
+        {/* DERECHA: Formulario de Detalles de usuario */}
+        <Grid
+          item
+          xs={12}
+          md={7}
+          sx={{ width: "50%", p: { xs: 2, sm: 3, md: 4 } }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <ManageAccountsOutlinedIcon
+              sx={{ m: 1, fontSize: 40, color: colors.primary.main }}
+            />
+            <Typography
+              component="h1"
+              variant="h5"
+              sx={{ fontWeight: "bold", mb: 2 }}
+            >
+              Detalles de usuario
+            </Typography>
+
+            {error && (
+              <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            {success && (
+              <Alert severity="success" sx={{ width: "100%", mb: 2 }}>
+                {success}
+              </Alert>
+            )}
+
+            {/* Datos personales */}
+            <TextField
+              fullWidth
+              label="Nombre"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              margin="normal"
+              InputProps={{ readOnly }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              margin="normal"
+              InputProps={{ readOnly }}
+            />
+            <TextField
+              fullWidth
+              label="Teléfono"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              margin="normal"
+              InputProps={{ readOnly }}
+            />
+            <TextField
+              fullWidth
+              label="Dirección"
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              margin="normal"
+              InputProps={{ readOnly }}
+            />
+
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={readOnly ? () => setReadOnly(false) : handleSaveDetails}
+            >
+              {readOnly ? "Editar información" : "Guardar cambios"}
+            </Button>
+
+            {/* Sección de cambio de contraseña */}
+
+            <TextField
+              fullWidth
+              label="Contraseña actual"
+              name="currentPassword"
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={handleChangePasswordForm}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Nueva contraseña"
+              name="newPassword"
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={handleChangePasswordForm}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Confirmar nueva contraseña"
+              name="confirmPassword"
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={handleChangePasswordForm}
+              margin="normal"
+            />
+
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={handleSavePassword}
+            >
+              Cambiar contraseña
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 }
