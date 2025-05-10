@@ -14,6 +14,7 @@ import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlin
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import UserService from "../../service/user.service";
 import { colors } from "../../constants/styles";
@@ -109,13 +110,14 @@ export default function DetailsPage() {
   if (loading) {
     return (
       <Container component="main" maxWidth="lg">
-        <Box display="flex" justifyContent="center" mb={3}>
-          <Box
-            component="img"
-            src={logo}
-            alt="IVAY Logo"
-            sx={{ height: 100 }}
-          />
+        <Box
+          component={RouterLink}
+          to="/"
+          display="flex"
+          justifyContent="center"
+          mb={2}
+        >
+          <Box component="img" src={logo} alt="IVAY Logo" sx={{ height: 60 }} />
         </Box>
         <Grid
           container
@@ -152,7 +154,13 @@ export default function DetailsPage() {
   return (
     <Container component="main" maxWidth="lg">
       {/* Logo en el centro */}
-      <Box display="flex" justifyContent="center" mb={3}>
+      <Box
+        component={RouterLink}
+        to="/"
+        display="flex"
+        justifyContent="center"
+        mb={3}
+      >
         <Box component="img" src={logo} alt="IVAY Logo" sx={{ height: 100 }} />
       </Box>
 

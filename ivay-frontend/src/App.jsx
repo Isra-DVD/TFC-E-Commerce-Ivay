@@ -59,16 +59,22 @@ function RequireAuth({ children }) {
   return children;
 }
 // Define checkout paths
-const CHECKOUT_PATHS = ["/cart", "/checkout/address", "/checkout/payment", "/checkout/summary"];
-
+const CHECKOUT_PATHS = [
+  "/cart",
+  "/checkout/address",
+  "/checkout/payment",
+  "/checkout/summary",
+];
 
 const LayoutWrapper = () => {
   const location = useLocation();
-  const authPaths = ["/login", "/register"];
+  const authPaths = ["/login", "/register", "/me"];
   const isAuthPageLayout = authPaths.includes(location.pathname);
 
   // Determine if the current path is part of the checkout flow
-  const isCheckoutFlow = CHECKOUT_PATHS.some(path => location.pathname.startsWith(path));
+  const isCheckoutFlow = CHECKOUT_PATHS.some((path) =>
+    location.pathname.startsWith(path)
+  );
 
   return (
     <Box
@@ -80,16 +86,18 @@ const LayoutWrapper = () => {
       }}
     >
       {/* Conditional Header Rendering */}
-      {!isAuthPageLayout && (
-        isCheckoutFlow ? <CheckoutHeader /> : <Header />
-      )}
+      {!isAuthPageLayout && (isCheckoutFlow ? <CheckoutHeader /> : <Header />)}
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           // Adjust py for checkout flow if CheckoutHeader height is different
-          py: isAuthPageLayout ? 0 : (isCheckoutFlow ? { xs: 2, sm: 3 } : { xs: 2, sm: 4 }),
+          py: isAuthPageLayout
+            ? 0
+            : isCheckoutFlow
+            ? { xs: 2, sm: 3 }
+            : { xs: 2, sm: 4 },
           display: isAuthPageLayout ? "flex" : "block",
           alignItems: isAuthPageLayout ? "center" : undefined,
           justifyContent: isAuthPageLayout ? "center" : undefined,
@@ -102,31 +110,66 @@ const LayoutWrapper = () => {
           <Route path="/products/:productId" element={<ProductDetailsPage />} />
           <Route
             path="/cart"
-            element={<RequireAuth><CartPage /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <CartPage />
+              </RequireAuth>
+            }
           />
           {/* Add placeholder routes for other checkout steps */}
           <Route
             path="/checkout/address"
-            element={<RequireAuth><Container sx={{ py: 3 }}><Typography>Página de Dirección de Envío (Pendiente)</Typography></Container></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Container sx={{ py: 3 }}>
+                  <Typography>
+                    Página de Dirección de Envío (Pendiente)
+                  </Typography>
+                </Container>
+              </RequireAuth>
+            }
           />
           <Route
             path="/checkout/payment"
-            element={<RequireAuth><Container sx={{ py: 3 }}><Typography>Página de Método de Pago (Pendiente)</Typography></Container></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Container sx={{ py: 3 }}>
+                  <Typography>Página de Método de Pago (Pendiente)</Typography>
+                </Container>
+              </RequireAuth>
+            }
           />
           <Route
             path="/checkout/summary"
-            element={<RequireAuth><Container sx={{ py: 3 }}><Typography>Página de Resumen del Pedido (Pendiente)</Typography></Container></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Container sx={{ py: 3 }}>
+                  <Typography>
+                    Página de Resumen del Pedido (Pendiente)
+                  </Typography>
+                </Container>
+              </RequireAuth>
+            }
           />
           <Route
             path="/me"
-            element={<RequireAuth><DetailsPage /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <DetailsPage />
+              </RequireAuth>
+            }
           />
           <Route
             path="*"
             element={
               <Container sx={{ py: 4, textAlign: "center" }}>
                 <Typography variant="h4">404 - Página no encontrada</Typography>
-                <Button component={RouterLink} to="/" variant="contained" sx={{ mt: 2 }}>
+                <Button
+                  component={RouterLink}
+                  to="/"
+                  variant="contained"
+                  sx={{ mt: 2 }}
+                >
                   Volver al inicio
                 </Button>
               </Container>
