@@ -23,7 +23,7 @@ import com.ivay.jwt.JwtAuthenticationFilter;
 import com.ivay.service.impl.UserDetailsServiceImpl;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	@Bean
@@ -40,6 +40,17 @@ public class SecurityConfig {
 								).permitAll()
 
 						.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/products/filter").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/products/{productId}").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}/products").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/categories/filter").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
+						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
+						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
 
 						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
 						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").authenticated()
@@ -55,10 +66,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/api/cart-items/{cartItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.DELETE, "/api/users/{userId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 
-						.requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}/products").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories/filter").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+
 						.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.PUT, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.DELETE, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
@@ -73,9 +81,7 @@ public class SecurityConfig {
 
 						.requestMatchers(HttpMethod.GET, "api/order-items/{orderItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 
-						.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/products/filter").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/products/{productId}").permitAll()
+						
 						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/order-items").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
@@ -96,12 +102,10 @@ public class SecurityConfig {
 
 						.requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+						
 						.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
-						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
+
 						)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

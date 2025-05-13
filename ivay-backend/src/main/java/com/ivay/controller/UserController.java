@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -221,6 +222,7 @@ public class UserController {
 				)
 	})
 	@GetMapping("/me")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<ApiResponseDto<UserResponseDto>> getMyProfile(Authentication authToken) {
 		String username = authToken.getName();
 		UserResponseDto profile = userService.getByUsername(username);
@@ -245,6 +247,7 @@ public class UserController {
 		@ApiResponse(responseCode = "401", description = "Unauthorized")
 	})
 	@PutMapping("/me/profile")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<ApiResponseDto<UserResponseDto>> updateProfile(Authentication authToken, @Valid @RequestBody UpdateProfileRequestDto updateProfileRequestDto) {
 
 		String username = authToken.getName();
@@ -288,6 +291,7 @@ public class UserController {
 				)
 	})
 	@PatchMapping(value = "/me/password",consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<Void> changePassword(
 			@Parameter(hidden = true) Authentication authToken,
 			@Valid @RequestBody ChangePasswordRequestDto dto
