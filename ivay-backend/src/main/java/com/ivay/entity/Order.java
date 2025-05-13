@@ -13,7 +13,7 @@ import java.util.List;
 @ToString(exclude = "orderItems")
 @EqualsAndHashCode(exclude = "orderItems")
 @Entity
-@Table(name = "ecommerce2_orders")
+@Table(name = "orders")
 public class Order {
 
     @Id
