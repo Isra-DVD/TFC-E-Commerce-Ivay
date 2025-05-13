@@ -25,8 +25,4 @@ public class UpdateProfileRequestDto {
 	@NotBlank(message = "El teléfono del usuario no puede estar vacio")
 	@Size(max = 20, message = "El teléfono del usuario no puede exceder 50 caracteres")
 	private String phone;
-	
-	@NotBlank(message = "La dirección del usuario no puede estar vacia")
-	@Size(max = 255, message = "La dirección del usuario no puede exceder 255 caracteres")
-	private String address;
 }
