@@ -48,9 +48,9 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}/products").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/categories/filter").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
-						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
-						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
+						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.GET, "/api/users/me").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
 
 						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
 						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").authenticated()
@@ -66,7 +66,6 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/api/cart-items/{cartItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.DELETE, "/api/users/{userId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 
-
 						.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.PUT, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.DELETE, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
@@ -78,7 +77,6 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-
 						.requestMatchers(HttpMethod.GET, "api/order-items/{orderItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 
 						
@@ -101,8 +99,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/api/suppliers/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
 						.requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						
+						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
 
