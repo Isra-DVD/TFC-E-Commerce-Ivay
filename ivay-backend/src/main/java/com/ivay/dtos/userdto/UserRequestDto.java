@@ -11,9 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserRequestDto {
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre de usuario es obligatorio")
     @Size(max = 100, message = "El nombre no puede exceder 100 caracteres")
     private String name;
+    
+    @NotBlank(message = "El nombre completo del usuario es obligatorio")
+    @Size(max = 50, message = "El nombre completo no puede exceder 50 caracteres")
+    private String fullName;
 
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "El email debe ser válido")
