@@ -9,12 +9,20 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UpdateProfileRequestDto {
-	@NotBlank @Size(max = 100)
+	@NotBlank(message = "El nombre de la cuenta no puede estar vacio")
+	@Size(max = 100, message = "El nombre de la cuenta no puede exceder 100 caracteres")
 	private String name;
+	
+	@NotBlank(message = "El nombre completo del usuario no puede estar vacio")
+	@Size(max = 50, message = "El nombre completo del usuario no puede exceder 50 caracteres")
+	private String fullName;
 
-	@NotBlank @Email @Size(max = 100)
+	@NotBlank(message = "El email del usuario no puede estar vacio")
+	@Email
+	@Size(max = 50, message = "El email del usuario no puede exceder 50 caracteres")
 	private String email;
 
-	@NotBlank @Size(max = 20)
+	@NotBlank(message = "El teléfono del usuario no puede estar vacio")
+	@Size(max = 20, message = "El teléfono del usuario no puede exceder 50 caracteres")
 	private String phone;
 }

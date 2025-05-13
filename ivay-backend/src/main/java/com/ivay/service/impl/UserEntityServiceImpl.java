@@ -12,12 +12,14 @@ import com.ivay.dtos.userdto.ChangePasswordRequestDto;
 import com.ivay.dtos.userdto.UpdateProfileRequestDto;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
+import com.ivay.entity.Address;
 import com.ivay.entity.Role;
 import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.UserMapper;
 import com.ivay.repository.UserRepository;
 import com.ivay.service.UserEntityService;
+import com.ivay.repository.AddressRepository;
 import com.ivay.repository.RoleRepository;
 
 @Service
@@ -49,6 +51,11 @@ public class UserEntityServiceImpl implements UserEntityService {
 
 	@Override
 	public UserResponseDto createUser(UserRequestDto userRequestDto) {
+		
+		if (userRepository.findUserEntityByName(userRequestDto.getName()) != null) {
+            throw new IllegalArgumentException("Ese nombre de cuenta ya está en uso");
+        }
+		
 		Role role = roleRepository.findById(userRequestDto.getRoleId()).orElseThrow(
 				() -> new ResourceNotFoundException("Role with id: " + userRequestDto.getRoleId() + " not found"));
 
@@ -64,12 +71,15 @@ public class UserEntityServiceImpl implements UserEntityService {
 
 	@Override
 	public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
+		
 		UserEntity existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
+		
 		Role role = roleRepository.findById(userRequestDto.getRoleId()).orElseThrow(
 				() -> new ResourceNotFoundException("Role with id: " + userRequestDto.getRoleId() + " not found"));
 
 		existingUser.setName(userRequestDto.getName());
+		existingUser.setFullName(userRequestDto.getFullName());
 		existingUser.setEmail(userRequestDto.getEmail());
 		existingUser.setPhone(userRequestDto.getPhone());
 		existingUser.setIsEnabled(userRequestDto.getIsEnabled());
@@ -105,8 +115,9 @@ public class UserEntityServiceImpl implements UserEntityService {
 	public UserResponseDto updateProfile(String username, UpdateProfileRequestDto UpdateProfileRequestDto) {
 		UserEntity existingUser = userRepository.findUserEntityByName(username)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-
+		
 		existingUser.setName(UpdateProfileRequestDto.getName());
+		existingUser.setFullName(UpdateProfileRequestDto.getFullName());
 		existingUser.setEmail(UpdateProfileRequestDto.getEmail());
 		existingUser.setPhone(UpdateProfileRequestDto.getPhone());
 		UserEntity savedUser = userRepository.save(existingUser);

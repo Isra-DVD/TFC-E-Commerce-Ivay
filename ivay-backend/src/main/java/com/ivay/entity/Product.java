@@ -12,7 +12,7 @@ import java.util.List;
 @ToString(exclude = {"orderItems", "cartItems"})
 @EqualsAndHashCode(exclude = {"orderItems", "cartItems"})
 @Entity
-@Table(name = "ecommerce2_products")
+@Table(name = "products")
 public class Product {
 
     @Id

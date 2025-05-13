@@ -75,4 +75,16 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiError> handleIllegalArg(IllegalArgumentException ex,
+	                                                WebRequest request) {
+	    log.info(ex.getClass().getName());
+	    ApiError apiError = new ApiError(
+	        HttpStatus.BAD_REQUEST,
+	        ex.getMessage(),
+	        List.of(ex.getMessage())
+	    );
+	    return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+	
 }

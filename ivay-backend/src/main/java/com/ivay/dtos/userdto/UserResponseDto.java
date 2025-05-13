@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 public class UserResponseDto {
     private Long id;
     private String name;
+    private String fullName;
     private String email;
     private String phone;
     private Boolean isEnabled;

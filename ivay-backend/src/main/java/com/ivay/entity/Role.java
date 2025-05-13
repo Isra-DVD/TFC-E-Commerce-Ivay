@@ -24,7 +24,7 @@ import java.util.List;
 @ToString(exclude = "users")
 @EqualsAndHashCode(exclude = "users")
 @Entity
-@Table(name = "ecommerce2_roles")
+@Table(name = "roles")
 public class Role {
 
     @Id

@@ -17,16 +17,19 @@ import java.util.List;
 @ToString(exclude = {"orders", "addresses", "cartItems"})
 @EqualsAndHashCode(exclude = {"orders", "addresses", "cartItems"})
 @Entity
-@Table(name = "ecommerce2_users")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(length = 100)
+ 
+    @Column(length = 100, unique = true)
     private String name;
 
+    @Column(length = 50)
+    private String fullName;
+    
     @Column(length = 100)
     private String email;
 

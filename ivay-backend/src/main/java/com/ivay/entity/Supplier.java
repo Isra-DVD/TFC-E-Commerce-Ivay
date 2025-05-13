@@ -11,7 +11,7 @@ import java.util.List;
 @ToString(exclude = "products")
 @EqualsAndHashCode(exclude = "products")
 @Entity
-@Table(name = "ecommerce2_suppliers")
+@Table(name = "suppliers")
 public class Supplier {
 
     @Id
