@@ -30,6 +30,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProductDetailsPage from "./components/pages/ProductDetailsPage";
 import CheckoutHeader from "./components/layout/CheckoutHeader";
 import CartPage from "./components/pages/CartPage";
+import ProductsPage from "./components/pages/ProductsPage";
+import SearchResultsPage from "./components/pages/SearchResultPage";
 
 const theme = createTheme({
   palette: {
@@ -96,8 +98,8 @@ const LayoutWrapper = () => {
           py: isAuthPageLayout
             ? 0
             : isCheckoutFlow
-            ? { xs: 2, sm: 3 }
-            : { xs: 2, sm: 4 },
+              ? { xs: 2, sm: 3 }
+              : { xs: 2, sm: 4 },
           display: isAuthPageLayout ? "flex" : "block",
           alignItems: isAuthPageLayout ? "center" : undefined,
           justifyContent: isAuthPageLayout ? "center" : undefined,
@@ -107,7 +109,10 @@ const LayoutWrapper = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/products/:productId" element={<ProductDetailsPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+
           <Route
             path="/cart"
             element={
