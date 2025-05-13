@@ -28,6 +28,7 @@ export default function DetailsPage() {
   const [readOnly, setReadOnly] = useState(true);
   const [form, setForm] = useState({
     name: "",
+    fullName: "",
     email: "",
     phone: "",
     address: "",
@@ -46,6 +47,7 @@ export default function DetailsPage() {
         const data = user || (await UserService.getMyProfile());
         setForm({
           name: data.name || "",
+          fullName: data.fullName || "",
           email: data.email || "",
           phone: data.phone || "",
           address: data.address || "",
@@ -292,6 +294,15 @@ export default function DetailsPage() {
               label="Nombre"
               name="name"
               value={form.name}
+              onChange={handleChange}
+              margin="normal"
+              InputProps={{ readOnly }}
+            />
+            <TextField
+              fullWidth
+              label="Nombre completo"
+              name="fullName"
+              value={form.fullName}
               onChange={handleChange}
               margin="normal"
               InputProps={{ readOnly }}

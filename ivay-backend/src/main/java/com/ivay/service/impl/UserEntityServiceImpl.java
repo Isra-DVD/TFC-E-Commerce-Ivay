@@ -12,14 +12,12 @@ import com.ivay.dtos.userdto.ChangePasswordRequestDto;
 import com.ivay.dtos.userdto.UpdateProfileRequestDto;
 import com.ivay.dtos.userdto.UserRequestDto;
 import com.ivay.dtos.userdto.UserResponseDto;
-import com.ivay.entity.Address;
 import com.ivay.entity.Role;
 import com.ivay.entity.UserEntity;
 import com.ivay.exception.ResourceNotFoundException;
 import com.ivay.mappers.UserMapper;
 import com.ivay.repository.UserRepository;
 import com.ivay.service.UserEntityService;
-import com.ivay.repository.AddressRepository;
 import com.ivay.repository.RoleRepository;
 
 @Service
