@@ -43,6 +43,7 @@ public class LoadDatabase {
 			
 			UserEntity userAlex = UserEntity.builder()
 											.name("Alexis")
+											.fullName("Alexis mi Capitán")
 											.email("correo1@gmail.com")
 											.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
 											.phone("111222333")
@@ -55,6 +56,7 @@ public class LoadDatabase {
 			
 			UserEntity userJose = UserEntity.builder()
 											.name("Jose")
+											.fullName("Jose El Pajuelo")
 											.email("correo2@gmail.com")
 											.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
 											.phone("444555666")
@@ -67,6 +69,7 @@ public class LoadDatabase {
 			
 			UserEntity userDaniel = UserEntity.builder()
 											  .name("Daniel")
+											  .fullName("Daniel Rovira")
 											  .email("correo3@gmail.com")
 											  .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
 											  .phone("777888999")
@@ -79,6 +82,7 @@ public class LoadDatabase {
 			
 			UserEntity userAndres = UserEntity.builder()
 											  .name("Andres")
+											  .fullName("Andres Teresitas")
 											  .email("correo4@gmail.com")
 											  .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
 											  .phone("123456789")
