@@ -28,9 +28,9 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import CategoryIcon from "@mui/icons-material/Category";
 import HomeIcon from "@mui/icons-material/Home";
-import AppsIcon from '@mui/icons-material/Apps';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import AppsIcon from "@mui/icons-material/Apps";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 import logo from "../../assets/images/ivay-logo.png";
 import { useAuth } from "../../context/AuthContext";
@@ -134,7 +134,7 @@ function Header() {
     }
   };
 
-  const dynamicDrawerCategories = categories.map(category => ({
+  const dynamicDrawerCategories = categories.map((category) => ({
     id: category.id,
     text: category.name,
     icon: <CategoryIcon />,
@@ -144,18 +144,32 @@ function Header() {
   const drawer = (
     <Box onClick={(e) => e.stopPropagation()} sx={{ textAlign: "left" }}>
       <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: colors.primary.dark }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ fontWeight: "bold", color: colors.primary.dark }}
+        >
           Explorar Tienda
         </Typography>
       </Box>
       {categoryLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 3, height: 150 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            py: 3,
+            height: 150,
+          }}
+        >
           <CircularProgress />
         </Box>
       ) : categoryError ? (
-        <Alert severity="error" sx={{ m: 2 }}>{categoryError}</Alert>
+        <Alert severity="error" sx={{ m: 2 }}>
+          {categoryError}
+        </Alert>
       ) : (
-        <List sx={{ py: 0, '& .MuiListItem-root': { letterSpacing: '0.5px' } }}>
+        <List sx={{ py: 0, "& .MuiListItem-root": { letterSpacing: "0.5px" } }}>
           <ListItem
             button="true"
             component={RouterLink}
@@ -165,19 +179,25 @@ function Header() {
             sx={{
               py: 1.5,
               borderBottom: `1px solid ${theme.palette.divider}`,
-              '&.Mui-selected': {
+              "&.Mui-selected": {
                 backgroundColor: alpha(colors.primary.main, 0.08),
-                '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
                   color: colors.primary.main,
                   fontWeight: 500,
                 },
               },
-              '&:hover': {
+              "&:hover": {
                 backgroundColor: alpha(colors.primary.main, 0.04),
-              }
+              },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40, color: location.pathname === "/" ? colors.primary.main : 'inherit' }}>
+            <ListItemIcon
+              sx={{
+                minWidth: 40,
+                color:
+                  location.pathname === "/" ? colors.primary.main : "inherit",
+              }}
+            >
               <HomeIcon />
             </ListItemIcon>
             <ListItemText primary="Inicio" />
@@ -188,23 +208,35 @@ function Header() {
             component={RouterLink}
             to="/products"
             onClick={handleDrawerToggle}
-            selected={location.pathname === "/products" && !location.search.includes('categoryId')}
+            selected={
+              location.pathname === "/products" &&
+              !location.search.includes("categoryId")
+            }
             sx={{
               py: 1.5,
               borderBottom: `1px solid ${theme.palette.divider}`,
-              '&.Mui-selected': {
+              "&.Mui-selected": {
                 backgroundColor: alpha(colors.primary.main, 0.08),
-                '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
                   color: colors.primary.main,
                   fontWeight: 500,
                 },
               },
-              '&:hover': {
+              "&:hover": {
                 backgroundColor: alpha(colors.primary.main, 0.04),
-              }
+              },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40, color: (location.pathname === "/products" && !location.search.includes('categoryId')) ? colors.primary.main : 'inherit' }}>
+            <ListItemIcon
+              sx={{
+                minWidth: 40,
+                color:
+                  location.pathname === "/products" &&
+                  !location.search.includes("categoryId")
+                    ? colors.primary.main
+                    : "inherit",
+              }}
+            >
               <AppsIcon />
             </ListItemIcon>
             <ListItemText primary="Todos los productos" />
@@ -212,54 +244,78 @@ function Header() {
 
           {/* Separator for categories if needed */}
           {dynamicDrawerCategories.length > 0 && (
-            <Box sx={{ pt: 1, mt: 1, borderTop: `1px solid ${theme.palette.divider}` }}>
-              <Typography variant="overline" sx={{ pl: 2, display: 'block', color: 'text.secondary', fontSize: '0.65rem', letterSpacing: '0.075em' }}>
+            <Box
+              sx={{
+                pt: 1,
+                mt: 1,
+                borderTop: `1px solid ${theme.palette.divider}`,
+              }}
+            >
+              <Typography
+                variant="overline"
+                sx={{
+                  pl: 2,
+                  display: "block",
+                  color: "text.secondary",
+                  fontSize: "0.65rem",
+                  letterSpacing: "0.075em",
+                }}
+              >
                 CATEGORÍAS
               </Typography>
             </Box>
           )}
 
-          {dynamicDrawerCategories.length > 0 ? (
-            dynamicDrawerCategories.map((item) => {
-              const isActive = location.pathname === "/products" && location.search === `?categoryId=${item.id}`;
-              return (
-                <ListItem
-                  button="true"
-                  key={item.id}
-                  component={RouterLink}
-                  to={item.path}
-                  onClick={handleDrawerToggle}
-                  selected={isActive}
-                  sx={{
-                    py: 1.2,
-                    pl: isActive ? 1.5 : 2,
-                    '&.Mui-selected': {
-                      backgroundColor: alpha(colors.primary.main, 0.08),
-                      borderLeft: `4px solid ${colors.primary.main}`,
-                      '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
-                        color: colors.primary.main,
-                        fontWeight: 500,
+          {dynamicDrawerCategories.length > 0
+            ? dynamicDrawerCategories.map((item) => {
+                const isActive =
+                  location.pathname === "/products" &&
+                  location.search === `?categoryId=${item.id}`;
+                return (
+                  <ListItem
+                    button="true"
+                    key={item.id}
+                    component={RouterLink}
+                    to={item.path}
+                    onClick={handleDrawerToggle}
+                    selected={isActive}
+                    sx={{
+                      py: 1.2,
+                      pl: isActive ? 1.5 : 2,
+                      "&.Mui-selected": {
+                        backgroundColor: alpha(colors.primary.main, 0.08),
+                        borderLeft: `4px solid ${colors.primary.main}`,
+                        "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
+                          color: colors.primary.main,
+                          fontWeight: 500,
+                        },
                       },
-                    },
-                    '&:hover': {
-                      backgroundColor: alpha(colors.primary.main, 0.04),
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    {React.cloneElement(item.icon, { sx: { color: isActive ? colors.primary.main : theme.palette.action.active } })}
-                  </ListItemIcon>
-                  <ListItemText primary={item.text} />
+                      "&:hover": {
+                        backgroundColor: alpha(colors.primary.main, 0.04),
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>
+                      {React.cloneElement(item.icon, {
+                        sx: {
+                          color: isActive
+                            ? colors.primary.main
+                            : theme.palette.action.active,
+                        },
+                      })}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </ListItem>
+                );
+              })
+            : !categoryLoading && (
+                <ListItem sx={{ py: 1.5 }}>
+                  <ListItemText
+                    primary="No hay categorías disponibles."
+                    sx={{ textAlign: "center", color: "text.secondary" }}
+                  />
                 </ListItem>
-              );
-            })
-          ) : (
-            !categoryLoading && (
-              <ListItem sx={{ py: 1.5 }}>
-                <ListItemText primary="No hay categorías disponibles." sx={{ textAlign: 'center', color: 'text.secondary' }} />
-              </ListItem>
-            )
-          )}
+              )}
         </List>
       )}
     </Box>
@@ -286,7 +342,12 @@ function Header() {
           <MuiLink
             component={RouterLink}
             to="/"
-            sx={{ display: "flex", alignItems: "center", mr: 1, textDecoration: 'none' }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mr: 1,
+              textDecoration: "none",
+            }}
             onClick={() => mobileOpen && setMobileOpen(false)}
           >
             <img
@@ -299,7 +360,7 @@ function Header() {
             />
           </MuiLink>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', mr: 'auto' }}>
+          <Box sx={{ display: "flex", alignItems: "center", mr: "auto" }}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -313,7 +374,11 @@ function Header() {
               <Typography
                 variant="button"
                 component="div"
-                sx={{ cursor: "pointer", "&:hover": { color: theme.palette.primary.main }, whiteSpace: 'nowrap' }}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": { color: theme.palette.primary.main },
+                  whiteSpace: "nowrap",
+                }}
                 onClick={handleDrawerToggle}
               >
                 Todas las Categorías
@@ -321,8 +386,15 @@ function Header() {
             )}
           </Box>
 
-          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", px: { xs: 0.5, sm: 2 } }}>
-            <Search sx={{ maxWidth: 600, width: '100%' }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "center",
+              px: { xs: 0.5, sm: 2 },
+            }}
+          >
+            <Search sx={{ maxWidth: 600, width: "100%" }}>
               <StyledInputBase
                 placeholder="Buscar productos..."
                 inputProps={{ "aria-label": "search" }}
@@ -334,7 +406,7 @@ function Header() {
                 type="button"
                 size="small"
                 sx={{
-                  p: '6px',
+                  p: "6px",
                   position: "absolute",
                   right: 5,
                   top: "50%",
@@ -349,15 +421,29 @@ function Header() {
             </Search>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", ml: { xs: 0.5, sm: 1 } }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              ml: { xs: 0.5, sm: 1 },
+            }}
+          >
             <IconButton
               color="inherit"
               onClick={handleProfileClick}
-              sx={{ p: isMobile ? 0.75 : 1, display: "flex", flexDirection: "column", alignItems: "center" }}
+              sx={{
+                p: isMobile ? 0.75 : 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
               <PersonOutlineIcon />
               {!isMobile && (
-                <Typography variant="caption" sx={{ lineHeight: 1.1, mt: 0.1, fontSize: '0.65rem' }}>
+                <Typography
+                  variant="caption"
+                  sx={{ lineHeight: 1.1, mt: 0.1, fontSize: "0.65rem" }}
+                >
                   {isAuthenticated ? "Mi perfil" : "Iniciar Sesión"}
                 </Typography>
               )}
@@ -367,10 +453,23 @@ function Header() {
               component={RouterLink}
               to="/cart"
               onClick={() => mobileOpen && setMobileOpen(false)}
-              sx={{ p: isMobile ? 0.75 : 1, display: "flex", flexDirection: "column", alignItems: "center", ml: { xs: 0.25, sm: 0.5 } }}
+              sx={{
+                p: isMobile ? 0.75 : 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                ml: { xs: 0.25, sm: 0.5 },
+              }}
             >
               <ShoppingCartOutlinedIcon />
-              {!isMobile && <Typography variant="caption" sx={{ lineHeight: 1.1, mt: 0.1, fontSize: '0.65rem' }}>Carrito</Typography>}
+              {!isMobile && (
+                <Typography
+                  variant="caption"
+                  sx={{ lineHeight: 1.1, mt: 0.1, fontSize: "0.65rem" }}
+                >
+                  Carrito
+                </Typography>
+              )}
             </IconButton>
           </Box>
         </Toolbar>

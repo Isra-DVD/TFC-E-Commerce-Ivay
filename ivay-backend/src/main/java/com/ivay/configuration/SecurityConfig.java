@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -23,7 +22,6 @@ import com.ivay.jwt.JwtAuthenticationFilter;
 import com.ivay.service.impl.UserDetailsServiceImpl;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	@Bean
@@ -48,8 +46,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}/products").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/categories/filter").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
-						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").hasRole("CLIENT")
-						.requestMatchers(HttpMethod.GET, "/api/users/me").hasRole("CLIENT")
+						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").authenticated()
+						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
 						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
 
 						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  

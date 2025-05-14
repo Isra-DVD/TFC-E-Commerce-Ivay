@@ -18,6 +18,7 @@ function RegisterPage() {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
+    fullName: "",
     email: "",
     phone: "",
     password: "",
@@ -50,6 +51,7 @@ function RegisterPage() {
     try {
       const dto = {
         name: formData.name,
+        fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
@@ -67,8 +69,8 @@ function RegisterPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        err.message ||
-        "Error al registrar la cuenta."
+          err.message ||
+          "Error al registrar la cuenta."
       );
     } finally {
       setLoading(false);
@@ -99,11 +101,23 @@ function RegisterPage() {
           required
           fullWidth
           id="name"
-          label="Nombre completo"
+          label="Nombre de cuenta"
           name="name"
           autoComplete="name"
           autoFocus
           value={formData.name}
+          onChange={handleChange}
+          disabled={loading}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="fullName"
+          label="Nombre completo"
+          name="fullName"
+          autoComplete="fullName"
+          value={formData.fullName}
           onChange={handleChange}
           disabled={loading}
         />
