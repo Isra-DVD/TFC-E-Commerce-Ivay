@@ -1,3 +1,4 @@
+// src/components/common/ProductCard.tsx
 import React from "react";
 import {
   Card,
@@ -5,111 +6,154 @@ import {
   CardContent,
   Typography,
   Box,
-  Link,
+  Link as MuiLink,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { colors } from "../../constants/styles";
 
-const ProductCard = ({ product }) => {
+interface Product {
+  id: number | string;
+  name: string;
+  price: number;
+  discount: number;
+  imageUrl?: string;
+}
+
+interface ProductCardProps {
+  product: Product;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const discountPercentage =
     product.discount > 0 ? Math.round(product.discount * 100) : 0;
+
+  const currentPrice = product.price.toFixed(2);
+  let originalPrice: string | null = null;
+  if (product.discount > 0 && product.price > 0) {
+    originalPrice = (product.price / (1 - product.discount)).toFixed(2);
+  }
 
   return (
     <Card
       sx={{
-        height: "100%",
-        border: "1px solid #e0e0e0",
-        boxShadow: "none",
+        width: { xs: "100%", sm: 100, md: 170 },
+        height: { xs: "auto", sm: 300, md: 250 },
         display: "flex",
         flexDirection: "column",
+        border: `1px solid ${colors.grey[300]}`,
+        boxShadow: "none",
+        transition: "transform 0.2s, box-shadow 0.2s",
         position: "relative",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: (theme) => theme.shadows[4],
+        },
       }}
     >
-      {/* Discount Badge */}
       {discountPercentage > 0 && (
         <Box
           sx={{
             position: "absolute",
             top: 8,
             left: 8,
-            backgroundColor: colors.primary.light,
-            color: "white",
+            bgcolor: colors.primary.light,
+            color: colors.primary.contrastText,
             p: "2px 6px",
             borderRadius: 1,
-            zIndex: 1,
-            fontSize: "0.7rem",
+            fontSize: "0.75rem",
             fontWeight: "bold",
+            zIndex: 2,
           }}
         >
           -{discountPercentage}%
         </Box>
       )}
 
-      {/* Product Image Link */}
-      <Link
+      <MuiLink
         component={RouterLink}
         to={`/products/${product.id}`}
-        sx={{ textDecoration: "none", color: "inherit" }}
+        sx={{
+          textDecoration: "none",
+          color: "inherit",
+          height: { xs: 140, sm: 180, md: 200 },
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 1,
+          overflow: "hidden",
+          bgcolor: "#fff",
+        }}
       >
         <CardMedia
           component="img"
-          sx={{
-            height: 140,
-            objectFit: "contain",
-            p: 1,
-            bgcolor: "#fff",
-          }}
           image={product.imageUrl || "/intel-product.jpg"}
           alt={product.name}
+          sx={{
+            maxHeight: "100%",
+            maxWidth: "100%",
+            objectFit: "contain",
+          }}
         />
-      </Link>
+      </MuiLink>
 
-      {/* Card Content */}
       <CardContent
         sx={{
           flexGrow: 1,
+          p: 1.5,
+          pt: 1,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          p: 1,
-          pt: 1.5,
         }}
       >
-        {/* Product Name */}
         <Typography
-          gutterBottom
           variant="body2"
-          component="div"
           title={product.name}
           sx={{
+            mb: 1,
+            fontWeight: 500,
+            height: { xs: "2.4em", sm: "2.8em" },
+            lineHeight: 1.4,
             overflow: "hidden",
             textOverflow: "ellipsis",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
-            minHeight: "2.5em",
-            mb: 1,
-            color: "text.primary",
-            "&:hover": {},
+            textAlign: "center",
           }}
         >
-          <Link
+          <MuiLink
             component={RouterLink}
             to={`/products/${product.id}`}
-            sx={{ textDecoration: "none", color: "inherit" }}
+            sx={{
+              textDecoration: "none",
+              color: "inherit",
+              "&:hover": { color: colors.primary.main },
+            }}
           >
             {product.name}
-          </Link>
+          </MuiLink>
         </Typography>
 
-        {/* Price */}
-        <Typography
-          variant="h6"
-          color="primary.light"
-          sx={{ mt: "auto", fontWeight: "bold" }}
-        >
-          €{product.price.toFixed(2)}
-        </Typography>
+        <Box sx={{ textAlign: "center", mt: "auto" }}>
+          <Typography
+
+            component="p"
+            color={colors.primary.light}
+            sx={{ fontWeight: "bold", lineHeight: 1.2 }}
+          >
+            €{currentPrice}
+          </Typography>
+          {originalPrice && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textDecoration: "line-through", ml: 0.5 }}
+            >
+              PVPR €{originalPrice}
+            </Typography>
+          )}
+        </Box>
       </CardContent>
     </Card>
   );
