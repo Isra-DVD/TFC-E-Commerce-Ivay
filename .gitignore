@@ -13,3 +13,6 @@
 
 /ivay-backend/src/main/resources/*
 /ivay-frontend/src/constants/api.js
+
+/ivay-dashboard/node_modules/
+/ivay-dashboard/build/
