@@ -110,7 +110,6 @@ const CartPage = () => {
                         item.id === cartItemId ? finalUpdatedItem : item
                     )
                 );
-                setActionMessage({ type: "success", text: "Cantidad actualizada." });
             } else {
                 console.warn("Original item or product details not found for quantity update. Re-fetching cart.");
                 fetchCartData();
@@ -132,7 +131,6 @@ const CartPage = () => {
             setCartItems((prevItems) =>
                 prevItems.filter((item) => item.id !== cartItemId)
             );
-            setActionMessage({ type: "success", text: "Producto eliminado del carrito." });
         } catch (e) {
             console.error("Error removing item:", e);
             setActionMessage({
@@ -175,7 +173,11 @@ const CartPage = () => {
     }
 
     return (
-        <Container maxWidth={layout.containerMaxWidth} sx={{ py: { xs: 2, md: 4 } }}>
+        <Container maxWidth={layout.containerMaxWidth} sx={{
+            py: { xs: 4, md: 4 }, display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
             <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: "center", mb: 3, fontWeight: "bold" }}>
                 <ShoppingCartIcon sx={{ mr: 1, verticalAlign: "middle" }} /> Mi cesta
             </Typography>
@@ -211,14 +213,38 @@ const CartPage = () => {
                 <Grid container spacing={4}>
                     {/* Left Column: Cart Items & Actions */}
                     <Grid item xs={12} md={8}>
-                        {cartItems.map((item) => (
-                            <CartItemRow
-                                key={item.id}
-                                item={item}
-                                onQuantityChange={handleQuantityChange}
-                                onRemoveItem={handleRemoveItem}
-                            />
-                        ))}
+                        <Box
+                            sx={{
+                                ...(cartItems.length > 4 && {
+                                    maxHeight: '500px',
+                                    overflowY: 'auto',
+                                    pr: 1,
+                                    '&::-webkit-scrollbar': {
+                                        width: '8px',
+                                    },
+                                    '&::-webkit-scrollbar-track': {
+                                        backgroundColor: colors.grey[200] || '#f1f1f1',
+                                        borderRadius: '4px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        backgroundColor: colors.grey[400] || '#888',
+                                        borderRadius: '4px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb:hover': {
+                                        backgroundColor: colors.grey[600] || '#555',
+                                    },
+                                }),
+                            }}
+                        >
+                            {cartItems.map((item) => (
+                                <CartItemRow
+                                    key={item.id}
+                                    item={item}
+                                    onQuantityChange={handleQuantityChange}
+                                    onRemoveItem={handleRemoveItem}
+                                />
+                            ))}
+                        </Box>
                         <Box
                             sx={{
                                 mt: 3,

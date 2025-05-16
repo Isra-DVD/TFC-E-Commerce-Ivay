@@ -44,6 +44,7 @@ const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
             container
             spacing={2}
             alignItems="center"
+            justifyContent={"space-between"}
             sx={{
                 p: 2,
                 border: `1px solid ${colors.grey[300]}`,
