@@ -53,6 +53,7 @@ public class SupplierServiceImpl implements SupplierService {
         existing.setEmail(supplierRequestDto.getEmail());
         existing.setAddress(supplierRequestDto.getAddress());
         existing.setPhone(supplierRequestDto.getPhone());
+        existing.setImageUrl(supplierRequestDto.getImageUrl());
         Supplier updated = supplierRepository.save(existing);
         return supplierMapper.toSupplierResponse(updated);
     }

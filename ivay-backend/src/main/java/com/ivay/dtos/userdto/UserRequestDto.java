@@ -2,6 +2,7 @@ package com.ivay.dtos.userdto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -30,6 +31,10 @@ public class UserRequestDto {
     @NotBlank(message = "El teléfono es obligatorio")
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String phone;
+    
+    @NotBlank(message = "La dirección del usuario es obligatoria")
+    @Column(length = 255)
+    private String userAddress;
 
     private Boolean isEnabled;
     private Boolean accountNoExpired;
