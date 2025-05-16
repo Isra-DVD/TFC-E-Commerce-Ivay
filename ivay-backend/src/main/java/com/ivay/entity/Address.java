@@ -18,4 +18,13 @@ public class Address {
 
     @Column(length = 255)
     private String address;
+    
+    @Column(length = 7)
+    private String zipCode;
+    
+    @Column(length = 50)
+    private String province;
+    
+    @Column(length = 50)
+    private String locality;
 }
