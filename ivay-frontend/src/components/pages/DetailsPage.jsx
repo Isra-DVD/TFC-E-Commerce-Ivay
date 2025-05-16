@@ -31,7 +31,7 @@ export default function DetailsPage() {
     fullName: "",
     email: "",
     phone: "",
-    address: "",
+    userAddress: "",
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -50,7 +50,7 @@ export default function DetailsPage() {
           fullName: data.fullName || "",
           email: data.email || "",
           phone: data.phone || "",
-          address: data.address || "",
+          userAddress: data.userAddress || "",
         });
       } catch (e) {
         setError("No se pudo cargar el perfil.");
@@ -328,8 +328,8 @@ export default function DetailsPage() {
             <TextField
               fullWidth
               label="Dirección"
-              name="address"
-              value={form.address}
+              name="userAddress"
+              value={form.userAddress}
               onChange={handleChange}
               margin="normal"
               InputProps={{ readOnly }}
