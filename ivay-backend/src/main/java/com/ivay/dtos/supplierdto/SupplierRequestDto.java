@@ -26,4 +26,8 @@ public class SupplierRequestDto {
     @NotBlank(message = "El teléfono es obligatorio")
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String phone;
+
+    @NotBlank(message = "La url de la imagen del proveedor es obligatoria")
+    @Size(max = 255)
+    private String imageUrl;
 }

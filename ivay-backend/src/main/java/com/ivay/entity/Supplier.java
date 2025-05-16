@@ -29,6 +29,9 @@ public class Supplier {
 
     @Column(length = 20)
     private String phone;
+    
+    @Column(length = 255)
+    private String imageUrl;
 
      @OneToMany(mappedBy = "supplier")
     private List<Product> products;
