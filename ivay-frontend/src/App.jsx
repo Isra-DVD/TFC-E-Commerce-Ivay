@@ -32,6 +32,7 @@ import CheckoutHeader from "./components/layout/CheckoutHeader";
 import CartPage from "./components/pages/CartPage";
 import ProductsPage from "./components/pages/ProductsPage";
 import SearchResultsPage from "./components/pages/SearchResultPage";
+import AddressPage from "./components/pages/AddressPage";
 
 const theme = createTheme({
   palette: {
@@ -98,8 +99,8 @@ const LayoutWrapper = () => {
           py: isAuthPageLayout
             ? 0
             : isCheckoutFlow
-              ? { xs: 2, sm: 3 }
-              : { xs: 2, sm: 4 },
+            ? { xs: 2, sm: 3 }
+            : { xs: 2, sm: 4 },
           display: isAuthPageLayout ? "flex" : "block",
           alignItems: isAuthPageLayout ? "center" : undefined,
           justifyContent: isAuthPageLayout ? "center" : undefined,
@@ -126,11 +127,7 @@ const LayoutWrapper = () => {
             path="/checkout/address"
             element={
               <RequireAuth>
-                <Container sx={{ py: 3 }}>
-                  <Typography>
-                    Página de Dirección de Envío (Pendiente)
-                  </Typography>
-                </Container>
+                <AddressPage />
               </RequireAuth>
             }
           />

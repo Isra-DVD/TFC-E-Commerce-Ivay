@@ -36,10 +36,26 @@ const FeatureIcon = ({ feature }) => (
 );
 
 const promoCategories = [
-  { title: "Los mejores portátiles", image: "/category/promo-laptop.jpg", path: "/products?categoryId=1" },
-  { title: "Monitores en tendencia", image: "/category/promo-monitor.jpg", path: "/products?categoryId=2" },
-  { title: "Estrena en smartphone", image: "/category/promo-components.jpg", path: "/products?categoryId=3" },
-  { title: "Increíbles periféricos y regletas", image: "/category/promo-tv.jpg", path: "/products?categoryId=4" },
+  {
+    title: "Los mejores portátiles",
+    image: "/category/promo-laptop.jpg",
+    path: "/products?categoryId=1",
+  },
+  {
+    title: "Monitores en tendencia",
+    image: "/category/promo-monitor.jpg",
+    path: "/products?categoryId=2",
+  },
+  {
+    title: "Estrena en smartphone",
+    image: "/category/promo-components.jpg",
+    path: "/products?categoryId=3",
+  },
+  {
+    title: "Increíbles periféricos y regletas",
+    image: "/category/promo-tv.jpg",
+    path: "/products?categoryId=4",
+  },
 ];
 
 const features = [
@@ -68,7 +84,10 @@ function HomePage() {
       setLoadingTop(true);
       setErrorTop("");
       try {
-        const data = await ProductService.getProductsPaginated(0, MAX_PRODUCTS_DISPLAY);
+        const data = await ProductService.getProductsPaginated(
+          0,
+          MAX_PRODUCTS_DISPLAY
+        );
         setTopProducts(data.content || []);
       } catch (err) {
         console.error("Error fetching top products:", err);
@@ -82,7 +101,10 @@ function HomePage() {
       setLoadingSinIva(true);
       setErrorSinIva("");
       try {
-        const data = await ProductService.getProductsPaginated(1, MAX_PRODUCTS_DISPLAY);
+        const data = await ProductService.getProductsPaginated(
+          1,
+          MAX_PRODUCTS_DISPLAY
+        );
         setSinIvaProducts(data.content || []);
       } catch (err) {
         console.error("Error fetching Sin IVA products:", err);
@@ -96,19 +118,43 @@ function HomePage() {
     fetchSinIvaProducts();
   }, []);
 
-  const renderProductSection = (title, products, loading, error, viewMorePath) => {
+  const renderProductSection = (
+    title,
+    products,
+    loading,
+    error,
+    viewMorePath
+  ) => {
     if (loading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, my: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: 200,
+            my: 4,
+          }}
+        >
           <CircularProgress />
         </Box>
       );
     }
     if (error) {
-      return <Alert severity="error" sx={{ my: 4 }}>{error}</Alert>;
+      return (
+        <Alert severity="error" sx={{ my: 4 }}>
+          {error}
+        </Alert>
+      );
     }
     if (products.length === 0 && !loading) {
-      return <Typography sx={{ my: 4, textAlign: 'center', color: 'text.secondary' }}>No hay productos disponibles en esta sección.</Typography>;
+      return (
+        <Typography
+          sx={{ my: 4, textAlign: "center", color: "text.secondary" }}
+        >
+          No hay productos disponibles en esta sección.
+        </Typography>
+      );
     }
     return (
       <Box sx={{ mb: 5 }}>
@@ -133,7 +179,13 @@ function HomePage() {
         </Box>
         <Grid container spacing={{ xs: 1.5, sm: 2, md: 2.5 }}>
           {products.map((product) => (
-            <Grid item xs={6} sm={4} md={2} key={`${title.replace(/\s+/g, '-')}-${product.id}`}>
+            <Grid
+              item
+              xs={6}
+              sm={4}
+              md={2}
+              key={`${title.replace(/\s+/g, "-")}-${product.id}`}
+            >
               <ProductCard product={product} />
             </Grid>
           ))}
@@ -145,7 +197,14 @@ function HomePage() {
   return (
     <Box>
       {/* 1. Promotional Banner */}
-      <Box sx={{ mb: 4, cursor: "pointer", borderRadius: { xs: 0, sm: 2 }, overflow: 'hidden' }}>
+      <Box
+        sx={{
+          mb: 4,
+          cursor: "pointer",
+          borderRadius: { xs: 0, sm: 2 },
+          overflow: "hidden",
+        }}
+      >
         <MuiLink component={RouterLink} to="/products?filter=ofertas-semana">
           <img
             src="/banner-ofertas-semana.png"
@@ -169,27 +228,44 @@ function HomePage() {
         )}
 
         {/* 3. Promotional Category Blocks */}
-        <Grid container spacing={{ xs: 2, sm: 3, md: "6%" }} sx={{ mb: 5 }} justifyContent={"center"}>
+        <Grid
+          container
+          spacing={{ xs: 2, sm: 3, md: "6%" }}
+          sx={{ mb: 5 }}
+          justifyContent={"center"}
+        >
           {promoCategories.map((cat) => (
-            <Grid item xs={12} sm={6} md={3} key={cat.title} sx={{
-              width: { xs: "100%", sm: 100, md: 210 },
-              height: { xs: "auto", sm: 300, md: 280 },
-            }}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              key={cat.title}
+              sx={{
+                width: { xs: "100%", sm: 100, md: 210 },
+                height: { xs: "auto", sm: 300, md: 280 },
+              }}
+            >
               <MuiLink
                 component={RouterLink}
                 to={cat.path}
-                sx={{ textDecoration: "none", display: 'block', height: '100%' }}
+                sx={{
+                  textDecoration: "none",
+                  display: "block",
+                  height: "100%",
+                }}
               >
                 <Card
                   sx={{
                     position: "relative",
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition:
+                      "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-5px)",
-                      boxShadow: theme.shadows[8]
+                      boxShadow: theme.shadows[8],
                     },
                     "&:hover .MuiCardMedia-root": { transform: "scale(1.04)" },
                   }}
@@ -199,9 +275,19 @@ function HomePage() {
                     height="200"
                     image={cat.image}
                     alt={cat.title}
-                    sx={{ transition: "transform 0.3s ease-in-out", objectFit: 'cover' }}
+                    sx={{
+                      transition: "transform 0.3s ease-in-out",
+                      objectFit: "cover",
+                    }}
                   />
-                  <CardContent sx={{ flexGrow: 1, p: 0, display: 'flex', alignItems: 'flex-end' }}>
+                  <CardContent
+                    sx={{
+                      flexGrow: 1,
+                      p: 0,
+                      display: "flex",
+                      alignItems: "flex-end",
+                    }}
+                  >
                     <Box
                       sx={{
                         width: "100%",
@@ -211,10 +297,12 @@ function HomePage() {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        textAlign: "center"
+                        textAlign: "center",
                       }}
                     >
-                      <Typography variant="subtitle1" fontWeight="medium">{cat.title}</Typography>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        {cat.title}
+                      </Typography>
                       <AddCircleOutlineIcon sx={{ opacity: 0.85 }} />
                     </Box>
                   </CardContent>
@@ -234,12 +322,15 @@ function HomePage() {
             border: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Grid
-            container
-            justifyContent={"space-around"}
-          >
+          <Grid container justifyContent={"space-around"}>
             {features.map((feature) => (
-              <Grid item xs={4} sm={"auto"} key={feature.title} sx={{ p: { xs: 0.5, sm: 1 } }}>
+              <Grid
+                item
+                xs={4}
+                sm={"auto"}
+                key={feature.title}
+                sx={{ p: { xs: 0.5, sm: 1 } }}
+              >
                 <FeatureIcon feature={feature} />
               </Grid>
             ))}
