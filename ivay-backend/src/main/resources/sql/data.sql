@@ -9,11 +9,11 @@ INSERT INTO suppliers (name, email, address, phone) VALUES
 ('Bookworm Distribution', 'orders@bookwormdist.com', '456 Library Lane, Readsville', '555-0102'),
 ('FashionForward Inc.', 'contact@fashionforward.com', '789 Style Street, Trendytown', '555-0103');
 
-INSERT INTO addresses (user_id, address) VALUES
-(1, '10 Admin Avenue, Suite 100, Admin City'),
-(2, '20 Consumer Close, User Town'),
-(2, '21 Shopping Street, Apt 2B, User Town'),
-(4, '40 Buyer Boulevard, Marketville');
+INSERT INTO addresses (user_id, address, locality, province, zip_code) VALUES
+(1, '10 Admin Avenue, Suite 100, Admin City', 'Locality1', 'Province1', '38001'),
+(2, '20 Consumer Close, User Town', 'Locality2', 'Province2', '38002'),
+(2, '21 Shopping Street, Apt 2B, User Town', 'Locality3', 'Province3', '38003'),
+(4, '40 Buyer Boulevard, Marketville', 'Locality4', 'Province4', '38004');
 
 INSERT INTO products (name, description, price, stock, category_id, supplier_id, discount) VALUES
 ('Smart Laptop X1', 'Latest generation laptop with AI features.', 1499.99, 50, 1, 1, 0.05), -- 5% discount
