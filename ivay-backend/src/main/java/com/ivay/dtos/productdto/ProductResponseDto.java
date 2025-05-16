@@ -14,6 +14,7 @@ public class ProductResponseDto {
     private BigDecimal price;
     private Integer stock;
     private BigDecimal discount;
+    private String imageUrl;
     private Long categoryId;
     private Long supplierId;
 }
