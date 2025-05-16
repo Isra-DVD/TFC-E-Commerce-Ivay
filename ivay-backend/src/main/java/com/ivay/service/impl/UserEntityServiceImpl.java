@@ -80,6 +80,7 @@ public class UserEntityServiceImpl implements UserEntityService {
 		existingUser.setFullName(userRequestDto.getFullName());
 		existingUser.setEmail(userRequestDto.getEmail());
 		existingUser.setPhone(userRequestDto.getPhone());
+		existingUser.setUserAddress(userRequestDto.getUserAddress());
 		existingUser.setIsEnabled(userRequestDto.getIsEnabled());
 		existingUser.setAccountNoExpired(userRequestDto.getAccountNoExpired());
 		existingUser.setAccountNoLocked(userRequestDto.getAccountNoLocked());
@@ -118,6 +119,8 @@ public class UserEntityServiceImpl implements UserEntityService {
 		existingUser.setFullName(UpdateProfileRequestDto.getFullName());
 		existingUser.setEmail(UpdateProfileRequestDto.getEmail());
 		existingUser.setPhone(UpdateProfileRequestDto.getPhone());
+		existingUser.setUserAddress(UpdateProfileRequestDto.getUserAddress());
+		
 		UserEntity savedUser = userRepository.save(existingUser);
 		return userMapper.toUserResponse(savedUser);
 	}

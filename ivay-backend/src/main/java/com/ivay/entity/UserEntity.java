@@ -38,6 +38,9 @@ public class UserEntity {
 
     @Column(length = 20)
     private String phone;
+    
+    @Column(length = 255)
+    private String userAddress;
 
     private Boolean isEnabled;
 

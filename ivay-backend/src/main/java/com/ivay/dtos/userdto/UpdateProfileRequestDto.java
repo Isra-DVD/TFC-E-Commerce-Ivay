@@ -1,5 +1,6 @@
 package com.ivay.dtos.userdto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,4 +26,8 @@ public class UpdateProfileRequestDto {
 	@NotBlank(message = "El teléfono del usuario no puede estar vacio")
 	@Size(max = 20, message = "El teléfono del usuario no puede exceder 50 caracteres")
 	private String phone;
+	
+	@NotBlank(message = "La dirección del usuario es obligatoria")
+	@Column(length = 255)
+    private String userAddress;
 }
