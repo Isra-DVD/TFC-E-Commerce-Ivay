@@ -164,15 +164,18 @@ function ProductsPage() {
                         placeholder="Buscar producto..."
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton type="submit" aria-label="search">
-                                        <SearchIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton type="submit" aria-label="search" edge="end">
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }
                         }}
+
                         size="small"
                     />
                 </Box>
@@ -190,7 +193,7 @@ function ProductsPage() {
                 <Grid container spacing={2.5}>
                     {productsToDisplay.map((product) => (
                         <Grid item xs={12} sm={6} md={4} lg={3} key={product.id} sx={{ display: 'flex', alignItems: 'stretch' }}>
-                            <ProductCard // Or AdminProductCard
+                            <ProductCard
                                 product={product}
                                 onEdit={() => handleOpenEditModal(product)}
                                 onDelete={() => handleDeleteProduct(product.id)}

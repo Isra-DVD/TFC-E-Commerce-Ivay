@@ -192,20 +192,22 @@ function CategoriesPage() {
                 {/* Global "Buscar" Textfield */}
                 <TextField
                     variant="outlined"
-                    placeholder="Buscar..."
+                    placeholder="Buscar categoría..."
                     value={globalSearchTerm}
                     onChange={handleGlobalSearchChange}
                     size="small"
 
-                    sx={{ width: { xs: '100%', sm: 400 }, mt: { xs: 1.5, sm: 0 }, ml: { sm: 'auto' } }}
+                    sx={{ width: { xs: '100%', sm: 500 }, mt: { xs: 1.5, sm: 0 }, ml: { sm: 'auto' } }}
                     slotProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton size="small" edge="end" aria-label="search categories">
-                                    <SearchIcon fontSize="small" />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton type="submit" aria-label="search" edge="end">
+                                        <SearchIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }
                     }}
                 />
             </Paper>
