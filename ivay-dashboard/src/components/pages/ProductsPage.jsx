@@ -16,8 +16,9 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import ProductService from "../../service/product.service";
-import { colors, layout } from "../../constants/styles";
+import { colors } from "../../constants/styles";
 import ProductCard from "../common/ProductCard";
+import ProductFormModal from "../common/ProductFormModal";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -32,30 +33,30 @@ function ProductsPage() {
     const [totalProducts, setTotalProducts] = useState(0);
     const [triggerFetch, setTriggerFetch] = useState(0);
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+    const [formServerError, setFormServerError] = useState('');
+
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError("");
         try {
-            let productData;
-            let currentTotalPages;
-            let currentTotalProducts;
-
+            let productDataResponse;
             if (searchTerm.trim()) {
                 const results = await ProductService.findProductsByName(searchTerm.trim());
-                productData = results || [];
-                currentTotalProducts = productData.length;
-                currentTotalPages = Math.ceil(currentTotalProducts / PRODUCTS_PER_PAGE);
-                setPage(1);
-            } else {
-                const data = await ProductService.getProductsPaginated(page - 1, PRODUCTS_PER_PAGE);
-                productData = data.content || [];
-                currentTotalPages = data.totalPages || 0;
-                currentTotalProducts = data.totalElements || 0;
-            }
-            setProducts(productData);
-            setTotalPages(currentTotalPages);
-            setTotalProducts(currentTotalProducts);
+                setProducts(results || []);
+                setTotalProducts(results?.length || 0);
+                setTotalPages(Math.ceil((results?.length || 0) / PRODUCTS_PER_PAGE));
+                if (page !== 1 && results?.length > 0) setPage(1);
+                else if (results?.length === 0) setPage(1);
 
+            } else {
+                productDataResponse = await ProductService.getProductsPaginated(page - 1, PRODUCTS_PER_PAGE);
+                setProducts(productDataResponse.content || []);
+                setTotalPages(productDataResponse.totalPages || 0);
+                setTotalProducts(productDataResponse.totalElements || 0);
+            }
         } catch (err) {
             console.error("Error fetching products:", err);
             setError("No se pudieron cargar los productos.");
@@ -65,11 +66,11 @@ function ProductsPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, searchTerm]);
+    }, [page, searchTerm, triggerFetch]);
 
     useEffect(() => {
         fetchProducts();
-    }, [fetchProducts, triggerFetch]);
+    }, [fetchProducts]);
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -77,7 +78,8 @@ function ProductsPage() {
 
     const handleSearchSubmit = (event) => {
         event.preventDefault();
-        if (page !== 1) setPage(1);
+        if (page !== 1 && !searchTerm.trim()) setPage(1);
+        else if (page !== 1 && searchTerm.trim()) setPage(1);
         setTriggerFetch(c => c + 1);
     };
 
@@ -85,14 +87,41 @@ function ProductsPage() {
         setPage(value);
     };
 
-    const handleAddNewProduct = () => {
-        console.log("Add new product clicked");
-        // navigate('/products/new');
+    const handleOpenCreateModal = () => {
+        setEditingProduct(null);
+        setFormServerError('');
+        setIsModalOpen(true);
     };
 
-    const handleEditProduct = (productId) => {
-        console.log("Edit product:", productId);
-        // navigate(`/products/edit/${productId}`);
+    const handleOpenEditModal = (productToEdit) => {
+        setEditingProduct(productToEdit);
+        setFormServerError('');
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingProduct(null);
+        setFormServerError('');
+    };
+
+    const handleProductFormSubmit = async (productData, productId) => {
+        setIsFormSubmitting(true);
+        setFormServerError('');
+        try {
+            if (productId) {
+                await ProductService.updateProduct(productId, productData);
+            } else {
+                await ProductService.createProduct(productData);
+            }
+            handleCloseModal();
+            setTriggerFetch(c => c + 1);
+        } catch (err) {
+            console.error("Error submitting product form:", err);
+            setFormServerError(err.response?.data?.message || err.message || "Error al guardar el producto.");
+        } finally {
+            setIsFormSubmitting(false);
+        }
     };
 
     const handleDeleteProduct = async (productId) => {
@@ -103,14 +132,14 @@ function ProductsPage() {
             } catch (err) {
                 console.error("Error deleting product:", err);
                 setError("Error al eliminar el producto.");
-                // setLoading(false); // fetchProducts will handle this
             }
         }
     };
-
     const productsToDisplay = searchTerm.trim()
         ? products.slice((page - 1) * PRODUCTS_PER_PAGE, page * PRODUCTS_PER_PAGE)
         : products;
+
+    const currentTotalPages = searchTerm.trim() ? Math.ceil(products.length / PRODUCTS_PER_PAGE) : totalPages;
 
 
     return (
@@ -123,7 +152,7 @@ function ProductsPage() {
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
-                    onClick={handleAddNewProduct}
+                    onClick={handleOpenCreateModal}
                     sx={{ backgroundColor: colors.primary.main, '&:hover': { backgroundColor: colors.primary.dark } }}
                 >
                     Nuevo
@@ -135,30 +164,25 @@ function ProductsPage() {
                         placeholder="Buscar producto..."
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton type="submit" aria-label="search">
-                                        <SearchIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton type="submit" aria-label="search" edge="end">
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }
                         }}
+
                         size="small"
                     />
                 </Box>
             </Paper>
 
-            {loading && (
-                <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
-                    <CircularProgress />
-                </Box>
-            )}
-            {error && (
-                <Alert severity="error" sx={{ my: 2 }}>
-                    {error}
-                </Alert>
-            )}
+            {loading && (<Box sx={{ display: "flex", justifyContent: "center", py: 5 }}><CircularProgress /></Box>)}
+            {error && !loading && (<Alert severity="error" sx={{ my: 2 }}>{error}</Alert>)}
             {!loading && !error && productsToDisplay.length === 0 && (
                 <Typography sx={{ textAlign: "center", py: 5, color: "text.secondary" }}>
                     {searchTerm ? `No se encontraron productos para "${searchTerm}".` : "No hay productos disponibles."}
@@ -168,32 +192,21 @@ function ProductsPage() {
             {!loading && !error && productsToDisplay.length > 0 && (
                 <Grid container spacing={2.5}>
                     {productsToDisplay.map((product) => (
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={4}
-                            lg={3}
-                            key={product.id}
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'stretch'
-                            }}
-                        >
+                        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id} sx={{ display: 'flex', alignItems: 'stretch' }}>
                             <ProductCard
                                 product={product}
-                                onEdit={handleEditProduct}
-                                onDelete={handleDeleteProduct}
+                                onEdit={() => handleOpenEditModal(product)}
+                                onDelete={() => handleDeleteProduct(product.id)}
                             />
                         </Grid>
                     ))}
                 </Grid>
             )}
 
-            {!loading && totalPages > 0 && productsToDisplay.length > 0 && (
+            {!loading && currentTotalPages > 1 && productsToDisplay.length > 0 && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4, mb: 2, p: 1 }}>
                     <Pagination
-                        count={totalPages}
+                        count={currentTotalPages}
                         page={page}
                         onChange={handlePageChange}
                         color="primary"
@@ -201,13 +214,21 @@ function ProductsPage() {
                 </Box>
             )}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1, mb: 2, pr: 1 }}>
-                {!loading && totalProducts > 0 && (
+                {!loading && (searchTerm.trim() ? products.length > 0 : totalProducts > 0) && (
                     <Typography variant="body2" color="text.secondary">
-                        {`Total: ${totalProducts} productos`}
-                        {searchTerm.trim() && ` (Filtrado por "${searchTerm}")`}
+                        {searchTerm.trim() ? `Mostrando ${productsToDisplay.length} de ${products.length} para "${searchTerm}"` : `Total: ${totalProducts} productos`}
                     </Typography>
                 )}
             </Box>
+
+            <ProductFormModal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                onSubmit={handleProductFormSubmit}
+                productToEdit={editingProduct}
+                isSubmitting={isFormSubmitting}
+                serverError={formServerError}
+            />
         </>
     );
 }
