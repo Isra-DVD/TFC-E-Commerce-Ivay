@@ -21,7 +21,7 @@ import { colors } from "../../constants/styles";
 import logo from "../../assets/images/ivay-logo.png";
 
 export default function DetailsPage() {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -41,29 +41,32 @@ export default function DetailsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const data = user || (await UserService.getMyProfile());
-        setForm({
-          name: data.name || "",
-          fullName: data.fullName || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          userAddress: data.userAddress || "",
-        });
-      } catch (e) {
-        setError("No se pudo cargar el perfil.");
-        if (e.response?.status === 401) {
-          logout();
-          navigate("/login", { replace: true });
-        }
-      } finally {
-        setLoading(false);
+  const fetchProfile = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await UserService.getMyProfile();
+      setForm({
+        name: data.name || "",
+        fullName: data.fullName || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        userAddress: data.userAddress || "",
+      });
+    } catch (e) {
+      setError("No se pudo cargar el perfil.");
+      if (e.response?.status === 401) {
+        logout();
+        navigate("/login", { replace: true });
       }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchProfile();
-  }, [user, logout, navigate]);
+  }, [navigate, logout]);
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -78,6 +81,7 @@ export default function DetailsPage() {
       await UserService.updateMyProfile(form);
       setSuccess("Datos actualizados con éxito.");
       setReadOnly(true);
+      await fetchProfile();
     } catch {
       setError("Error actualizando datos.");
     }
@@ -240,9 +244,7 @@ export default function DetailsPage() {
               sx={{
                 backgroundColor: colors.primary.light,
                 color: "#fff",
-                "&:hover": {
-                  backgroundColor: colors.primary.dark,
-                },
+                "&:hover": { backgroundColor: colors.primary.dark },
               }}
               startIcon={<ExitToAppOutlinedIcon />}
               onClick={handleLogout}
@@ -334,7 +336,6 @@ export default function DetailsPage() {
               margin="normal"
               InputProps={{ readOnly }}
             />
-
             <Button
               variant="contained"
               sx={{ mt: 2 }}
@@ -344,7 +345,6 @@ export default function DetailsPage() {
             </Button>
 
             {/* Sección de cambio de contraseña */}
-
             <TextField
               fullWidth
               label="Contraseña actual"
@@ -372,7 +372,6 @@ export default function DetailsPage() {
               onChange={handleChangePasswordForm}
               margin="normal"
             />
-
             <Button
               variant="contained"
               sx={{ mt: 2 }}
