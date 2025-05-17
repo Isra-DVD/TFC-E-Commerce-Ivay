@@ -21,6 +21,7 @@ function RegisterPage() {
     fullName: "",
     email: "",
     phone: "",
+    userAddress: "",
     password: "",
     confirmPassword: "",
     roleId: 4,
@@ -53,8 +54,9 @@ function RegisterPage() {
         name: formData.name,
         fullName: formData.fullName,
         email: formData.email,
-        password: formData.password,
         phone: formData.phone,
+        userAddress: formData.userAddress,
+        password: formData.password,
         roleId: formData.roleId,
         isEnabled: formData.isEnabled,
         accountNoExpired: formData.accountNoExpired,
@@ -142,6 +144,18 @@ function RegisterPage() {
           name="phone"
           autoComplete="tel"
           value={formData.phone}
+          onChange={handleChange}
+          disabled={loading}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="userAddress"
+          label="Dirección del Usuario"
+          name="userAddress"
+          autoComplete="tel"
+          value={formData.userAddress}
           onChange={handleChange}
           disabled={loading}
         />

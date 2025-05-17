@@ -50,9 +50,9 @@ public class UserEntityServiceImpl implements UserEntityService {
 	@Override
 	public UserResponseDto createUser(UserRequestDto userRequestDto) {
 		
-		if (userRepository.findUserEntityByName(userRequestDto.getName()) != null) {
-            throw new IllegalArgumentException("Ese nombre de cuenta ya está en uso");
-        }
+		if (userRepository.findUserEntityByName(userRequestDto.getName()).isPresent()) {
+	        throw new IllegalArgumentException("Ese nombre de cuenta ya está en uso");
+	    }
 		
 		Role role = roleRepository.findById(userRequestDto.getRoleId()).orElseThrow(
 				() -> new ResourceNotFoundException("Role with id: " + userRequestDto.getRoleId() + " not found"));
