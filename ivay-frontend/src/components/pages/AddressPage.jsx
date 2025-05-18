@@ -249,7 +249,7 @@ const AddressPage = () => {
         <Grid item xs={12} md={6}>
           <Box
             sx={{
-              p: 2.5,
+              p: 1.5,
               border: `1px solid ${colors.grey[300]}`,
               borderRadius: 2,
               backgroundColor: colors.background.paper,
