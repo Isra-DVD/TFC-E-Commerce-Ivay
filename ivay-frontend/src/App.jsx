@@ -33,6 +33,8 @@ import CartPage from "./components/pages/CartPage";
 import ProductsPage from "./components/pages/ProductsPage";
 import SearchResultsPage from "./components/pages/SearchResultPage";
 import AddressPage from "./components/pages/AddressPage";
+import SummaryPage from "./components/pages/SummaryPage";
+import PaymentPage from "./components/pages/PaymentPage";
 
 const theme = createTheme({
   palette: {
@@ -135,7 +137,7 @@ const LayoutWrapper = () => {
             path="/checkout/payment"
             element={
               <RequireAuth>
-                <Container sx={{ py: 3 }}>
+                <Container sx={{ py: 1 }}>
                   <PaymentPage />
                 </Container>
               </RequireAuth>
@@ -145,10 +147,8 @@ const LayoutWrapper = () => {
             path="/checkout/summary"
             element={
               <RequireAuth>
-                <Container sx={{ py: 3 }}>
-                  <Typography>
-                    Página de Resumen del Pedido (Pendiente)
-                  </Typography>
+                <Container sx={{ py: 1 }}>
+                  <SummaryPage />
                 </Container>
               </RequireAuth>
             }
