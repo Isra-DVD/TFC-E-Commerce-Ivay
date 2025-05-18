@@ -14,7 +14,7 @@ const getAddressById = async (addressId) => {
 };
 
 const getAddressesByUserId = async (userId) => {
-  const response = await axios.get(`${API_BASE_URL}/users/${userId}/addresses`);
+  const response = await axios.get(`${ADDRESS_API_URL}/users/${userId}`);
   return response.data.data;
 };
 
