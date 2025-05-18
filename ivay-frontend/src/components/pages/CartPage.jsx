@@ -35,7 +35,6 @@ const CartPage = () => {
   const [error, setError] = useState("");
   const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
   const [similarProducts, setSimilarProducts] = useState([]);
-  const [activeStep, setActiveStep] = useState(0);
 
   const fetchCartData = useCallback(async () => {
     if (!user?.id) {

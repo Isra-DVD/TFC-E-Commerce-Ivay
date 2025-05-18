@@ -1,4 +1,3 @@
-// src/pages/AddressPage.jsx
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,7 +10,7 @@ import {
   Divider,
   TextField,
 } from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import PaymentIcon from "@mui/icons-material/Payment";
 import CartItemService from "../../service/cartItem.service";
 import { useAuth } from "../../context/AuthContext";
 import { colors, layout } from "../../constants/styles";
@@ -20,28 +19,42 @@ const AddressPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
-  const [form, setForm] = useState({
+  const [addressForm, setaddressForm] = useState({
     name: "",
     phone: "",
     address: "",
-    postalCode: "",
+    zipCode: "",
     province: "",
-    city: "",
+    locality: "",
   });
 
   const fetchCart = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
     try {
+      setLoading(true);
       const items = await CartItemService.getCartItemsByUserId(user.id);
-      setCartItems(items);
-    } catch {
+      const processedItems = items.map((item) => ({
+        ...item,
+        product: {
+          ...item.product,
+          price: parseFloat(item.product?.price) || 0,
+        },
+        quantity: parseInt(item.quantity, 10) || 0,
+      }));
+      setCartItems(processedItems);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
       setCartItems([]);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -62,11 +75,12 @@ const AddressPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setaddressForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    console.log("Enviar dirección:", form);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Enviar dirección:", addressForm);
     navigate("/checkout/payment");
   };
 
@@ -84,89 +98,118 @@ const AddressPage = () => {
         variant="h4"
         component="h1"
         gutterBottom
-        sx={{ textAlign: "center", mb: 3, fontWeight: "bold" }}
+        sx={{
+          textAlign: "center",
+          mb: 3,
+          fontWeight: "bold",
+        }}
       >
         Dirección de envío
       </Typography>
 
-      <Grid container spacing={4}>
-        {/* Left Column: Address Form */}
-        <Grid item xs={12} md={8}>
-          <Paper
+      <Grid
+        container
+        spacing={4}
+        component="addressForm"
+        onSubmit={handleSubmit}
+        sx={{
+          width: "70%",
+          justifyContent: "center",
+        }}
+      >
+        {/* --- COLUMNA IZQUIERDA: addressFormULARIO DE DIRECCIÓN --- */}
+
+        <Grid item xs={12} md={6}>
+          <Box
             sx={{
-              p: { xs: 2, md: 4 },
-              border: `1px solid ${colors.grey[300]}`,
+              p: { xs: 2, sm: 3 },
+              border: `1px solid ${colors.grey?.[300] || "#e0e0e0"}`,
               borderRadius: 2,
+              backgroundColor: colors.background?.paper || "#FFFFFF",
+              boxShadow: "0px 3px 6px rgba(0,0,0,0.1)",
             }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Nombre"
+                  required
+                  label="Nombre y apellidos"
                   name="name"
-                  value={form.name}
+                  value={addressForm.name}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  required
                   label="Teléfono"
                   name="phone"
-                  value={form.phone}
+                  type="tel"
+                  value={addressForm.phone}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
-
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Dirección"
+                  required
+                  label="Dirección (calle, número, piso, etc.)"
                   name="address"
-                  value={form.address}
+                  value={addressForm.address}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
-
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  required
                   label="Código postal"
-                  name="postalCode"
-                  value={form.postalCode}
+                  name="zipCode"
+                  value={addressForm.zipCode}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  required
                   label="Provincia"
                   name="province"
-                  value={form.province}
+                  value={addressForm.province}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  required
                   label="Localidad"
-                  name="city"
-                  value={form.city}
+                  name="locality"
+                  value={addressForm.locality}
                   onChange={handleChange}
+                  variant="outlined"
                 />
               </Grid>
             </Grid>
-          </Paper>
+          </Box>
         </Grid>
 
-        {/* Right Column: Summary */}
+        {/* --- COLUMNA DERECHA: RESUMEN DEL PEDIDO Y BOTÓN --- */}
+        {/* md={4} hace que esta columna ocupe 4/12 del espacio */}
+        {/* Total md={10} (6+4), por lo que justifyContent: "center" en el padre las centrará */}
         <Grid item xs={12} md={4}>
           <Paper
             sx={{
-              p: { xs: 2, md: 3 },
+              p: 3,
               border: `1px solid ${colors.grey[300]}`,
-              borderRadius: 2,
+              borderRadius: 1,
             }}
           >
             <Typography
@@ -178,9 +221,12 @@ const AddressPage = () => {
               Resumen
             </Typography>
             <Divider sx={{ my: 2 }} />
-
             <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 2,
+              }}
             >
               <Typography variant="body1" fontWeight="medium">
                 Total (Impuestos incluidos)
@@ -189,21 +235,23 @@ const AddressPage = () => {
                 €{totalPrice.toFixed(2)}
               </Typography>
             </Box>
-
             <Button
               fullWidth
               variant="contained"
               size="large"
-              onClick={handleSubmit}
-              startIcon={<ShoppingCartIcon />}
+              onClick={() => navigate("/checkout/address")}
+              startIcon={<PaymentIcon />}
               sx={{
                 mt: 2,
                 fontWeight: "bold",
-                backgroundColor: colors.primary.light,
-                "&:hover": { backgroundColor: colors.primary.main },
+                backgroundColor: "#673AB7",
+                "&:hover": {
+                  backgroundColor: "#512DA8",
+                },
               }}
+              disabled={cartItems.length === 0}
             >
-              Guardar y continuar
+              Realizar pedido
             </Button>
           </Paper>
         </Grid>
