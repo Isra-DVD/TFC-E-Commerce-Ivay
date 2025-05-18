@@ -136,7 +136,7 @@ const LayoutWrapper = () => {
             element={
               <RequireAuth>
                 <Container sx={{ py: 3 }}>
-                  <Typography>Página de Método de Pago (Pendiente)</Typography>
+                  <PaymentPage />
                 </Container>
               </RequireAuth>
             }

@@ -214,9 +214,6 @@ const AddressPage = () => {
       >
         {/* Lista con scroll horizontal */}
         <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
-            Tus direcciones guardadas
-          </Typography>
           <Box sx={{ display: "flex", overflowX: "auto", gap: 1, py: 1 }}>
             {addresses.map((addr) => (
               <Paper key={addr.id} sx={{ minWidth: 250, p: 2, flexShrink: 0 }}>
