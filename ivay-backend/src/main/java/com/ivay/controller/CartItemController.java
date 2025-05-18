@@ -2,9 +2,13 @@ package com.ivay.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.ivay.dtos.api.ApiError;
@@ -12,6 +16,9 @@ import com.ivay.dtos.api.ApiResponseDto;
 import com.ivay.dtos.cartitemdto.CartItemRequestDto;
 import com.ivay.dtos.cartitemdto.CartItemResponseDto;
 import com.ivay.dtos.cartitemdto.UpdateCartItemQuantityDto;
+import com.ivay.entity.UserEntity;
+import com.ivay.exception.ResourceNotFoundException;
+import com.ivay.repository.UserRepository;
 import com.ivay.service.CartItemService;
 
 import java.util.List;
@@ -34,6 +41,9 @@ import io.swagger.v3.oas.annotations.media.*;
 public class CartItemController {
 
 	private final CartItemService cartItemService;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Operation(
 			summary     = "Fetch a cart item by ID",
@@ -133,8 +143,19 @@ public class CartItemController {
 	@GetMapping(value = "/users/{userId}/cart-items", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ApiResponseDto<List<CartItemResponseDto>>> getCartItemsByUserId(
 			@Parameter(description = "Identifier of the user", required = true)
-			@PathVariable Long userId
+			@PathVariable Long userId,
+			Authentication authentication
 			) {
+		
+		String username = authentication.getName();
+		UserEntity authUser = userRepository
+		        .findUserEntityByName(username)
+		        .orElseThrow(() -> new ResourceNotFoundException("…"));
+		
+		 if (!authUser.getId().equals(userId)) {
+		        throw new AccessDeniedException("No tienes permiso");
+		    }
+		
 		List<CartItemResponseDto> cartItems = cartItemService.getCartItemsByUserId(userId);
 		ApiResponseDto<List<CartItemResponseDto>> response =
 				new ApiResponseDto<>("User's cart items fetched successfully", HttpStatus.OK.value(), cartItems);

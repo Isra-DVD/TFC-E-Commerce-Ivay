@@ -47,13 +47,13 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/categories/filter").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
 						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").authenticated()
-						.requestMatchers(HttpMethod.GET, "/api/users/me").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
 						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
 
 						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
 						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").authenticated()
-						.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.DELETE, "/api/addresses/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
+						.requestMatchers(HttpMethod.DELETE, "/api/addresses/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
 						.requestMatchers(HttpMethod.POST, "/api/addresses").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
 						.requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
 
