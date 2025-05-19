@@ -29,8 +29,6 @@ function LoginPage() {
 
     useEffect(() => {
         if (!authIsLoading && isAuthenticated && user) {
-            // TODO: More robust role check from user object if available
-            // Example: if (user.roles && user.roles.includes('ROLE_ADMIN'))
             navigate(location.state?.from?.pathname || "/products", { replace: true });
         }
     }, [isAuthenticated, authIsLoading, user, navigate, location.state]);
@@ -59,7 +57,6 @@ function LoginPage() {
         }
     };
 
-    // Handles overall auth loading state (e.g. checking token on app load)
     if (authIsLoading && !isSubmitting) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">

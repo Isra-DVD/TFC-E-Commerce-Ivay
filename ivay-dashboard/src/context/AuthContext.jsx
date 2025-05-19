@@ -50,10 +50,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem("authToken");
-        delete axios.defaults.headers.common["Authorization"];
-        setToken(null);
-        setUser(null);
+        if (token) {
+            localStorage.removeItem("authToken");
+            delete axios.defaults.headers.common["Authorization"];
+            setToken(null);
+            setUser(null);
+        }
     };
 
     useEffect(() => {

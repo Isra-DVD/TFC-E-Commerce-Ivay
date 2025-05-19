@@ -35,6 +35,7 @@ import SearchResultsPage from "./components/pages/SearchResultPage";
 import AddressPage from "./components/pages/AddressPage";
 import SummaryPage from "./components/pages/SummaryPage";
 import PaymentPage from "./components/pages/PaymentPage";
+import { useEffect } from "react";
 
 const theme = createTheme({
   palette: {
@@ -47,23 +48,33 @@ const theme = createTheme({
 });
 
 function RequireAuth({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      const isAdminOrGestor = user.roleId === 2 || user.roleId === 4;
+      if (!isAdminOrGestor) {
+        console.warn("User does not have admin/client role. Logging out.");
+        logout();
+      }
+    }
+  }, [isLoading, isAuthenticated, user, logout, location]);
 
   if (isLoading) {
     return (
-      <Box textAlign="center" mt={10}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 70px)' }}>
         <CircularProgress />
       </Box>
     );
   }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!isAuthenticated || !user) {
+    const message = location.state?.message || (user && !(user.roleId === 2 || user.roleId === 3) ? "Acceso no autorizado por rol." : "Por favor, inicia sesión.");
+    return <Navigate to="/login" state={{ from: location, message: message }} replace />;
   }
   return children;
 }
-// Define checkout paths
+
 const CHECKOUT_PATHS = [
   "/cart",
   "/checkout/address",
@@ -76,7 +87,6 @@ const LayoutWrapper = () => {
   const authPaths = ["/login", "/register", "/me"];
   const isAuthPageLayout = authPaths.includes(location.pathname);
 
-  // Determine if the current path is part of the checkout flow
   const isCheckoutFlow = CHECKOUT_PATHS.some((path) =>
     location.pathname.startsWith(path)
   );
@@ -97,12 +107,11 @@ const LayoutWrapper = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          // Adjust py for checkout flow if CheckoutHeader height is different
           py: isAuthPageLayout
             ? 0
             : isCheckoutFlow
-            ? { xs: 2, sm: 3 }
-            : { xs: 2, sm: 4 },
+              ? { xs: 2, sm: 3 }
+              : { xs: 2, sm: 4 },
           display: isAuthPageLayout ? "flex" : "block",
           alignItems: isAuthPageLayout ? "center" : undefined,
           justifyContent: isAuthPageLayout ? "center" : undefined,

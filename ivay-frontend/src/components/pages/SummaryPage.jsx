@@ -21,28 +21,46 @@ const SummaryPage = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const fetchCart = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setCartItems([]);
+      return;
+    }
+
     try {
-      const items = await CartItemService.getCartItemsByUserId(user.id);
-      const withProduct = await Promise.all(
-        items.map(async (it) => {
-          if (it.productId && (!it.product || !it.product.id)) {
-            const prod = await ProductService.getProductById(it.productId);
-            return {
-              ...it,
-              product: { ...prod, price: parseFloat(prod.price) || 0 },
-            };
+      const itemsFromApi = await CartItemService.getCartItemsByUserId(user.id);
+      const processedItems = [];
+
+      for (const item of itemsFromApi) {
+        let productDetails = null;
+
+        if (item.productId && (!item.product || !item.product.id)) {
+          try {
+            const fetchedProduct = await ProductService.getProductById(item.productId);
+            if (fetchedProduct) {
+              productDetails = {
+                ...fetchedProduct,
+                price: parseFloat(fetchedProduct.price) || 0,
+              };
+            }
+          } catch (productError) {
+            console.error(
+              `Error fetching product ${item.productId} for cart item ${item.id}:`,
+              productError
+            );
           }
-          return {
-            ...it,
-            product: {
-              ...it.product,
-              price: parseFloat(it.product.price) || 0,
-            },
+        } else if (item.product) {
+          productDetails = {
+            ...item.product,
+            price: parseFloat(item.product.price) || 0,
           };
-        })
-      );
-      setCartItems(withProduct);
+        }
+
+        processedItems.push({
+          ...item,
+          product: productDetails,
+        });
+      }
+      setCartItems(processedItems);
     } catch (err) {
       console.error("Error fetching cart for summary:", err);
       setCartItems([]);
@@ -56,7 +74,7 @@ const SummaryPage = () => {
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, it) => sum + (it.product.price || 0) * (it.quantity || 1),
+        (sum, item) => sum + (item.product.price || 0) * (item.quantity || 1),
         0
       ),
     [cartItems]

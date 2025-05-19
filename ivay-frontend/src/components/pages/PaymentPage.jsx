@@ -45,35 +45,63 @@ const PaymentPage = () => {
 
   const fetchCart = useCallback(async () => {
     if (!user?.id) {
-      setLoading(false);
+      setCartItems([]);
       return;
     }
+
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const items = await CartItemService.getCartItemsByUserId(user.id);
-      const withProduct = await Promise.all(
-        items.map(async (it) => {
-          if (it.productId && (!it.product || !it.product.id)) {
-            const prod = await ProductService.getProductById(it.productId);
-            return {
-              ...it,
-              product: { ...prod, price: parseFloat(prod.price) || 0 },
-              quantity: Number(it.quantity) || 0,
-            };
+      const itemsFromApi = await CartItemService.getCartItemsByUserId(user.id);
+      const processedCartItems = [];
+
+      for (const currentCartItem of itemsFromApi) {
+        let productDataForCartItem = null;
+        const quantityInCart = Number(currentCartItem.quantity) || 0;
+
+        if (currentCartItem.productId && (!currentCartItem.product || !currentCartItem.product.id)) {
+          try {
+            const fetchedProductDetails = await ProductService.getProductById(currentCartItem.productId);
+
+            if (fetchedProductDetails) {
+              productDataForCartItem = {
+                ...fetchedProductDetails,
+                price: parseFloat(fetchedProductDetails.price) || 0,
+              };
+            } else {
+              console.warn(
+                `Producto con ID ${currentCartItem.productId} no encontrado para el ítem del carrito ${currentCartItem.id}. El ítem no tendrá detalles de producto.`
+              );
+            }
+          } catch (productFetchError) {
+            console.error(
+              `Error al obtener detalles del producto con ID ${currentCartItem.productId} (ítem del carrito ${currentCartItem.id}):`,
+              productFetchError
+            );
           }
-          return {
-            ...it,
-            product: {
-              ...it.product,
-              price: parseFloat(it.product.price) || 0,
-            },
-            quantity: Number(it.quantity) || 0,
-          };
-        })
-      );
-      setCartItems(withProduct);
-    } catch (err) {
-      console.error("Error fetching cart:", err);
+        } else {
+          if (currentCartItem.product) {
+            productDataForCartItem = {
+              ...currentCartItem.product,
+              price: parseFloat(currentCartItem.product.price) || 0,
+            };
+          } else {
+            console.warn(
+              `El ítem del carrito ${currentCartItem.id} no tiene productId ni datos de producto embebidos.`
+            );
+          }
+        }
+
+        processedCartItems.push({
+          ...currentCartItem,
+          product: productDataForCartItem,
+          quantity: quantityInCart,
+        });
+      }
+      setCartItems(processedCartItems);
+
+    } catch (errorFetchingInitialCart) {
+      console.error("Error al obtener los ítems del carrito:", errorFetchingInitialCart);
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -108,7 +136,6 @@ const PaymentPage = () => {
     if (method === "paysafe")
       setPaysafeForm((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error for this field
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
@@ -239,7 +266,7 @@ const PaymentPage = () => {
                     onChange={handleChange}
                     error={!!errors.cardNumber}
                     helperText={errors.cardNumber}
-                    inputProps={{ maxLength: 16 }}
+                    slotProps={{ maxLength: 16 }}
                   />
                   <TextField
                     fullWidth
@@ -257,12 +284,11 @@ const PaymentPage = () => {
                     required
                     label="CVV"
                     name="cvv"
-                    type="password"
                     value={cardForm.cvv}
                     onChange={handleChange}
                     error={!!errors.cvv}
                     helperText={errors.cvv}
-                    inputProps={{ maxLength: 4 }}
+                    slotProps={{ maxLength: 4 }}
                   />
                   <TextField
                     fullWidth
@@ -337,7 +363,7 @@ const PaymentPage = () => {
                   onChange={handleChange}
                   error={!!errors.code}
                   helperText={errors.code}
-                  inputProps={{ maxLength: 16 }}
+                  slotProps={{ maxLength: 16 }}
                 />
               )}
             </Box>

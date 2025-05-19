@@ -11,24 +11,12 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { colors } from "../../constants/styles";
 
-interface Product {
-  id: number | string;
-  name: string;
-  price: number;
-  discount: number;
-  imageUrl?: string;
-}
-
-interface ProductCardProps {
-  product: Product;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard = ({ product }) => {
   const discountPercentage =
     product.discount > 0 ? Math.round(product.discount * 100) : 0;
 
   const currentPrice = product.price.toFixed(2);
-  let originalPrice: string | null = null;
+  let originalPrice = null;
   if (product.discount > 0 && product.price > 0) {
     originalPrice = (product.price / (1 - product.discount)).toFixed(2);
   }

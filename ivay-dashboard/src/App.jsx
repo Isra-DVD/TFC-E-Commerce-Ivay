@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -54,9 +54,18 @@ const adminTheme = createTheme({
 });
 
 function RequireAuth({ children }) {
-  const { isAuthenticated, isLoading, user, logout }
-    = useAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      const isAdminOrGestor = user.roleId === 2 || user.roleId === 3;
+      if (!isAdminOrGestor) {
+        console.warn("User does not have admin/gestor role. Logging out.");
+        logout();
+      }
+    }
+  }, [isLoading, isAuthenticated, user, logout, location]);
 
   if (isLoading) {
     return (
@@ -65,20 +74,10 @@ function RequireAuth({ children }) {
       </Box>
     );
   }
-
   if (!isAuthenticated || !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const message = location.state?.message || (user && !(user.roleId === 2 || user.roleId === 3) ? "Acceso no autorizado por rol." : "Por favor, inicia sesión.");
+    return <Navigate to="/login" state={{ from: location, message: message }} replace />;
   }
-
-  // Optional: More specific role check
-  // Replace 'ROLE_ADMIN' or 'ROLE_GESTOR' with your actual role names from backend
-  // const isAdminOrGestor = user.roles && user.roles.some(role => role.name === 'ROLE_ADMIN' || role.name === 'ROLE_GESTOR');
-  // if (!isAdminOrGestor) {
-  //     console.warn("User does not have admin/gestor role. Logging out.");
-  //     logout(); // Ensure logout is available from useAuth
-  //     return <Navigate to="/login" state={{ from: location, message: "Acceso no autorizado." }} replace />;
-  // }
-
   return children;
 }
 
@@ -152,10 +151,6 @@ export default function App() {
                 </RequireAuth>
               }
             />
-            {/* Add more admin routes here (e.g., for creating/editing items) */}
-            {/* <Route path="/products/new" element={<RequireAuth><AdminLayout><ProductFormPage/></AdminLayout></RequireAuth>} /> */}
-            {/* <Route path="/products/edit/:id" element={<RequireAuth><AdminLayout><ProductFormPage/></AdminLayout></RequireAuth>} /> */}
-
             <Route path="*" element={<AdminLayout><NotFound /></AdminLayout>} />
           </Routes>
         </AuthProvider>

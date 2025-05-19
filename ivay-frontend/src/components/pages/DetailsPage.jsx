@@ -298,7 +298,7 @@ export default function DetailsPage() {
               value={form.name}
               onChange={handleChange}
               margin="normal"
-              InputProps={{ readOnly }}
+              slotProps={{ readOnly }}
             />
             <TextField
               fullWidth
@@ -307,7 +307,7 @@ export default function DetailsPage() {
               value={form.fullName}
               onChange={handleChange}
               margin="normal"
-              InputProps={{ readOnly }}
+              slotProps={{ readOnly }}
             />
             <TextField
               fullWidth
@@ -316,7 +316,7 @@ export default function DetailsPage() {
               value={form.email}
               onChange={handleChange}
               margin="normal"
-              InputProps={{ readOnly }}
+              slotProps={{ readOnly }}
             />
             <TextField
               fullWidth
@@ -325,7 +325,7 @@ export default function DetailsPage() {
               value={form.phone}
               onChange={handleChange}
               margin="normal"
-              InputProps={{ readOnly }}
+              slotProps={{ readOnly }}
             />
             <TextField
               fullWidth
@@ -334,7 +334,7 @@ export default function DetailsPage() {
               value={form.userAddress}
               onChange={handleChange}
               margin="normal"
-              InputProps={{ readOnly }}
+              slotProps={{ readOnly }}
             />
             <Button
               variant="contained"
