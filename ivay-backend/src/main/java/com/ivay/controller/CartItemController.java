@@ -36,7 +36,7 @@ import io.swagger.v3.oas.annotations.media.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
 @Tag(name = "CartItem", description = "Endpoints for managing shopping cart items")
 public class CartItemController {
 

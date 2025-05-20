@@ -14,7 +14,6 @@ import com.ivay.dtos.addressdto.AddressResponseDto;
 import com.ivay.dtos.api.ApiError;
 import com.ivay.dtos.api.ApiResponseDto;
 import com.ivay.service.AddressService;
-import com.ivay.service.UserEntityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,14 +25,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/addresses")
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
 public class AddressController {
 
 	@Autowired
 	private AddressService addressService;
-
-	@Autowired
-	private UserEntityService userService;
 
 	@Operation(
 			summary     = "Fetch all addresses",
