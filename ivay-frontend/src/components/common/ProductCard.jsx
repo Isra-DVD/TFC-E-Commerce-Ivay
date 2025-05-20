@@ -1,4 +1,3 @@
-// src/components/common/ProductCard.tsx
 import React from "react";
 import {
   Card,
@@ -10,6 +9,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { colors } from "../../constants/styles";
+import placeholder from "../../assets/images/product-placeholder.png"
 
 const ProductCard = ({ product }) => {
   const discountPercentage =
@@ -74,7 +74,7 @@ const ProductCard = ({ product }) => {
       >
         <CardMedia
           component="img"
-          image={product.imageUrl || "/intel-product.jpg"}
+          image={product.imageUrl || placeholder}
           alt={product.name}
           sx={{
             maxHeight: "100%",

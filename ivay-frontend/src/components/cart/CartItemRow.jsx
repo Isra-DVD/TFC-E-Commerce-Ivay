@@ -13,6 +13,8 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { colors } from "../../constants/styles";
+import placeholder from "../../assets/images/product-placeholder.png"
+
 
 const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
     const product = item.product;
@@ -58,7 +60,7 @@ const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
                 <MuiLink component={RouterLink} to={`/products/${product.id}`}>
                     <CardMedia
                         component="img"
-                        image={product.imageUrl || "/intel-product.jpg"}
+                        image={product.imageUrl || placeholder}
                         alt={product.name}
                         sx={{
                             width: "100%",

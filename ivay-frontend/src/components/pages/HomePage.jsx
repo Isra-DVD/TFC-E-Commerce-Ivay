@@ -21,6 +21,17 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { layout, colors } from "../../constants/styles";
 import ProductCard from "../common/ProductCard";
 import ProductService from "../../service/product.service";
+import promoLaptopImg from '../../assets/images/category/promo-laptop.jpg';
+import promoMonitorImg from '../../assets/images/category/promo-monitor.jpg';
+import promoComponentsImg from '../../assets/images/category/promo-components.jpg';
+import promoTvImg from '../../assets/images/category/promo-tv.jpg';
+import iconOferta from '../../assets/images/icons/icon-oferta.png';
+import iconEnvio from '../../assets/images/icons/icon-envio.png';
+import icon24h from '../../assets/images/icons/icon-24h.png';
+import iconDev from '../../assets/images/icons/icon-dev.png';
+import iconGarantia from '../../assets/images/icons/icon-garantia.png';
+import iconNovedades from '../../assets/images/icons/icon-novedades.png';
+import bannerOfertas from '../../assets/images/banner-ofertas-semana.png'
 
 const FeatureIcon = ({ feature }) => (
   <Box sx={{ textAlign: "center", p: 1 }}>
@@ -38,33 +49,33 @@ const FeatureIcon = ({ feature }) => (
 const promoCategories = [
   {
     title: "Los mejores portátiles",
-    image: "/category/promo-laptop.jpg",
+    image: promoLaptopImg,
     path: "/products?categoryId=1",
   },
   {
     title: "Monitores en tendencia",
-    image: "/category/promo-monitor.jpg",
+    image: promoMonitorImg,
     path: "/products?categoryId=2",
   },
   {
     title: "Estrena en smartphone",
-    image: "/category/promo-components.jpg",
+    image: promoComponentsImg,
     path: "/products?categoryId=3",
   },
   {
     title: "Increíbles periféricos y regletas",
-    image: "/category/promo-tv.jpg",
+    image: promoTvImg,
     path: "/products?categoryId=4",
   },
 ];
 
 const features = [
-  { title: "Ofertas especiales", iconUrl: "/icons/icon-oferta.png" },
-  { title: "Envío gratis >50€", iconUrl: "/icons/icon-envio.png" },
-  { title: "Recibe en 24h", iconUrl: "/icons/icon-24h.png" },
-  { title: "Devoluciones gratuitas", iconUrl: "/icons/icon-dev.png" },
-  { title: "Garantía y sustitución", iconUrl: "/icons/icon-garantia.png" },
-  { title: "Lanzamientos y novedades", iconUrl: "/icons/icon-novedades.png" },
+  { title: "Ofertas especiales", iconUrl: iconOferta },
+  { title: "Envío gratis >50€", iconUrl: iconEnvio },
+  { title: "Recibe en 24h", iconUrl: icon24h },
+  { title: "Devoluciones gratuitas", iconUrl: iconDev },
+  { title: "Garantía y sustitución", iconUrl: iconGarantia },
+  { title: "Lanzamientos y novedades", iconUrl: iconNovedades },
 ];
 
 const MAX_PRODUCTS_DISPLAY = 6;
@@ -207,7 +218,7 @@ function HomePage() {
       >
         <MuiLink component={RouterLink} to="/products?filter=ofertas-semana">
           <img
-            src="/banner-ofertas-semana.png"
+            src={bannerOfertas}
             alt="Ofertas TOP de la Semana"
             style={{ width: "100%", display: "block" }}
           />

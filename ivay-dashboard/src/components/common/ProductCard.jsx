@@ -23,6 +23,7 @@ import {
 } from "@cloudinary/react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { fill } from "@cloudinary/url-gen/actions/resize";
+import ProductPlaceholder from "../../assets/images/product-placeholder.png"
 
 const cld = new Cloudinary({
     cloud: {
@@ -190,11 +191,11 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                             objectFit: "contain",
                             p: 1,
                         }}
-                        image={product.imageUrl || "/intel-product.jpg"}
+                        image={product.imageUrl || ProductPlaceholder}
                         alt={product.name}
                         onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = "/intel-product.jpg";
+                            e.target.src = { ProductPlaceholder };
                         }}
                     />
                 )}

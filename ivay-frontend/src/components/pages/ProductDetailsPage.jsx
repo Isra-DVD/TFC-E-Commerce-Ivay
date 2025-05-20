@@ -21,6 +21,8 @@ import CartItemService from "../../service/cartItem.service";
 import { useAuth } from "../../context/AuthContext";
 import ProductCard from "../common/ProductCard";
 import { colors, layout } from "../../constants/styles";
+import placeholder from "../../assets/images/product-placeholder.png"
+
 
 const ProductDetailsPage = () => {
   const { productId } = useParams();
@@ -50,7 +52,7 @@ const ProductDetailsPage = () => {
         console.error("Error fetching product data:", e);
         setError(
           e.response?.data?.message ||
-            "No se pudo cargar la información del producto."
+          "No se pudo cargar la información del producto."
         );
       } finally {
         setLoading(false);
@@ -160,7 +162,7 @@ const ProductDetailsPage = () => {
           >
             <CardMedia
               component="img"
-              image={product.imageUrl || "/intel-product.jpg"}
+              image={product.imageUrl || placeholder}
               alt={product.name}
               sx={{
                 width: "100%",

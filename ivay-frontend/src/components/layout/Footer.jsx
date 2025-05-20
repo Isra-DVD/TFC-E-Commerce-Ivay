@@ -1,15 +1,22 @@
 import React from "react";
 import { Box, Container, Grid, Typography, Link, Divider } from "@mui/material";
 import { layout, colors, commonStyles } from "../../constants/styles";
+import hpLogo from '../../assets/images/logos/hp.jpg';
+import samsungLogo from '../../assets/images/logos/samsung.jpg';
+import appleLogo from '../../assets/images/logos/apple.jpg';
+import intelLogo from '../../assets/images/logos/intel.jpg';
+import windowsLogo from '../../assets/images/logos/windows.jpg';
+import corsairLogo from '../../assets/images/logos/corsair.jpg';
 
 const brandLogos = [
-  { src: "/logos/hp.jpg", alt: "HP Logo" },
-  { src: "/logos/samsung.jpg", alt: "Samsung Logo" },
-  { src: "/logos/apple.jpg", alt: "Apple Logo" },
-  { src: "/logos/intel.jpg", alt: "Intel Logo" },
-  { src: "/logos/windows.jpg", alt: "Windows 11 Logo" },
-  { src: "/logos/corsair.jpg", alt: "Corsair Logo" },
+  { src: hpLogo, alt: "HP Logo" },
+  { src: samsungLogo, alt: "Samsung Logo" },
+  { src: appleLogo, alt: "Apple Logo" },
+  { src: intelLogo, alt: "Intel Logo" },
+  { src: windowsLogo, alt: "Windows 11 Logo" },
+  { src: corsairLogo, alt: "Corsair Logo" },
 ];
+
 
 function Footer() {
   return (
