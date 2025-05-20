@@ -9,7 +9,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 
@@ -22,6 +24,8 @@ import com.ivay.jwt.JwtAuthenticationFilter;
 import com.ivay.service.impl.UserDetailsServiceImpl;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	@Bean
@@ -48,21 +52,21 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
 						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").authenticated()
 						.requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
-						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
+						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
 
 						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
-						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").authenticated()
-						.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.DELETE, "/api/addresses/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.POST, "/api/addresses").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
-						.requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").hasAnyRole("SUPERADMIN","ADMIN","CLIENT")
+						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").hasAnyRole("SUPERADMIN", "ADMIN") 
+						.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/api/addresses/{id}").authenticated()
+						.requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
+						.requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
 
-						.requestMatchers(HttpMethod.GET, "/api/cart-items/{cartItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.POST, "/api/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.PATCH, "/api/cart-items/{cartItemId}/quantity").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.DELETE, "/api/cart-items/{cartItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.DELETE, "/api/users/{userId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
+						.requestMatchers(HttpMethod.GET, "/api/cart-items/{cartItemId}").authenticated()
+						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/cart-items").authenticated()
+						.requestMatchers(HttpMethod.POST, "/api/cart-items").authenticated()
+						.requestMatchers(HttpMethod.PATCH, "/api/cart-items/{cartItemId}/quantity").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/api/cart-items/{cartItemId}").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/api/users/{userId}/cart-items").authenticated()
 
 						.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.PUT, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
@@ -100,6 +104,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
+						
+						.anyRequest().authenticated()
 
 						)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

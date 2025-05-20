@@ -30,6 +30,12 @@ public class AddressServiceImpl implements AddressService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	public boolean isOwner(Long addressId, String username) {
+	    return addressRepository.findById(addressId)
+	      .map(address -> address.getUser().getName().equals(username))
+	      .orElse(false);
+	  }
 
 	@Override
 	public List<AddressResponseDto> getAllAddresses() {
