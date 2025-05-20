@@ -15,9 +15,9 @@ import {
   InputLabel,
   IconButton,
 } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 import PaymentIcon from "@mui/icons-material/Payment";
 import CartItemService from "../../service/cartItem.service";
@@ -59,7 +59,9 @@ const AddressPage = () => {
         const quantity = Number(item.quantity) || 0;
         if (item.productId && (!item.product || !item.product.id)) {
           try {
-            const fetchedProduct = await ProductService.getProductById(item.productId);
+            const fetchedProduct = await ProductService.getProductById(
+              item.productId
+            );
             if (fetchedProduct) {
               finalProductData = {
                 ...fetchedProduct,
@@ -108,8 +110,7 @@ const AddressPage = () => {
     try {
       const data = await AddressService.getAddressesByUserId(user.id);
       setAddresses(data);
-      if (!selectedAddressId && data.length > 0) {
-      } else if (data.length === 0) {
+      if (data.length === 0) {
         setSelectedAddressId("");
         setEditingAddressId(null);
       }
@@ -135,7 +136,7 @@ const AddressPage = () => {
   const totalPrice = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + ((item.product?.price || 0) * item.quantity),
+        (sum, item) => sum + (item.product?.price || 0) * item.quantity,
         0
       ),
     [cartItems]
@@ -147,7 +148,10 @@ const AddressPage = () => {
   };
 
   const handleSelectAddressChange = (eventOrId) => {
-    const newSelectedId = typeof eventOrId === 'string' || typeof eventOrId === 'number' ? eventOrId : eventOrId.target.value;
+    const newSelectedId =
+      typeof eventOrId === "string" || typeof eventOrId === "number"
+        ? eventOrId
+        : eventOrId.target.value;
 
     setSelectedAddressId(newSelectedId);
     setEditingAddressId(null);
@@ -184,7 +188,6 @@ const AddressPage = () => {
     }
   };
 
-
   const handleSaveOrUpdateAddress = async () => {
     const { address, zipCode, province, locality } = addressForm;
     if (!(address && zipCode && province && locality)) {
@@ -220,7 +223,6 @@ const AddressPage = () => {
     }
   };
 
-
   const handleDeleteSelectedAddress = async () => {
     if (!selectedAddressId || selectedAddressId === "new") {
       alert("No hay dirección seleccionada para eliminar.");
@@ -238,10 +240,8 @@ const AddressPage = () => {
     }
   };
 
-
   const isFormForNewAddress = !selectedAddressId || selectedAddressId === "new";
   const isFormEditable = editingAddressId !== null || isFormForNewAddress;
-
 
   return (
     <Container
@@ -268,13 +268,15 @@ const AddressPage = () => {
         sx={{
           width: "100%",
           maxWidth: "1100px",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2, mb: 2, width: 600 }}>
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel id="address-select-label">Selecciona una dirección</InputLabel>
+              <InputLabel id="address-select-label">
+                Selecciona una dirección
+              </InputLabel>
               <Select
                 labelId="address-select-label"
                 id="address-select"
@@ -287,14 +289,22 @@ const AddressPage = () => {
                 </MenuItem>
                 {addresses.map((addr) => (
                   <MenuItem key={addr.id} value={addr.id}>
-                    {addr.address}, {addr.province}, {addr.locality} ({addr.zipCode})
+                    {addr.address}, {addr.province}, {addr.locality} (
+                    {addr.zipCode})
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             {selectedAddressId && selectedAddressId !== "new" && (
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  justifyContent: "flex-end",
+                  mb: 2,
+                }}
+              >
                 <Button
                   variant="outlined"
                   size="small"
@@ -325,7 +335,11 @@ const AddressPage = () => {
             }}
           >
             <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-              {editingAddressId ? "Editando Dirección" : (isFormForNewAddress ? "Nueva Dirección" : "Detalles de Dirección")}
+              {editingAddressId
+                ? "Editando Dirección"
+                : isFormForNewAddress
+                ? "Nueva Dirección"
+                : "Detalles de Dirección"}
             </Typography>
             <Box
               component="form"
@@ -404,7 +418,9 @@ const AddressPage = () => {
                   }
                   sx={{ mt: 1 }}
                 >
-                  {editingAddressId ? "Guardar Cambios" : "Crear y Usar Dirección"}
+                  {editingAddressId
+                    ? "Guardar Cambios"
+                    : "Crear y Usar Dirección"}
                 </Button>
               )}
               {!isFormForNewAddress && !editingAddressId && (

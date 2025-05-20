@@ -58,25 +58,6 @@ function LoginPage() {
     if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      await login({
-        username: formData.username,
-        password: formData.password,
-      });
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Error al iniciar sesión. Verifica tus credenciales."
-      );
-      setLoading(false);
-    }
-  };
-
   const handleSubmitWithFinally = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -89,8 +70,8 @@ function LoginPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        err.message ||
-        "Error al iniciar sesión. Verifica tus credenciales."
+          err.message ||
+          "Error al iniciar sesión. Verifica tus credenciales."
       );
     } finally {
       setLoading(false);
@@ -99,7 +80,14 @@ function LoginPage() {
 
   if (authIsLoading && !loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -114,7 +102,7 @@ function LoginPage() {
         sx={{ mt: 1, width: "100%", maxWidth: 400 }}
       >
         {error && (
-          <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+          <Alert severity="error" sx={{ mb: 2, width: "100%" }}>
             {error}
           </Alert>
         )}
