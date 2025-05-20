@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,6 @@ import com.ivay.dtos.addressdto.AddressResponseDto;
 import com.ivay.dtos.api.ApiError;
 import com.ivay.dtos.api.ApiResponseDto;
 import com.ivay.service.AddressService;
-import com.ivay.service.UserEntityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,14 +26,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/addresses")
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
 public class AddressController {
 
 	@Autowired
 	private AddressService addressService;
-
-	@Autowired
-	private UserEntityService userService;
 
 	@Operation(
 			summary     = "Fetch all addresses",
@@ -152,6 +149,9 @@ public class AddressController {
 				)
 	})
 	@GetMapping(value = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize(
+			  "hasAnyRole('ADMIN','SUPERADMIN') or @userEntityServiceImpl.getByUsername(authentication.name).id == #userId"
+			)
 	public ResponseEntity<ApiResponseDto<List<AddressResponseDto>>> getByUser(
 			@Parameter(description = "User identifier", required = true)
 			@PathVariable Long userId
@@ -186,6 +186,10 @@ public class AddressController {
 				)
 	})
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize(
+		    "hasAnyRole('ADMIN','SUPERADMIN') " +
+		    "or #dto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id"
+		  )
 	public ResponseEntity<ApiResponseDto<AddressResponseDto>> create(@Valid @RequestBody AddressRequestDto dto, Authentication auth) {
 
 		AddressResponseDto created = addressService.createAddress(dto, auth.getName());
@@ -224,6 +228,9 @@ public class AddressController {
 				)
 	})
 	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize(
+			  "hasAnyRole('ADMIN','SUPERADMIN') or @addressServiceImpl.isOwner(#id, authentication.name)"
+			)
 	public ResponseEntity<ApiResponseDto<AddressResponseDto>> update(
 			@Parameter(description = "Address identifier", required = true) @PathVariable Long id,
 			@Valid @RequestBody AddressRequestDto dto,
@@ -257,6 +264,9 @@ public class AddressController {
 				)
 	})
 	@DeleteMapping("/{id}")
+	@PreAuthorize(
+			  "hasAnyRole('ADMIN','SUPERADMIN') or @addressServiceImpl.isOwner(#id, authentication.name)"
+			)
 	public ResponseEntity<Void> delete(
 			@Parameter(description = "Address identifier", required = true)
 			@PathVariable Long id

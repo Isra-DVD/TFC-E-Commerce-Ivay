@@ -41,6 +41,7 @@ const addOrUpdateCartItem = async (cartItemRequestDto) => {
  * @returns {Promise<Object>} The updated cart item response DTO.
  */
 const updateCartItemQuantity = async (cartItemId, updateDto) => {
+  console.log(cartItemId, updateDto);
   const response = await axios.patch(
     `${CART_ITEM_API_URL}/${cartItemId}/quantity`,
     updateDto

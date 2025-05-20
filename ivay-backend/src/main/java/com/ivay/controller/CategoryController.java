@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.media.*;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
 @Tag(name = "Category", description = "Endpoints for managing categories")
 public class CategoryController {
 

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,14 +37,11 @@ import io.swagger.v3.oas.annotations.media.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
 @Tag(name = "CartItem", description = "Endpoints for managing shopping cart items")
 public class CartItemController {
 
 	private final CartItemService cartItemService;
-	
-	@Autowired
-	private UserRepository userRepository;
 
 	@Operation(
 			summary     = "Fetch a cart item by ID",
@@ -84,6 +82,7 @@ public class CartItemController {
 				)
 	})
 	@GetMapping(value = "/cart-items/{cartItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or @cartItemServiceImpl.isOwner(#cartItemId, authentication.name)")
 	public ResponseEntity<ApiResponseDto<CartItemResponseDto>> getCartItemById(
 			@Parameter(description = "Identifier of the cart item", required = true)
 			@PathVariable Long cartItemId
@@ -141,20 +140,12 @@ public class CartItemController {
 				)
 	})
 	@GetMapping(value = "/users/{userId}/cart-items", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or #userId == @userEntityServiceImpl.getByUsername(authentication.name).id")
 	public ResponseEntity<ApiResponseDto<List<CartItemResponseDto>>> getCartItemsByUserId(
 			@Parameter(description = "Identifier of the user", required = true)
 			@PathVariable Long userId,
 			Authentication authentication
 			) {
-		
-		String username = authentication.getName();
-		UserEntity authUser = userRepository
-		        .findUserEntityByName(username)
-		        .orElseThrow(() -> new ResourceNotFoundException("…"));
-		
-		 if (!authUser.getId().equals(userId)) {
-		        throw new AccessDeniedException("No tienes permiso");
-		    }
 		
 		List<CartItemResponseDto> cartItems = cartItemService.getCartItemsByUserId(userId);
 		ApiResponseDto<List<CartItemResponseDto>> response =
@@ -207,6 +198,9 @@ public class CartItemController {
 				)
 	})
 	@PostMapping(value = "/cart-items", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize(
+			  "hasAnyRole('ADMIN','SUPERADMIN') or #cartItemRequestDto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id"
+			)
 	public ResponseEntity<ApiResponseDto<CartItemResponseDto>> addOrUpdateCartItem(
 			@Parameter(description = "Cart item payload", required = true,
 			schema      = @Schema(implementation = CartItemRequestDto.class))
@@ -263,6 +257,7 @@ public class CartItemController {
 				)
 	})
 	@PatchMapping(value = "/cart-items/{cartItemId}/quantity", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or @cartItemServiceImpl.isOwner(#cartItemId, authentication.name)")
 	public ResponseEntity<ApiResponseDto<CartItemResponseDto>> updateCartItemQuantity(
 			@Parameter(description = "Identifier of the cart item", required = true)
 			@PathVariable Long cartItemId,
@@ -291,6 +286,7 @@ public class CartItemController {
 				)
 	})
 	@DeleteMapping(value = "/cart-items/{cartItemId}")
+	@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or @cartItemServiceImpl.isOwner(#cartItemId, authentication.name)")
 	public ResponseEntity<Void> deleteCartItem(
 			@Parameter(description = "Identifier of the cart item", required = true)
 			@PathVariable Long cartItemId
@@ -314,6 +310,7 @@ public class CartItemController {
 				)
 	})
 	@DeleteMapping(value = "/users/{userId}/cart-items")
+	@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or @userEntityServiceImpl.getByUsername(authentication.name).id == #userId")
 	public ResponseEntity<Void> clearUserCart(
 			@Parameter(description = "Identifier of the user", required = true)
 			@PathVariable Long userId

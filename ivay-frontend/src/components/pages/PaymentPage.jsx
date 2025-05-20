@@ -59,9 +59,14 @@ const PaymentPage = () => {
         let productDataForCartItem = null;
         const quantityInCart = Number(currentCartItem.quantity) || 0;
 
-        if (currentCartItem.productId && (!currentCartItem.product || !currentCartItem.product.id)) {
+        if (
+          currentCartItem.productId &&
+          (!currentCartItem.product || !currentCartItem.product.id)
+        ) {
           try {
-            const fetchedProductDetails = await ProductService.getProductById(currentCartItem.productId);
+            const fetchedProductDetails = await ProductService.getProductById(
+              currentCartItem.productId
+            );
 
             if (fetchedProductDetails) {
               productDataForCartItem = {
@@ -99,9 +104,11 @@ const PaymentPage = () => {
         });
       }
       setCartItems(processedCartItems);
-
     } catch (errorFetchingInitialCart) {
-      console.error("Error al obtener los ítems del carrito:", errorFetchingInitialCart);
+      console.error(
+        "Error al obtener los ítems del carrito:",
+        errorFetchingInitialCart
+      );
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -126,7 +133,7 @@ const PaymentPage = () => {
   );
 
   const handleChange = (e) => {
-    const { name, value, checked, type } = e.target;
+    const { name, value, checked } = e.target;
     if (method === "debit") setCardForm((prev) => ({ ...prev, [name]: value }));
     if (method === "paypal") {
       if (name === "acceptPolicy")

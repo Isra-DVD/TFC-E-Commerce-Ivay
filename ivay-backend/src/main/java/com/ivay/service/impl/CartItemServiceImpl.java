@@ -50,6 +50,11 @@ public class CartItemServiceImpl implements CartItemService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(PRODUCT_NOT_FOUND, productId)));
     }
+    
+    public boolean isOwner(Long cartItemId, String username) {
+        CartItem cartItem = validateAndGetCartItem(cartItemId);
+        return cartItem.getUser().getName().equals(username);
+    }
 
     @Override
     public CartItemResponseDto getCartItemById(Long cartItemId) {

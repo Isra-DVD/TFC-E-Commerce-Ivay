@@ -149,7 +149,7 @@ function CheckoutHeader() {
               {steps.map((label, index) => (
                 <Step key={label}>
                   <StepLabel
-                    StepIconComponent={CustomStepIcon}
+                    slots={CustomStepIcon}
                     sx={{
                       "& .MuiStepLabel-label": {
                         color:
