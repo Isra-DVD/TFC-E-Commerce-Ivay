@@ -40,6 +40,9 @@ public class Order {
 
     private Integer tax;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order",
+    		 cascade = CascadeType.ALL,
+    	      orphanRemoval = true
+    	      )
     private List<OrderItem> orderItems;
 }

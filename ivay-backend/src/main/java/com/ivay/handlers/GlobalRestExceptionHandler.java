@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -83,6 +84,20 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 	        HttpStatus.BAD_REQUEST,
 	        ex.getMessage(),
 	        List.of(ex.getMessage())
+	    );
+	    return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ApiError> handleAccessDeniedException(
+	        AccessDeniedException ex,
+	        WebRequest request) {
+
+	    log.info(ex.getClass().getName());
+	    ApiError apiError = new ApiError(
+	        HttpStatus.FORBIDDEN,
+	        "No tienes la autorización necesaria",
+	        List.of("No tienes la autorización necesaria")
 	    );
 	    return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
 	}

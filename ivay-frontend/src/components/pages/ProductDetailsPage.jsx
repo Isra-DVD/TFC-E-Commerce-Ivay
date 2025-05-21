@@ -238,9 +238,14 @@ const ProductDetailsPage = () => {
               {product.discount > 0 && (
                 <Chip
                   label={`-${Math.round(product.discount * 100)}%`}
-                  color="secondary"
                   size="small"
-                  sx={{ ml: 2, fontWeight: "bold", fontSize: "0.8rem" }}
+                  sx={{
+                    ml: 2,
+                    fontWeight: "bold",
+                    fontSize: "0.8rem",
+                    color: colors.primary.contrastText,
+                    backgroundColor: colors.primary.light,
+                  }}
                 />
               )}
             </Box>

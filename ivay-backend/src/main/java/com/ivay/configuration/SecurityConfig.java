@@ -40,6 +40,8 @@ public class SecurityConfig {
 								"/doc/swagger-ui/**",
 								"/v3/api-docs/**"
 								).permitAll()
+						
+						.requestMatchers("/error").permitAll()
 
 						.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
@@ -73,16 +75,16 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.DELETE, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
 						.requestMatchers(HttpMethod.GET, "/api/orders").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}/items").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
-						.requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}/items").hasAnyRole("SUPERADMIN", "ADMIN")
+						.requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
+						.requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "api/order-items/{orderItemId}").hasAnyRole("SUPERADMIN", "ADMIN", "CLIENT")
+						.requestMatchers(HttpMethod.GET, "api/order-items/{orderItemId}").hasAnyRole("SUPERADMIN", "ADMIN")
 
 						
-						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/order-items").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/order-items").hasAnyRole("SUPERADMIN", "ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 						.requestMatchers(HttpMethod.PUT, "/api/products/{productId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
