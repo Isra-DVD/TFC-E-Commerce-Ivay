@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ivay.dtos.api.ApiError;
@@ -267,6 +268,7 @@ public class OrderController {
         )
     })
     @PostMapping(value = "/orders", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or #createOrderRequestDto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id")
     public ResponseEntity<ApiResponseDto<OrderResponseDto>> createOrder(
         @Parameter(description = "Order creation payload", required = true, schema = @Schema(implementation = CreateOrderRequestDto.class))
         @Valid @RequestBody CreateOrderRequestDto createOrderRequestDto
