@@ -418,7 +418,7 @@ const PaymentPage = () => {
                 }}
                 onClick={handleSubmit}
               >
-                Pagar €{totalPrice.toFixed(2)}
+                Continuar
               </Button>
             </Paper>
           </Grid>
