@@ -189,8 +189,11 @@ const PaymentPage = () => {
     }
     setErrors(errs);
     if (!valid) return;
-    console.log("Payment data:", { method, cardForm, paypalForm, paysafeForm });
-    navigate("/checkout/summary");
+    navigate("/checkout/summary", {
+      state: {
+        paymentMethod: method,
+      },
+    });
   };
 
   return (
@@ -206,7 +209,7 @@ const PaymentPage = () => {
       <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", mb: 3 }}>
         Datos de pago
       </Typography>
-      <Box sx={{ width: "70%" }}>
+      <Box sx={{ width: "80%" }}>
         <Grid
           container
           spacing={4}
@@ -275,28 +278,32 @@ const PaymentPage = () => {
                     helperText={errors.cardNumber}
                     slotProps={{ maxLength: 16 }}
                   />
-                  <TextField
-                    fullWidth
-                    required
-                    label="Fecha de vencimiento (MM/AA)"
-                    name="expiryDate"
-                    value={cardForm.expiryDate}
-                    onChange={handleChange}
-                    error={!!errors.expiryDate}
-                    helperText={errors.expiryDate}
-                    placeholder="MM/AA"
-                  />
-                  <TextField
-                    fullWidth
-                    required
-                    label="CVV"
-                    name="cvv"
-                    value={cardForm.cvv}
-                    onChange={handleChange}
-                    error={!!errors.cvv}
-                    helperText={errors.cvv}
-                    slotProps={{ maxLength: 4 }}
-                  />
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                    <TextField
+                      fullWidth
+                      required
+                      label="Fecha de vencimiento (MM/AA)"
+                      name="expiryDate"
+                      value={cardForm.expiryDate}
+                      onChange={handleChange}
+                      error={!!errors.expiryDate}
+                      helperText={errors.expiryDate}
+                      placeholder="MM/AA"
+                      sx={{ pr: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      required
+                      label="CVV"
+                      name="cvv"
+                      value={cardForm.cvv}
+                      onChange={handleChange}
+                      error={!!errors.cvv}
+                      helperText={errors.cvv}
+                      slotProps={{ maxLength: 4 }}
+                      sx={{ width: "35%" }}
+                    />
+                  </Box>
                   <TextField
                     fullWidth
                     required

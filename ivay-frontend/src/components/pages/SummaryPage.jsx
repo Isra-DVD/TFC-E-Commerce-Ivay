@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Box,
@@ -11,12 +11,16 @@ import {
 } from "@mui/material";
 import CartItemService from "../../service/cartItem.service";
 import ProductService from "../../service/product.service";
+import OrderService from "../../service/order.service";
 import { useAuth } from "../../context/AuthContext";
 import { colors, layout } from "../../constants/styles";
 
 const SummaryPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const paymentMethod = location.state?.paymentMethod || "unknown";
+
   const [cartItems, setCartItems] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -35,7 +39,9 @@ const SummaryPage = () => {
 
         if (item.productId && (!item.product || !item.product.id)) {
           try {
-            const fetchedProduct = await ProductService.getProductById(item.productId);
+            const fetchedProduct = await ProductService.getProductById(
+              item.productId
+            );
             if (fetchedProduct) {
               productDetails = {
                 ...fetchedProduct,
@@ -89,6 +95,16 @@ const SummaryPage = () => {
     setErrorMsg("");
     try {
       if (!user?.id) throw new Error("Usuario no autenticado");
+      const createOrderDto = {
+        userId: user.id,
+        paymentMethod: paymentMethod,
+        globalDiscount: 0,
+        items: cartItems.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+      };
+      await OrderService.createOrder(createOrderDto);
       await CartItemService.clearUserCart(user.id);
       navigate("/");
     } catch (err) {
