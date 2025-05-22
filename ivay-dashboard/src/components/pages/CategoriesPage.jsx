@@ -17,6 +17,11 @@ import CategoryFormModal from '../common/CategoryFormModal';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 20, 50];
 
+/**
+ * CategoriesPage component displays a list of product categories,
+ * provides functionality to add new categories, search existing ones,
+ * and edit or delete categories via a modal form.
+ */
 function CategoriesPage() {
     const [categories, setCategories] = useState([]);
     const [allCategoriesCache, setAllCategoriesCache] = useState([]);
@@ -37,15 +42,28 @@ function CategoriesPage() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentCategoryMenu, setCurrentCategoryMenu] = useState(null);
 
+    /**
+     * Opens the action menu for a specific category, anchored to the click event target.
+     *
+     * @param {object} event - The click event object.
+     * @param {object} category - The category object for which the menu is opened.
+     */
     const handleOpenMenu = (event, category) => {
         setAnchorEl(event.currentTarget);
         setCurrentCategoryMenu(category);
     };
+    /**
+     * Closes the action menu and resets the current category in the menu state.
+     */
     const handleCloseMenu = () => {
         setAnchorEl(null);
         setCurrentCategoryMenu(null);
     };
 
+    /**
+     * Fetches all categories from the service and updates the categories and cache states.
+     * Sets loading state during fetch and handles errors.
+     */
     const fetchCategories = useCallback(async () => {
         setLoading(true);
         setError('');
@@ -63,10 +81,12 @@ function CategoriesPage() {
         }
     }, []);
 
+    /* Effect hook to fetch categories when the component mounts or fetchCategories callback changes. */
     useEffect(() => {
         fetchCategories();
     }, [fetchCategories]);
 
+    /* Effect hook to filter categories based on the global search term whenever it or the cache changes. Resets to the first page. */
     useEffect(() => {
         if (globalSearchTerm.trim()) {
             const filtered = allCategoriesCache.filter(cat =>
@@ -79,11 +99,21 @@ function CategoriesPage() {
         setPage(0);
     }, [globalSearchTerm, allCategoriesCache]);
 
-
+    /**
+     * Handles changes in the new category name input field.
+     *
+     * @param {object} event - The input change event object.
+     */
     const handleNewCategoryNameChange = (event) => {
         setNewCategoryName(event.target.value);
     };
 
+    /**
+     * Handles the creation of a new category.
+     * Validates the input, calls the category service, updates states, and refetches categories on success.
+     *
+     * @param {object} event - The form submit event object.
+     */
     const handleCreateNewCategory = async (event) => {
         event.preventDefault();
         if (!newCategoryName.trim()) {
@@ -104,18 +134,39 @@ function CategoriesPage() {
         }
     };
 
+    /**
+     * Handles changes in the global search input field.
+     *
+     * @param {object} event - The input change event object.
+     */
     const handleGlobalSearchChange = (event) => {
         setGlobalSearchTerm(event.target.value);
     };
 
+    /**
+     * Handles the change of the current page in the pagination component.
+     *
+     * @param {object} event - The pagination change event object.
+     * @param {number} newPage - The new page number.
+     */
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
+    /**
+     * Handles the change in the number of rows displayed per page in the pagination component.
+     * Resets the page to 0.
+     *
+     * @param {object} event - The pagination change event object.
+     */
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
 
+    /**
+     * Opens the edit modal, populating it with the currently selected category data.
+     * Clears any previous server errors for the form and closes the action menu.
+     */
     const handleOpenEditModal = () => {
         if (currentCategoryMenu) {
             setEditingCategory(currentCategoryMenu);
@@ -124,12 +175,23 @@ function CategoriesPage() {
         }
         handleCloseMenu();
     };
+    /**
+     * Closes the edit modal and resets related states (editing category and server errors).
+     */
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
         setEditingCategory(null);
         setEditFormServerError('');
     };
 
+    /**
+     * Handles the submission of the edit category form.
+     * Calls the category service to update the category, closes the modal on success, and refetches categories.
+     * Sets submitting state and handles server errors.
+     *
+     * @param {object} categoryData - The updated category data from the form.
+     * @param {number} categoryId - The ID of the category being edited.
+     */
     const handleEditCategoryFormSubmit = async (categoryData, categoryId) => {
         setIsEditFormSubmitting(true);
         setEditFormServerError('');
@@ -145,6 +207,11 @@ function CategoriesPage() {
         }
     };
 
+    /**
+     * Handles the deletion of the currently selected category after a confirmation prompt.
+     * Calls the category service to delete the category, refetches categories on success.
+     * Sets submitting state and handles errors, particularly for constraint violations.
+     */
     const handleDeleteCategory = async () => {
         if (currentCategoryMenu && window.confirm(`¿Estás seguro de que quieres eliminar la categoría "${currentCategoryMenu.name}"?`)) {
             setError('');
@@ -153,12 +220,17 @@ function CategoriesPage() {
                 fetchCategories();
             } catch (err) {
                 console.error("Error deleting category:", err);
-                setError("Error al eliminar la categoría. Verifique si tiene productos asociados.");
+                if (err.response?.status === 400 || err.response?.data?.message?.includes('foreign key constraint')) {
+                    setError("No se puede eliminar la categoría porque tiene productos asociados.");
+                } else {
+                    setError(err.response?.data?.message || err.message || "Error al eliminar la categoría.");
+                }
             }
         }
         handleCloseMenu();
     };
 
+    /* Computes the subset of categories to display based on the current page and rows per page. */
     const paginatedCategories = categories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (
@@ -168,7 +240,6 @@ function CategoriesPage() {
             </Typography>
 
             <Paper elevation={0} sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, backgroundColor: 'transparent', flexWrap: 'wrap' }}>
-                {/* Input for New Category */}
                 <TextField
                     variant="outlined"
                     placeholder="Nombre de la categoría"
@@ -189,7 +260,6 @@ function CategoriesPage() {
                     Nuevo
                 </Button>
 
-                {/* Global "Buscar" Textfield */}
                 <TextField
                     variant="outlined"
                     placeholder="Buscar categoría..."
@@ -198,21 +268,16 @@ function CategoriesPage() {
                     size="small"
 
                     sx={{ width: { xs: '100%', sm: 500 }, mt: { xs: 1.5, sm: 0 }, ml: { sm: 'auto' } }}
-                    slotProps={{
-                        input: {
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton type="submit" aria-label="search" edge="end">
-                                        <SearchIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <SearchIcon color="action" />
+                            </InputAdornment>
+                        ),
                     }}
                 />
             </Paper>
 
-            {/* Table and other elements */}
             {loading && (<Box sx={{ display: "flex", justifyContent: "center", py: 5 }}><CircularProgress /></Box>)}
             {error && !loading && (<Alert severity="error" sx={{ my: 2 }}>{error}</Alert>)}
 

@@ -20,11 +20,24 @@ const modalStyle = {
     flexDirection: 'column',
 };
 
+/**
+ * A modal component for adding or editing categories.
+ * Manages form data, validation, and submission state.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.open - Controls the modal visibility.
+ * @param {function} props.onClose - Function to call when the modal is closed.
+ * @param {function} props.onSubmit - Function to call with the form data when submitted successfully.
+ * @param {object} [props.categoryToEdit] - The category object to pre-populate the form for editing.
+ * @param {boolean} props.isSubmitting - Indicates if the form submission is in progress.
+ * @param {string} [props.serverError] - An error message received from the server during submission.
+ */
 const CategoryFormModal = ({ open, onClose, onSubmit, categoryToEdit, isSubmitting, serverError }) => {
     const initialFormState = { name: '' };
     const [formData, setFormData] = useState(initialFormState);
     const [internalError, setInternalError] = useState('');
 
+    /* Resets the form or populates it with category data when the modal opens or categoryToEdit changes. */
     useEffect(() => {
         if (open) {
             if (categoryToEdit) {
@@ -38,15 +51,31 @@ const CategoryFormModal = ({ open, onClose, onSubmit, categoryToEdit, isSubmitti
         }
     }, [categoryToEdit, open]);
 
+    /**
+     * Updates the form data state based on input changes.
+     *
+     * @param {object} e - The change event object.
+     */
     const handleChange = (e) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+    /**
+     * Validates the form data.
+     *
+     * @returns {string} An error message if validation fails, otherwise an empty string.
+     */
     const validateForm = () => {
         if (!formData.name.trim()) return "El nombre de la categoría es obligatorio.";
         return "";
     };
 
+    /**
+     * Handles the form submission.
+     * Prevents default submit, validates the form, and calls the onSubmit prop with the data.
+     *
+     * @param {object} e - The form submit event object.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         const validationError = validateForm();
@@ -59,6 +88,7 @@ const CategoryFormModal = ({ open, onClose, onSubmit, categoryToEdit, isSubmitti
         onSubmit({ name: formData.name }, id);
     };
 
+    /* Determines the modal title based on whether a category is being edited or a new one is being created. */
     const title = categoryToEdit ? "Editar Categoría" : "Nueva Categoría";
 
     return (

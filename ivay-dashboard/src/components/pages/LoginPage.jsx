@@ -15,6 +15,12 @@ import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/images/ivay-logo.png";
 import { colors } from "../../constants/styles";
 
+/**
+ * LoginPage component provides a user interface for logging into the application.
+ * It handles user input for username and password, interacts with the AuthContext
+ * for authentication, displays loading states and error messages, and redirects
+ * the user upon successful login.
+ */
 function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -27,17 +33,29 @@ function LoginPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(location.state?.message || "");
 
+    /* Effect hook that redirects the user to the intended page or default products page if they are already authenticated. */
     useEffect(() => {
         if (!authIsLoading && isAuthenticated && user) {
             navigate(location.state?.from?.pathname || "/products", { replace: true });
         }
     }, [isAuthenticated, authIsLoading, user, navigate, location.state]);
 
-
+    /**
+     * Handles changes in the input fields and updates the formData state.
+     *
+     * @param {object} e - The input change event object.
+     */
     const handleChange = (e) => {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+    /**
+     * Handles the form submission for login.
+     * Prevents default submit, sets submitting state, calls the login function from AuthContext,
+     * and handles potential errors by setting the error state.
+     *
+     * @param {object} e - The form submit event object.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);

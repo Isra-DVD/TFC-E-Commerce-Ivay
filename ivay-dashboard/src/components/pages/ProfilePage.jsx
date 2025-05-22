@@ -11,6 +11,14 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import UserService from "../../service/user.service";
 
+/**
+ * ProfilePage component displays and allows editing of the authenticated 
+ * user's profile information.
+ * It fetches user data, handles updates to personal details, and provides a 
+ * logout option.
+ * Password change functionality is present in the state but not implemented in 
+ * the UI provided.
+ */
 const ProfilePage = () => {
   const { user, setUser, logout } = useAuth();
   const [form, setForm] = useState({
@@ -30,6 +38,7 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  /* Effect hook that populates the form state with user data when the component mounts or the user object changes. */
   useEffect(() => {
     if (user) {
       setForm({
@@ -47,14 +56,25 @@ const ProfilePage = () => {
     }
   }, [user]);
 
+  /* Effect hook that clears error and success messages whenever the form or password form data changes. */
   useEffect(() => {
     setError("");
     setSuccess("");
   }, [form, passwordForm]);
 
+  /**
+   * Handles changes in the personal details input fields and updates the form state.
+   * @param {object} e - The input change event object.
+   */
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  /**
+   * Handles the action to save the personal details form.
+   * Sets saving state, calls the user service to update the profile, updates 
+   * the user in context on success,
+   * and handles errors.
+   */
   const handleSaveDetails = async () => {
     setError("");
     setSuccess("");
@@ -70,6 +90,7 @@ const ProfilePage = () => {
     }
   };
 
+  /* Displays a loading spinner if user data is being fetched and the user object is not yet available. */
   if (loading && !user) {
     return (
       <Box
@@ -85,6 +106,7 @@ const ProfilePage = () => {
     );
   }
 
+  /* Displays an error message and logout button if user data could not be loaded or the user object is null after loading. */
   if (!user) {
     return (
       <Paper

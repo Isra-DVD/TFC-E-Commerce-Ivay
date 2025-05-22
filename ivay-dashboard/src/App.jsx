@@ -53,10 +53,22 @@ const adminTheme = createTheme({
   }
 });
 
+/**
+ * Wrapper component for protected routes that require authentication and 
+ * specific roles.
+ * Redirects to the login page if the user is not authenticated or lacks the 
+ * necessary role.
+ * Displays a loading spinner during authentication checks.
+ *
+ * @param {object} props - The component props.
+ * @param {React.ReactNode} props.children - The components to render if 
+ * authentication and role checks pass.
+ */
 function RequireAuth({ children }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const location = useLocation();
 
+  /* Effect hook that checks if the authenticated user has the required role (Admin or Gestor) and logs them out if not. */
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
       const isAdminOrGestor = user.roleId === 2 || user.roleId === 3;
@@ -67,6 +79,7 @@ function RequireAuth({ children }) {
     }
   }, [isLoading, isAuthenticated, user, logout, location]);
 
+  /* Displays a loading spinner while the authentication status is being determined. */
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 70px)' }}>
@@ -74,13 +87,21 @@ function RequireAuth({ children }) {
       </Box>
     );
   }
+
+  /* Redirects to the login page if the user is not authenticated or the user object is missing/invalid after loading. */
   if (!isAuthenticated || !user) {
     const message = location.state?.message || (user && !(user.roleId === 2 || user.roleId === 3) ? "Acceso no autorizado por rol." : "Por favor, inicia sesión.");
     return <Navigate to="/login" state={{ from: location, message: message }} replace />;
   }
+
   return children;
 }
 
+/**
+ * Component displayed for routes that do not match any defined paths.
+ * Informs the user that the page was not found and provides a link back to the 
+ * products page.
+ */
 const NotFound = () => (
   <Container sx={{ py: 4, textAlign: "center", mt: 5 }}>
     <Typography variant="h4" gutterBottom>404 - Página no encontrada</Typography>
@@ -93,6 +114,13 @@ const NotFound = () => (
   </Container>
 );
 
+/**
+ * The main application component.
+ * Sets up the React Router, Material UI theme provider, and the authentication 
+ * context.
+ * Defines the application's routes, including public routes (like login) and 
+ * protected routes that require authentication.
+ */
 export default function App() {
   return (
     <Router>
@@ -101,6 +129,7 @@ export default function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+
             <Route
               path="/"
               element={
@@ -111,6 +140,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
+
             <Route
               path="/products"
               element={
@@ -121,6 +151,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
+
             <Route
               path="/categories"
               element={
@@ -131,6 +162,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
+
             <Route
               path="/suppliers"
               element={
@@ -141,6 +173,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
+
             <Route
               path="/profile"
               element={

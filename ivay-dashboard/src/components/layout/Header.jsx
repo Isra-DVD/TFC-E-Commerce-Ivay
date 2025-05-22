@@ -14,6 +14,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import logo from "../../assets/images/ivay-logo.png";
 import { colors } from "../../constants/styles";
 
+/**
+ * Represents the main header/navigation bar for the application.
+ * Displays the logo, navigation links to main sections (Categories, Suppliers,
+ * Products),
+ * and a link to the user profile. Adjusts layout based on screen size.
+ */
 const Header = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -26,6 +32,9 @@ const Header = () => {
         { label: "Productos", path: "/products" },
     ];
 
+    /**
+     * Navigates the user to the profile page.
+     */
     const handleProfileClick = () => {
         navigate("/profile");
     };

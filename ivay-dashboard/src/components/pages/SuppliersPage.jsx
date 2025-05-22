@@ -16,6 +16,12 @@ import SupplierFormModal from '../common/SupplierFormModal';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 20, 50];
 
+/**
+ * SuppliersPage component displays a list of suppliers,
+ * provides functionality to add new suppliers, search existing ones,
+ * and edit or delete suppliers via a modal form. It handles pagination for the 
+ * supplier list.
+ */
 function SuppliersPage() {
     const [suppliers, setSuppliers] = useState([]);
     const [allSuppliersCache, setAllSuppliersCache] = useState([]);
@@ -34,15 +40,31 @@ function SuppliersPage() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentSupplierMenu, setCurrentSupplierMenu] = useState(null);
 
+    /**
+     * Opens the action menu for a specific supplier, anchored to the click 
+     * event target.
+     * @param {object} event - The click event object.
+     * @param {object} supplier - The supplier object for which the menu is 
+     * opened.
+     */
     const handleOpenMenu = (event, supplier) => {
         setAnchorEl(event.currentTarget);
         setCurrentSupplierMenu(supplier);
     };
+
+    /**
+     * Closes the action menu and resets the current supplier in the menu state.
+     */
     const handleCloseMenu = () => {
         setAnchorEl(null);
         setCurrentSupplierMenu(null);
     };
 
+    /**
+     * Fetches all suppliers from the service and updates the suppliers and 
+     * cache states.
+     * Sets loading state during fetch and handles errors.
+     */
     const fetchSuppliers = useCallback(async () => {
         setLoading(true);
         setError('');
@@ -60,10 +82,12 @@ function SuppliersPage() {
         }
     }, []);
 
+    /* Effect hook to fetch suppliers when the component mounts or fetchSuppliers callback changes. */
     useEffect(() => {
         fetchSuppliers();
     }, [fetchSuppliers]);
 
+    /* Effect hook to filter suppliers based on the search term whenever it or the cache changes. Resets to the first page. */
     useEffect(() => {
         if (searchTerm.trim()) {
             const filtered = allSuppliersCache.filter(sup =>
@@ -79,24 +103,53 @@ function SuppliersPage() {
         setPage(0);
     }, [searchTerm, allSuppliersCache]);
 
-
+    /**
+     * Handles changes in the search input field.
+     *
+     * @param {object} event - The input change event object.
+     */
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
 
+    /**
+     * Handles the change of the current page in the pagination component.
+     *
+     * @param {object} event - The pagination change event object.
+     * @param {number} newPage - The new page number.
+     */
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
+
+    /**
+     * Handles the change in the number of rows displayed per page in the 
+     * pagination component.
+     * Resets the page to 0.
+     *
+     * @param {object} event - The pagination change event object.
+     */
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
 
+    /**
+     * Opens the supplier form modal for creating a new supplier.
+     * Resets editingSupplier state and clears server errors.
+     */
     const handleOpenCreateModal = () => {
         setEditingSupplier(null);
         setFormServerError('');
         setIsModalOpen(true);
     };
+
+    /**
+     * Opens the supplier form modal for editing the currently selected 
+     * supplier.
+     * Populates the modal with the supplier data and clears server errors. 
+     * Closes the action menu.
+     */
     const handleOpenEditModal = () => {
         if (currentSupplierMenu) {
             setEditingSupplier(currentSupplierMenu);
@@ -105,12 +158,25 @@ function SuppliersPage() {
         }
         handleCloseMenu();
     };
+
+    /**
+    * Closes the supplier form modal and resets related states (editing 
+    * supplier and server errors).
+    */
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingSupplier(null);
         setFormServerError('');
     };
 
+    /**
+     * Handles the submission of the supplier form modal (create or edit).
+     * Calls the appropriate supplier service method (create or update),
+     * closes the modal on success, and refetches the supplier list.
+     * Sets submitting state and handles server errors.
+     * @param {object} supplierData - The supplier data from the form.
+     * @param {number} [supplierId] - The ID of the supplier being edited.
+     */
     const handleSupplierFormSubmit = async (supplierData, supplierId) => {
         setIsFormSubmitting(true);
         setFormServerError('');
@@ -130,6 +196,14 @@ function SuppliersPage() {
         }
     };
 
+    /**
+     * Handles the deletion of the currently selected supplier after a 
+     * confirmation prompt.
+     * Calls the supplier service to delete the supplier and refetches the 
+     * supplier list on success.
+     * Sets submitting state and handles errors, particularly for constraint 
+     * violations.
+     */
     const handleDeleteSupplier = async () => {
         if (currentSupplierMenu && window.confirm(`¿Estás seguro de que quieres eliminar el proveedor "${currentSupplierMenu.name}"?`)) {
             setError('');
@@ -144,6 +218,7 @@ function SuppliersPage() {
         handleCloseMenu();
     };
 
+    /* Computes the subset of suppliers to display based on the current page and rows per page. */
     const paginatedSuppliers = suppliers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     return (

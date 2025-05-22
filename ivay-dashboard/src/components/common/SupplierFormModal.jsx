@@ -44,6 +44,18 @@ const modalStyle = {
     flexDirection: "column",
 };
 
+/**
+ * A modal component for adding or editing supplier details.
+ * Handles form data, image uploads, validation, and submission.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.open - Controls the modal visibility.
+ * @param {function} props.onClose - Function to call when the modal is closed.
+ * @param {function} props.onSubmit - Function to call with the form data when submitted successfully.
+ * @param {object} [props.supplierToEdit] - The supplier object to pre-populate the form for editing.
+ * @param {boolean} props.isSubmitting - Indicates if the parent component is currently handling a submission.
+ * @param {string} [props.serverError] - An error message received from the server during submission.
+ */
 const SupplierFormModal = ({
     open,
     onClose,
@@ -65,6 +77,7 @@ const SupplierFormModal = ({
     const [internalError, setInternalError] = useState("");
     const [isUploading, setIsUploading] = useState(false);
 
+    /* Resets the form or populates it with supplier data when the modal opens or supplierToEdit changes. */
     useEffect(() => {
         if (open) {
             if (supplierToEdit) {
@@ -85,10 +98,22 @@ const SupplierFormModal = ({
         }
     }, [supplierToEdit, open]);
 
+    /**
+     * Updates the form data state based on input changes.
+     *
+     * @param {object} e - The change event object.
+     */
     const handleChange = (e) => {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+    /**
+     * Handles the file selection for the image input, creates a preview, and
+     * uploads the image.
+     * Updates formData with the uploaded image URL or sets an internal error
+     * if upload fails.v
+     * @param {object} e - The file input change event object.
+     */
     const handleImageChangeAndUpload = async (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
@@ -111,6 +136,12 @@ const SupplierFormModal = ({
         }
     };
 
+    /**
+     * Validates the form data before submission.
+     * Checks for required fields and valid email format.
+     * @returns {string} An error message if validation fails, otherwise an
+     * empty string.
+     */
     const validateForm = () => {
         if (!formData.name.trim()) return "El nombre del proveedor es obligatorio.";
         if (!formData.email.trim()) return "El email es obligatorio.";
@@ -119,6 +150,13 @@ const SupplierFormModal = ({
         return "";
     };
 
+    /**
+     * Handles the form submission.
+     * Prevents default submit, validates the form, ensures image upload is 
+     * complete,
+     * and calls the onSubmit prop with the form data.
+     * @param {object} e - The form submit event object.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         const validationError = validateForm();

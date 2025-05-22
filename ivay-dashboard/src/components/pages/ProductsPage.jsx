@@ -22,6 +22,11 @@ import ProductFormModal from "../common/ProductFormModal";
 
 const PRODUCTS_PER_PAGE = 12;
 
+/**
+ * ProductsPage component displays a grid of product cards,
+ * provides functionality to add new products, search existing ones by name,
+ * and edit or delete products via a modal form. It handles pagination for the product list.
+ */
 function ProductsPage() {
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
@@ -38,6 +43,11 @@ function ProductsPage() {
     const [isFormSubmitting, setIsFormSubmitting] = useState(false);
     const [formServerError, setFormServerError] = useState('');
 
+    /**
+     * Fetches products from the service. If a search term is active, it searches by name.
+     * Otherwise, it fetches a paginated list. Updates product list, total pages, and total products states.
+     * Handles loading state, errors, and resets page for search results if needed.
+     */
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError("");
@@ -68,14 +78,26 @@ function ProductsPage() {
         }
     }, [page, searchTerm, triggerFetch]);
 
+    /* Effect hook to fetch products whenever the fetchProducts callback changes (due to its dependencies). */
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
+    /**
+     * Handles changes in the search input field.
+     *
+     * @param {object} event - The input change event object.
+     */
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
 
+    /**
+     * Handles the submission of the search form.
+     * Triggers a refetch of products based on the current search term, resetting the page to 1.
+     *
+     * @param {object} event - The form submit event object.
+     */
     const handleSearchSubmit = (event) => {
         event.preventDefault();
         if (page !== 1 && !searchTerm.trim()) setPage(1);
@@ -83,28 +105,57 @@ function ProductsPage() {
         setTriggerFetch(c => c + 1);
     };
 
+    /**
+     * Handles the change of the current page in the pagination component.
+     *
+     * @param {object} event - The pagination change event object.
+     * @param {number} value - The new page number (1-based).
+     */
     const handlePageChange = (event, value) => {
         setPage(value);
     };
 
+    /**
+     * Opens the product form modal for creating a new product.
+     * Resets editingProduct and clears server errors.
+     */
     const handleOpenCreateModal = () => {
         setEditingProduct(null);
         setFormServerError('');
         setIsModalOpen(true);
     };
 
+    /**
+     * Opens the product form modal for editing an existing product.
+     * Populates the modal with the provided product data and clears server errors.
+     *
+     * @param {object} productToEdit - The product object to pre-fill the form with.
+     */
     const handleOpenEditModal = (productToEdit) => {
         setEditingProduct(productToEdit);
         setFormServerError('');
         setIsModalOpen(true);
     };
 
+    /**
+     * Closes the product form modal and resets related states (editing product 
+     * and server errors).
+     */
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingProduct(null);
         setFormServerError('');
     };
 
+    /**
+     * Handles the submission of the product form modal (create or edit).
+     * Calls the appropriate product service method (create or update),
+     * closes the modal on success, and triggers a refetch of the product list.
+     * Sets submitting state and handles server errors.
+     *
+     * @param {object} productData - The product data from the form.
+     * @param {number} [productId] - The ID of the product being edited.
+     */
     const handleProductFormSubmit = async (productData, productId) => {
         setIsFormSubmitting(true);
         setFormServerError('');
@@ -124,6 +175,13 @@ function ProductsPage() {
         }
     };
 
+    /**
+     * Handles the deletion of a product after a confirmation prompt.
+     * Calls the product service to delete the product and triggers a refetch of the product list.
+     * Handles errors.
+     *
+     * @param {number} productId - The ID of the product to delete.
+     */
     const handleDeleteProduct = async (productId) => {
         if (window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
             try {
@@ -135,10 +193,13 @@ function ProductsPage() {
             }
         }
     };
+
+    /* Computes the subset of products to display on the current page when searching. */
     const productsToDisplay = searchTerm.trim()
         ? products.slice((page - 1) * PRODUCTS_PER_PAGE, page * PRODUCTS_PER_PAGE)
         : products;
 
+    /* Computes the total number of pages to show in the pagination component. */
     const currentTotalPages = searchTerm.trim() ? Math.ceil(products.length / PRODUCTS_PER_PAGE) : totalPages;
 
 

@@ -25,34 +25,60 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { fill } from "@cloudinary/url-gen/actions/resize";
 import ProductPlaceholder from "../../assets/images/product-placeholder.png"
 
+/* Initializes the Cloudinary service with the cloud name. */
 const cld = new Cloudinary({
     cloud: {
         cloudName: "dyn7gewrg",
     },
 });
 
+/**
+ * Displays a card representing a product, including its image, name, price, stock,
+ * and options to edit or delete via a context menu.
+ *
+ * @param {object} props - The component props.
+ * @param {object} props.product - The product object to display.
+ * @param {function} [props.onEdit] - Callback function to execute when the "Edit" action is selected.
+ * @param {function} [props.onDelete] - Callback function to execute when the "Delete" action is selected.
+ */
 const ProductCard = ({ product, onEdit, onDelete }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
 
+    /**
+     * Opens the options menu anchored to the click event target.
+     *
+     * @param {object} event - The click event.
+     */
     const handleClick = (event) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
     };
+
+    /**
+     * Closes the options menu.
+     */
     const handleClose = () => {
         setAnchorEl(null);
     };
 
+    /**
+     * Executes the onEdit callback if provided and closes the menu.
+     */
     const handleEdit = () => {
         if (onEdit) onEdit();
         handleClose();
     };
 
+    /**
+     * Executes the onDelete callback if provided and closes the menu.
+     */
     const handleDelete = () => {
         if (onDelete) onDelete();
         handleClose();
     };
 
+    /* Renders a placeholder card if the product data is missing or invalid. */
     if (!product || !product.id) {
         return (
             <Card
@@ -71,6 +97,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
         );
     }
 
+    /* Processes the product's imageUrl to extract the public ID for Cloudinary AdvancedImage component. */
     let cldImage;
     if (product.imageUrl) {
         try {
@@ -162,6 +189,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                 }}
             >
                 {cldImage ? (
+                    /* Renders the image using Cloudinary AdvancedImage if public ID was extracted. */
                     <AdvancedImage
                         cldImg={cldImage}
                         plugins={[
@@ -180,6 +208,7 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
                         alt={product.name}
                     />
                 ) : (
+                    /* Renders a standard CardMedia image if Cloudinary processing fails or no image URL is provided. */
                     <CardMedia
                         component="img"
                         sx={{

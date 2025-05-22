@@ -3,6 +3,13 @@ import { Box, Container } from "@mui/material";
 import Header from "./Header";
 import { colors, layout as LayoutSettings } from "../../constants/styles";
 
+/**
+ * Provides the basic page layout structure including the header and a content 
+ * area.
+ * @param {object} props - The component props.
+ * @param {React.ReactNode} props.children - The content to be rendered within 
+ * the main container.
+ */
 const Layout = ({ children }) => {
     return (
         <Box

@@ -20,6 +20,7 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { styled } from "@mui/material/styles";
 import { colors } from "../../constants/styles";
 import CategoryService from "../../service/category.service";
+import SupplierService from "../../service/supplier.service";
 import CloudinaryService from "../../service/cloudinary.service";
 
 const VisuallyHiddenInput = styled("input")({
@@ -49,6 +50,18 @@ const modalStyle = {
     flexDirection: "column",
 };
 
+/**
+ * A modal component for adding or editing product details.
+ * Fetches categories and suppliers, handles form data, image uploads, validation, and submission.
+ *
+ * @param {object} props - The component props.
+ * @param {boolean} props.open - Controls the modal visibility.
+ * @param {function} props.onClose - Function to call when the modal is closed.
+ * @param {function} props.onSubmit - Function to call with the form data when submitted successfully.
+ * @param {object} [props.productToEdit] - The product object to pre-populate the form for editing.
+ * @param {boolean} props.isSubmitting - Indicates if the parent component is currently handling a submission.
+ * @param {string} [props.serverError] - An error message received from the server during submission.
+ */
 const ProductFormModal = ({
     open,
     onClose,
@@ -63,6 +76,7 @@ const ProductFormModal = ({
         price: "",
         stock: "",
         categoryId: "",
+        supplierId: "",
         imageUrl: "",
         discount: "",
     };
@@ -70,10 +84,13 @@ const ProductFormModal = ({
     const [formData, setFormData] = useState(initialFormState);
     const [imagePreview, setImagePreview] = useState(null);
     const [categories, setCategories] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
     const [categoryLoading, setCategoryLoading] = useState(true);
+    const [supplierLoading, setSupplierLoading] = useState(true);
     const [internalError, setInternalError] = useState("");
     const [isUploading, setIsUploading] = useState(false);
 
+    /* Fetches the list of categories when the modal opens. */
     useEffect(() => {
         const fetchCategories = async () => {
             if (!open) return;
@@ -91,6 +108,25 @@ const ProductFormModal = ({
         fetchCategories();
     }, [open]);
 
+    /* Fetches the list of suppliers when the modal opens. */
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            if (!open) return;
+            setSupplierLoading(true);
+            try {
+                const fetchedSuppliers = await SupplierService.getAllSuppliers();
+                setSuppliers(fetchedSuppliers || []);
+            } catch (error) {
+                console.error("Error fetching suppliers for form:", error);
+                setInternalError((prevError) => prevError + (prevError ? " " : "") + "No se pudieron cargar los proveedores.");
+            } finally {
+                setSupplierLoading(false);
+            }
+        };
+        fetchSuppliers();
+    }, [open]);
+
+    /* Resets the form or populates it with product data when the modal opens or productToEdit changes. */
     useEffect(() => {
         if (open) {
             if (productToEdit) {
@@ -103,6 +139,7 @@ const ProductFormModal = ({
                         productToEdit.categoryId?.toString() ||
                         productToEdit.category?.id?.toString() ||
                         "",
+                    supplierId: productToEdit.supplierId?.toString() || "",
                     imageUrl: productToEdit.imageUrl || "",
                     discount: productToEdit.discount
                         ? (productToEdit.discount * 100).toString()
@@ -118,11 +155,22 @@ const ProductFormModal = ({
         }
     }, [productToEdit, open]);
 
+    /**
+     * Updates the form data state based on input changes.
+     *
+     * @param {object} e - The change event object.
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    /**
+     * Handles the file selection for the image input, creates a preview, and uploads the image.
+     * Updates formData with the uploaded image URL or sets an internal error if upload fails.
+     *
+     * @param {object} e - The file input change event object.
+     */
     const handleImageChangeAndUpload = async (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
@@ -149,6 +197,12 @@ const ProductFormModal = ({
         }
     };
 
+    /**
+     * Validates the form data before submission.
+     * Checks for required fields, valid numbers, and image presence.
+     *
+     * @returns {string} An error message if validation fails, otherwise an empty string.
+     */
     const validateForm = () => {
         if (!formData.name.trim()) return "El nombre es obligatorio.";
         if (isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0)
@@ -162,10 +216,18 @@ const ProductFormModal = ({
             }
         }
         if (!formData.categoryId) return "Debe seleccionar una categoría.";
+        if (!formData.supplierId) return "Debe seleccionar un proveedor.";
         if (!formData.imageUrl) return "La imagen del producto es obligatoria.";
         return "";
     };
 
+    /**
+     * Handles the form submission.
+     * Prevents default submit, validates the form, ensures image upload is complete,
+     * formats the data (especially discount), and calls the onSubmit prop.
+     *
+     * @param {object} e - The form submit event object.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         const validationError = validateForm();
@@ -193,6 +255,7 @@ const ProductFormModal = ({
             price: parseFloat(formData.price),
             stock: parseInt(formData.stock),
             categoryId: parseInt(formData.categoryId),
+            supplierId: parseInt(formData.supplierId),
             imageUrl: formData.imageUrl,
             discount: discountDecimal,
         };
@@ -200,7 +263,9 @@ const ProductFormModal = ({
         onSubmit(submissionData, id);
     };
 
+    /* Determines the modal title based on whether a product is being edited or a new one is being created. */
     const title = productToEdit ? "Editar Producto" : "Nuevo Producto";
+    /* Combines parent component's submitting state with internal image uploading state to disable controls. */
     const currentOverallSubmitting = parentIsSubmitting || isUploading;
 
     return (
@@ -315,39 +380,78 @@ const ProductFormModal = ({
                                     />
                                 </Grid>
                             </Grid>
-                            <FormControl
-                                fullWidth
-                                margin="dense"
-                                required
-                                disabled={currentOverallSubmitting || categoryLoading}
-                            >
-                                <InputLabel id="category-select-label">Categoría</InputLabel>
-                                <Select
-                                    labelId="category-select-label"
-                                    name="categoryId"
-                                    value={formData.categoryId}
-                                    label="Categoría"
-                                    onChange={handleChange}
-                                >
-                                    {categoryLoading && (
-                                        <MenuItem value="" disabled>
-                                            <CircularProgress size={20} sx={{ mr: 1 }} />
-                                            Cargando...
-                                        </MenuItem>
-                                    )}
-                                    {!categoryLoading && categories.length === 0 && (
-                                        <MenuItem value="" disabled>
-                                            No hay categorías
-                                        </MenuItem>
-                                    )}
-                                    {!categoryLoading &&
-                                        categories.map((cat) => (
-                                            <MenuItem key={cat.id} value={cat.id.toString()}>
-                                                {cat.name}
-                                            </MenuItem>
-                                        ))}
-                                </Select>
-                            </FormControl>
+                            <Grid container spacing={{ xs: 1, sm: 2 }}>
+                                <Grid item xs={12} sm={6} mr={"7.25%"} sx={{ width: "45%" }}>
+                                    <FormControl
+                                        fullWidth
+                                        margin="dense"
+                                        required
+                                        disabled={currentOverallSubmitting || categoryLoading}
+                                    >
+                                        <InputLabel id="category-select-label">Categoría</InputLabel>
+                                        <Select
+                                            labelId="category-select-label"
+                                            name="categoryId"
+                                            value={formData.categoryId}
+                                            label="Categoría"
+                                            onChange={handleChange}
+                                        >
+                                            {categoryLoading && (
+                                                <MenuItem value="" disabled>
+                                                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                                                    Cargando...
+                                                </MenuItem>
+                                            )}
+                                            {!categoryLoading && categories.length === 0 && (
+                                                <MenuItem value="" disabled>
+                                                    No hay categorías
+                                                </MenuItem>
+                                            )}
+                                            {!categoryLoading &&
+                                                categories.map((cat) => (
+                                                    <MenuItem key={cat.id} value={cat.id.toString()}>
+                                                        {cat.name}
+                                                    </MenuItem>
+                                                ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={6} sx={{ width: "45%" }}>
+                                    <FormControl
+                                        fullWidth
+                                        margin="dense"
+                                        required
+                                        disabled={currentOverallSubmitting || supplierLoading}
+                                    >
+                                        <InputLabel id="supplier-select-label">Proveedor</InputLabel>
+                                        <Select
+                                            labelId="supplier-select-label"
+                                            name="supplierId"
+                                            value={formData.supplierId}
+                                            label="Proveedor"
+                                            onChange={handleChange}
+                                        >
+                                            {supplierLoading && (
+                                                <MenuItem value="" disabled>
+                                                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                                                    Cargando...
+                                                </MenuItem>
+                                            )}
+                                            {!supplierLoading && suppliers.length === 0 && (
+                                                <MenuItem value="" disabled>
+                                                    No hay proveedores
+                                                </MenuItem>
+                                            )}
+                                            {!supplierLoading &&
+                                                suppliers.map((sup) => (
+                                                    <MenuItem key={sup.id} value={sup.id.toString()}>
+                                                        {sup.name}
+                                                    </MenuItem>
+                                                ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
                         </Grid>
 
                         <Grid
@@ -359,8 +463,8 @@ const ProductFormModal = ({
                                 flexDirection: "column",
                                 alignItems: "center",
                                 justifyContent: "flex-start",
-                                mt: { xs: 1, md: 0.5 },
-                                ml: 8,
+                                mt: { xs: 1, md: 1 },
+                                ml: 8
                             }}
                         >
                             <Box
@@ -380,15 +484,10 @@ const ProductFormModal = ({
                             >
                                 {isUploading ? (
                                     <Box sx={{ textAlign: "center" }}>
-                                        {" "}
-                                        <CircularProgress size={40} />{" "}
-                                        <Typography
-                                            variant="caption"
-                                            display="block"
-                                            sx={{ mt: 1 }}
-                                        >
+                                        <CircularProgress size={40} />
+                                        <Typography variant="caption" display="block" sx={{ mt: 1 }}>
                                             Subiendo...
-                                        </Typography>{" "}
+                                        </Typography>
                                     </Box>
                                 ) : imagePreview ? (
                                     <img
@@ -401,13 +500,8 @@ const ProductFormModal = ({
                                         }}
                                     />
                                 ) : (
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ textAlign: "center", p: 1 }}
-                                    >
-                                        {" "}
-                                        Previsualización de imagen{" "}
+                                    <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", p: 1 }}>
+                                        Previsualización de imagen
                                     </Typography>
                                 )}
                             </Box>
@@ -428,18 +522,6 @@ const ProductFormModal = ({
                                     onChange={handleImageChangeAndUpload}
                                 />
                             </Button>
-                            {formData.imageUrl && !isUploading && (
-                                <Typography
-                                    variant="caption"
-                                    sx={{
-                                        mt: 0.5,
-                                        wordBreak: "break-all",
-                                        textAlign: "center",
-                                        maxWidth: "250px",
-                                    }}
-                                    color="text.secondary"
-                                ></Typography>
-                            )}
                         </Grid>
                     </Grid>
                 </Box>
@@ -465,7 +547,6 @@ const ProductFormModal = ({
                     <Button
                         type="submit"
                         variant="contained"
-                        onClick={handleSubmit}
                         disabled={currentOverallSubmitting}
                         sx={{
                             backgroundColor: colors.primary.main,
@@ -475,7 +556,7 @@ const ProductFormModal = ({
                         {currentOverallSubmitting ? (
                             <CircularProgress size={24} color="inherit" />
                         ) : (
-                            "Confirmar"
+                            productToEdit ? "Guardar Cambios" : "Crear Producto"
                         )}
                     </Button>
                 </Box>
