@@ -22,6 +22,10 @@ import ProductService from "../../service/product.service";
 import { useAuth } from "../../context/AuthContext";
 import { colors, layout } from "../../constants/styles";
 
+/**
+ * Renders the payment method selection and details page for the checkout process.
+ * Allows users to choose between different payment methods and enter required details.
+ */
 const PaymentPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +47,9 @@ const PaymentPage = () => {
   const [paysafeForm, setPaysafeForm] = useState({ code: "" });
   const [errors, setErrors] = useState({});
 
+  /**
+   * Fetches the current user's cart items, including detailed product data if missing.
+   */
   const fetchCart = useCallback(async () => {
     if (!user?.id) {
       setCartItems([]);
@@ -115,6 +122,8 @@ const PaymentPage = () => {
     }
   }, [user?.id]);
 
+  /* Effect hook to redirect unauthenticated users to the login page,
+   and fetch cart data when authenticated. */
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: "/checkout/payment" } });
@@ -132,6 +141,10 @@ const PaymentPage = () => {
     [cartItems]
   );
 
+  /**
+   * Handles changes in the input fields for the selected payment method form.
+   * Updates the corresponding form state and clears errors for the changed field.
+   */
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
     if (method === "debit") setCardForm((prev) => ({ ...prev, [name]: value }));
@@ -146,6 +159,10 @@ const PaymentPage = () => {
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
+  /**
+   * Validates the current payment form based on the selected method
+   * and navigates to the summary page if valid.
+   */
   const handleSubmit = () => {
     const errs = {};
     let valid = true;
@@ -157,6 +174,15 @@ const PaymentPage = () => {
       if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardForm.expiryDate)) {
         errs.expiryDate = "Formato MM/AA";
         valid = false;
+      } else {
+        const [month, year] = cardForm.expiryDate.split('/').map(Number);
+        const currentYear = new Date().getFullYear() % 100;
+        const currentMonth = new Date().getMonth() + 1;
+
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          errs.expiryDate = "Fecha expirada";
+          valid = false;
+        }
       }
       if (!/^[0-9]{3,4}$/.test(cardForm.cvv)) {
         errs.cvv = "3 o 4 dígitos";
@@ -189,6 +215,7 @@ const PaymentPage = () => {
     }
     setErrors(errs);
     if (!valid) return;
+
     navigate("/checkout/summary", {
       state: {
         paymentMethod: method,
@@ -220,6 +247,7 @@ const PaymentPage = () => {
             <Box
               sx={{ mb: 3, display: "flex", justifyContent: "center", gap: 2 }}
             >
+              {/* Payment Method Selection */}
               {["debit", "paypal", "paysafe"].map((m) => {
                 const labels = {
                   debit: "Tarjeta de débito",
@@ -245,17 +273,19 @@ const PaymentPage = () => {
                         method === m
                           ? `2px solid ${colors.primary?.main}`
                           : "1px solid transparent",
+                      transition: "border-color 0.3s ease",
                     }}
                   >
-                    <Typography>{labels[m]}</Typography>
-                    {icons[m]}
+                    <Typography variant="subtitle2" fontWeight="medium">{labels[m]}</Typography>
+                    <Box sx={{ mt: 1 }}>{icons[m]}</Box>
                   </Paper>
                 );
               })}
             </Box>
+            {/* Payment Form based on selected method */}
             <Box
               sx={{
-                p: 2,
+                p: { xs: 2, sm: 3 },
                 border: `1px solid ${colors.grey[300]}`,
                 borderRadius: 2,
                 backgroundColor: colors.background.paper,
@@ -276,9 +306,9 @@ const PaymentPage = () => {
                     onChange={handleChange}
                     error={!!errors.cardNumber}
                     helperText={errors.cardNumber}
-                    slotProps={{ maxLength: 16 }}
+                    inputProps={{ maxLength: 16 }}
                   />
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                  <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 } }}>
                     <TextField
                       fullWidth
                       required
@@ -289,19 +319,20 @@ const PaymentPage = () => {
                       error={!!errors.expiryDate}
                       helperText={errors.expiryDate}
                       placeholder="MM/AA"
-                      sx={{ pr: 2 }}
+                      sx={{ pr: { sm: 2 } }}
                     />
                     <TextField
                       fullWidth
                       required
                       label="CVV"
                       name="cvv"
+                      type="password"
                       value={cardForm.cvv}
                       onChange={handleChange}
                       error={!!errors.cvv}
                       helperText={errors.cvv}
                       slotProps={{ maxLength: 4 }}
-                      sx={{ width: "35%" }}
+                      sx={{ width: { sm: '35%' } }}
                     />
                   </Box>
                   <TextField
@@ -347,15 +378,17 @@ const PaymentPage = () => {
                         checked={paypalForm.acceptPolicy}
                         name="acceptPolicy"
                         onChange={handleChange}
+                        color={errors.acceptPolicy ? "error" : "primary"}
                       />
                     }
                     label={
-                      <Typography>
+                      <Typography variant="body2">
                         He leído y acepto la{" "}
                         <a
                           href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
                           target="_blank"
                           rel="noopener noreferrer"
+                          style={{ color: colors.primary.main, textDecoration: 'underline' }}
                         >
                           Política de Seguridad
                         </a>
@@ -383,6 +416,7 @@ const PaymentPage = () => {
             </Box>
           </Grid>
           <Grid item xs={12} md={4}>
+            {/* Order Summary */}
             <Paper
               sx={{
                 p: 3,

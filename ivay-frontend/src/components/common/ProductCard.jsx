@@ -11,6 +11,10 @@ import { Link as RouterLink } from "react-router-dom";
 import { colors } from "../../constants/styles";
 import placeholder from "../../assets/images/product-placeholder.png"
 
+/**
+ * Renders a card displaying product information, including image, name, price,
+ * and discount, with a link to the product details page.
+ */
 const ProductCard = ({ product }) => {
   const discountPercentage =
     product.discount > 0 ? Math.round(product.discount * 100) : 0;

@@ -13,6 +13,10 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import AuthLayout from "../layout/AuthLayout";
 import { useAuth } from "../../context/AuthContext";
 
+/**
+ * Renders the login page, allowing users to authenticate using username and password.
+ * Handles redirection based on authentication status and user roles.
+ */
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,12 +35,17 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(location.state?.message || "");
 
+  /* Effect hook to clear any initial error message received from location state
+   after it has been displayed. */
   useEffect(() => {
     if (location.state?.message && error === location.state.message) {
+      // Clear the state message after reading it
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, error, navigate]);
 
+  /* Effect hook to handle redirection if the user is already authenticated
+   and has a valid role for client access. */
   useEffect(() => {
     if (!authIsLoading && isAuthenticated && user) {
       const VALID_CLIENT_ROLES = [2, 4];
@@ -53,11 +62,19 @@ function LoginPage() {
     }
   }, [isAuthenticated, user, authIsLoading, navigate, location.state, logout]);
 
+  /**
+   * Handles changes in the form input fields, updating the form state
+   * and clearing any previous errors.
+   */
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     if (error) setError("");
   };
 
+  /**
+   * Handles the form submission for login.
+   * Calls the authentication service, sets loading state, and handles errors.
+   */
   const handleSubmitWithFinally = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -70,8 +87,8 @@ function LoginPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Error al iniciar sesión. Verifica tus credenciales."
+        err.message ||
+        "Error al iniciar sesión. Verifica tus credenciales."
       );
     } finally {
       setLoading(false);

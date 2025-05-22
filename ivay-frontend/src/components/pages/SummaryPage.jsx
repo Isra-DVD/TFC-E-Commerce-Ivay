@@ -15,6 +15,11 @@ import OrderService from "../../service/order.service";
 import { useAuth } from "../../context/AuthContext";
 import { colors, layout } from "../../constants/styles";
 
+/**
+ * Renders the checkout summary page, displaying the cart items,
+ * subtotal, shipping cost, and total. Allows the user to confirm
+ * the purchase and finalize the order.
+ */
 const SummaryPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -24,6 +29,9 @@ const SummaryPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /**
+   * Fetches the current user's cart items, including detailed product data if missing.
+   */
   const fetchCart = useCallback(async () => {
     if (!user?.id) {
       setCartItems([]);
@@ -73,10 +81,14 @@ const SummaryPage = () => {
     }
   }, [user?.id]);
 
+  /* Effect hook to fetch the user's cart data when the component mounts
+   or when authentication status or fetchCart changes. */
   useEffect(() => {
     if (isAuthenticated) fetchCart();
   }, [isAuthenticated, fetchCart]);
 
+  /* Calculates the subtotal price of all items currently in the cart
+   (price * quantity for each item). */
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
@@ -91,6 +103,11 @@ const SummaryPage = () => {
   );
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
 
+  /**
+   * Handles the confirmation of the order.
+   * Creates a new order via the OrderService, clears the user's cart,
+   * and navigates to the home page upon success. Handles errors.
+   */
   const handleConfirm = async () => {
     setErrorMsg("");
     try {

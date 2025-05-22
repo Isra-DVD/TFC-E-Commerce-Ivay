@@ -15,7 +15,9 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import logo from "../../assets/images/ivay-logo.png";
 import { colors, layout } from "../../constants/styles";
 
-// Reusable Benefits Section for the left column
+/**
+ * Renders a section displaying the benefits of having an account.
+ */
 const BenefitsSection = () => (
     <Box
         sx={{
@@ -63,6 +65,10 @@ const BenefitsSection = () => (
     </Box>
 );
 
+/**
+ * Provides a consistent layout wrapper for authentication pages (Login, Register),
+ * including a logo, benefits section, and space for the specific form.
+ */
 const AuthLayout = ({ children, pageTitle, formIcon }) => {
     return (
         <Container component="main" maxWidth="lg" sx={{}}>

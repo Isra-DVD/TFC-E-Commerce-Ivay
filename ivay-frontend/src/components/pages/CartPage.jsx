@@ -25,6 +25,11 @@ import ProductCard from "../common/ProductCard";
 import CartItemRow from "../cart/CartItemRow";
 import { colors, layout } from "../../constants/styles";
 
+/**
+ * Renders the shopping cart page, displaying the user's current items,
+ * allowing quantity adjustments and item removal, and showing a total summary
+ * before proceeding to checkout.
+ */
 const CartPage = () => {
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
@@ -35,6 +40,10 @@ const CartPage = () => {
     const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
     const [similarProducts, setSimilarProducts] = useState([]);
 
+    /**
+     * Fetches the current user's cart items from the backend.
+     * Includes fetching detailed product data if it's not already embedded.
+     */
     const fetchCartData = useCallback(async () => {
         if (!user?.id) {
             setCartItems([]);
@@ -80,6 +89,9 @@ const CartPage = () => {
             setLoading(false);
         }
     }, [user?.id]);
+
+    /* Effect hook to redirect unauthenticated users to the login page,
+     and fetch cart data and similar products when authenticated. */
     useEffect(() => {
         if (!isAuthenticated) {
             navigate("/login", { state: { from: { pathname: "/cart" } } });
@@ -94,6 +106,10 @@ const CartPage = () => {
             .catch((e) => console.error("Error fetching similar products:", e));
     }, [isAuthenticated, user?.id, navigate, fetchCartData]);
 
+    /**
+     * Handles updating the quantity of a specific item in the cart.
+     * Communicates with the backend service and updates the local state.
+     */
     const handleQuantityChange = async (cartItemId, newQuantity) => {
         setActionMessage({ type: "", text: "" });
         try {
@@ -132,6 +148,10 @@ const CartPage = () => {
         }
     };
 
+    /**
+     * Handles removing a specific item from the cart.
+     * Communicates with the backend service and updates the local state.
+     */
     const handleRemoveItem = async (cartItemId) => {
         setActionMessage({ type: "", text: "" });
         try {
@@ -148,6 +168,10 @@ const CartPage = () => {
         }
     };
 
+    /**
+     * Handles clearing all items from the user's cart.
+     * Communicates with the backend service and updates the local state.
+     */
     const handleClearCart = async () => {
         if (!user?.id) return;
         setActionMessage({ type: "", text: "" });
@@ -161,6 +185,7 @@ const CartPage = () => {
         }
     };
 
+    /* Calculates the total price of all items currently in the cart. */
     const totalPrice = useMemo(() => {
         return cartItems.reduce((total, item) => {
             if (

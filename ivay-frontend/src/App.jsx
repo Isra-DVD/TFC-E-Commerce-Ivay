@@ -50,10 +50,16 @@ const theme = createTheme({
   },
 });
 
+/**
+ * A wrapper component that checks if the user is authenticated and has a valid role.
+ * If not authenticated or the role is invalid, it redirects the user to the login page.
+ * Displays a loading spinner while authentication status is being checked.
+ */
 function RequireAuth({ children }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const location = useLocation();
 
+  /* Effect hook to check user role after loading and authentication state is determined. Logs out and redirects if the role is invalid. */
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
       const VALID_CLIENT_ROLES = [2, 4];
@@ -92,6 +98,13 @@ const CHECKOUT_PATHS = [
   "/checkout/summary",
 ];
 
+/**
+ * A component that wraps the main application routes. It determines which 
+ * header
+ * (Header or CheckoutHeader) and whether to display the Footer based on the 
+ * current URL path.
+ * It also manages the layout structure (flex container for auth pages).
+ */
 const LayoutWrapper = () => {
   const location = useLocation();
   const authPaths = ["/login", "/register", "/me"];
@@ -170,57 +183,43 @@ const LayoutWrapper = () => {
   );
 };
 
+/**
+ * The root component of the application. Sets up the React Router,
+ * provides the Material-UI theme and Authentication context, and includes the 
+ * n8n chat widget.
+ */
 export default function App() {
   const n8nChatInstanceRef = useRef(null);
 
+  /* Effect hook to initialize and manage the n8n chat widget lifecycle.
+  Creates the chat instance on component mount and destroys it on unmount. */
   useEffect(() => {
     console.log('App useEffect running. Current chat instance in ref:', n8nChatInstanceRef.current);
 
     if (n8nChatInstanceRef.current) {
       console.log('Chat instance already exists in ref. Cleanup should handle this.');
-      // In React StrictMode (dev), this effect runs twice.
-      // The cleanup from the first run should destroy the instance and nullify the ref.
     }
 
     const n8nWebhookUrl = 'http://localhost:5678/webhook/b59f4673-ff9e-47ff-b1b6-06b4f58d5c65/chat';
 
     const chatOptions = {
-      webhookUrl: n8nWebhookUrl, // Your n8n webhook
-      // webhookConfig: { method: 'POST', headers: {} }, // Defaults are usually fine
-      // target: '#n8n-chat', // Default target where the widget mounts
-      mode: 'window', // Default is 'window'
-      initialResponseType: 'open', // <<< ADDED: To make it open by default as in your screenshot
-      // chatInputKey: 'chatInput', // Default key for input in localStorage
-      // chatSessionKey: 'sessionId', // Default key for session ID
-      // metadata: {}, // Any extra metadata you want to send with each message
+      webhookUrl: n8nWebhookUrl,
+      mode: 'window',
+      initialResponseType: 'open',
+      showWelcomeScreen: false,
 
-      showWelcomeScreen: false, // Set to true if you want a "New Conversation" button first
-
-      defaultLanguage: 'en', // Or 'es' if you translate below
-      // Your custom client-side initial messages.
-      // The message "My name is Nathan..." in the default likely comes from the *n8n workflow's first response*,
-      // not from this client-side initialMessages array.
+      defaultLanguage: 'en',
       initialMessages: [
-        "Hello! I'm the IVAY AI Assistant.", // Your first desired client-side message
-        "How can I help you with our products today?" // Your second desired client-side message
+        "Hello! I'm the IVAY AI Assistant.",
+        "How can I help you with our products today?"
       ],
       i18n: {
-        // Assuming 'en' for English, or use 'es' for Spanish and set defaultLanguage: 'es'
         en: {
-          title: 'IVAY AI Assistant', // <<<< THIS IS YOUR HEADER TEXT
-          subtitle: "Start a chat. We're here to help you 24/7.", // Default, can be customized
-          // footer: '', // Optional footer text
-          getStarted: 'New Conversation', // Text for the button if showWelcomeScreen is true
-          inputPlaceholder: 'Ask me about products, stock, or discounts...', // <<<< YOUR INPUT PLACEHOLDER
-          // closeButtonTooltip: 'Close chat' // Default, can be customized
+          title: 'IVAY AI Assistant',
+          subtitle: "Start a chat. We're here to help you 24/7.",
+          getStarted: 'New Conversation',
+          inputPlaceholder: 'Ask me about products, stock, or discounts...',
         },
-        // Example if you wanted Spanish:
-        // es: {
-        //   title: 'Asistente IA de IVAY',
-        //   subtitle: "Inicia un chat. Estamos aquí para ayudarte 24/7.",
-        //   getStarted: 'Nueva Conversación',
-        //   inputPlaceholder: 'Pregúntame sobre productos, stock, descuentos...',
-        // }
       },
     };
 
@@ -239,7 +238,7 @@ export default function App() {
         console.log('useEffect cleanup: No chat instance to destroy, or destroy function not found.');
       }
     };
-  }, []); // Empty dependency array
+  }, []);
 
 
   return (

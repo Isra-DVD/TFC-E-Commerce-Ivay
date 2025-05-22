@@ -20,6 +20,10 @@ import UserService from "../../service/user.service";
 import { colors } from "../../constants/styles";
 import logo from "../../assets/images/ivay-logo.png";
 
+/**
+ * Renders the user details page, allowing authenticated users to view,
+ * edit their profile information, and change their password.
+ */
 export default function DetailsPage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -41,6 +45,9 @@ export default function DetailsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  /**
+   * Fetches the authenticated user's profile details from the backend.
+   */
   const fetchProfile = async () => {
     setLoading(true);
     setError("");
@@ -56,6 +63,7 @@ export default function DetailsPage() {
     } catch (e) {
       setError("No se pudo cargar el perfil.");
       if (e.response?.status === 401) {
+        // If unauthorized, log out the user
         logout();
         navigate("/login", { replace: true });
       }
@@ -64,16 +72,28 @@ export default function DetailsPage() {
     }
   };
 
+  /* Effect hook to fetch the user's profile data when the component mounts
+   or when navigate/logout dependencies change. */
   useEffect(() => {
     fetchProfile();
   }, [navigate, logout]);
 
+  /**
+   * Handles changes in the main user details form input fields.
+   */
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  /**
+   * Handles changes in the password change form input fields.
+   */
   const handleChangePasswordForm = (e) =>
     setPasswordForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  /**
+   * Handles saving the updated user details.
+   * Communicates with the backend service and updates the local state.
+   */
   const handleSaveDetails = async () => {
     setError("");
     setSuccess("");
@@ -81,12 +101,16 @@ export default function DetailsPage() {
       await UserService.updateMyProfile(form);
       setSuccess("Datos actualizados con éxito.");
       setReadOnly(true);
-      await fetchProfile();
+      await fetchProfile(); // Re-fetch to ensure data is consistent
     } catch {
       setError("Error actualizando datos.");
     }
   };
 
+  /**
+   * Handles changing the user's password.
+   * Validates the new password confirmation and communicates with the backend service.
+   */
   const handleSavePassword = async () => {
     setError("");
     setSuccess("");
@@ -102,12 +126,16 @@ export default function DetailsPage() {
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
-      });
+      }); // Clear password fields on success
     } catch (e) {
       setError(e.response?.data?.message || "Error al cambiar la contraseña.");
     }
   };
 
+  /**
+   * Handles logging out the user.
+   * Clears authentication state and navigates to the login page.
+   */
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
@@ -298,7 +326,8 @@ export default function DetailsPage() {
               value={form.name}
               onChange={handleChange}
               margin="normal"
-              slotProps={{ readOnly }}
+              // Using InputProps instead of slotProps for readOnly in TextField
+              InputProps={{ readOnly: readOnly }}
             />
             <TextField
               fullWidth
@@ -307,7 +336,7 @@ export default function DetailsPage() {
               value={form.fullName}
               onChange={handleChange}
               margin="normal"
-              slotProps={{ readOnly }}
+              InputProps={{ readOnly: readOnly }}
             />
             <TextField
               fullWidth
@@ -316,7 +345,7 @@ export default function DetailsPage() {
               value={form.email}
               onChange={handleChange}
               margin="normal"
-              slotProps={{ readOnly }}
+              InputProps={{ readOnly: readOnly }}
             />
             <TextField
               fullWidth
@@ -325,7 +354,7 @@ export default function DetailsPage() {
               value={form.phone}
               onChange={handleChange}
               margin="normal"
-              slotProps={{ readOnly }}
+              InputProps={{ readOnly: readOnly }}
             />
             <TextField
               fullWidth
@@ -334,7 +363,7 @@ export default function DetailsPage() {
               value={form.userAddress}
               onChange={handleChange}
               margin="normal"
-              slotProps={{ readOnly }}
+              InputProps={{ readOnly: readOnly }}
             />
             <Button
               variant="contained"

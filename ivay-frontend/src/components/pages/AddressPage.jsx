@@ -26,6 +26,10 @@ import ProductService from "../../service/product.service";
 import { useAuth } from "../../context/AuthContext";
 import { colors, layout } from "../../constants/styles";
 
+/**
+ * Renders the address selection and management page for the checkout process.
+ * Allows users to select an existing address, add a new one, edit, or delete addresses.
+ */
 const AddressPage = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +49,9 @@ const AddressPage = () => {
     locality: "",
   });
 
+  /**
+   * Fetches the current user's cart items, including detailed product data if missing.
+   */
   const fetchCart = useCallback(async () => {
     if (!user?.id) {
       setCartItems([]);
@@ -105,6 +112,9 @@ const AddressPage = () => {
     }
   }, [user?.id]);
 
+  /**
+   * Fetches the addresses associated with the current user.
+   */
   const fetchAddresses = useCallback(async () => {
     if (!user?.id) return;
     try {
@@ -119,6 +129,8 @@ const AddressPage = () => {
     }
   }, [user?.id]);
 
+  /* Effect hook to fetch initial data (cart and addresses) on component mount
+   and redirect to login if the user is not authenticated. */
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login", { state: { from: "/checkout/address" } });
@@ -133,6 +145,7 @@ const AddressPage = () => {
     }));
   }, [isAuthenticated, user, fetchCart, fetchAddresses, navigate]);
 
+  /* Calculates the total price of all items currently in the cart. */
   const totalPrice = useMemo(
     () =>
       cartItems.reduce(
@@ -142,11 +155,18 @@ const AddressPage = () => {
     [cartItems]
   );
 
+  /**
+   * Handles changes in the address form input fields.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setAddressForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  /**
+   * Handles selection changes in the address dropdown, updating the form
+   * with the selected address details or clearing it for a new address.
+   */
   const handleSelectAddressChange = (eventOrId) => {
     const newSelectedId =
       typeof eventOrId === "string" || typeof eventOrId === "number"
@@ -182,12 +202,19 @@ const AddressPage = () => {
     }
   };
 
+  /**
+   * Sets the state to allow editing of the currently selected address.
+   */
   const handleEditSelectedAddress = () => {
     if (selectedAddressId && selectedAddressId !== "new") {
       setEditingAddressId(selectedAddressId);
     }
   };
 
+  /**
+   * Saves a new address or updates the currently edited address.
+   * Validates form fields before saving.
+   */
   const handleSaveOrUpdateAddress = async () => {
     const { address, zipCode, province, locality } = addressForm;
     if (!(address && zipCode && province && locality)) {
@@ -223,6 +250,9 @@ const AddressPage = () => {
     }
   };
 
+  /**
+   * Deletes the currently selected address after user confirmation.
+   */
   const handleDeleteSelectedAddress = async () => {
     if (!selectedAddressId || selectedAddressId === "new") {
       alert("No hay dirección seleccionada para eliminar.");
@@ -338,8 +368,8 @@ const AddressPage = () => {
               {editingAddressId
                 ? "Editando Dirección"
                 : isFormForNewAddress
-                ? "Nueva Dirección"
-                : "Detalles de Dirección"}
+                  ? "Nueva Dirección"
+                  : "Detalles de Dirección"}
             </Typography>
             <Box
               component="form"

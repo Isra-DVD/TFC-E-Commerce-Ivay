@@ -87,6 +87,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const drawerWidth = 250;
 
+/**
+ * Renders the main header of the application, including site logo,
+ * a search bar, navigation icons, and a mobile drawer with category links.
+ */
 function Header() {
   const theme = useTheme();
   const location = useLocation();
@@ -100,6 +104,7 @@ function Header() {
   const [categoryLoading, setCategoryLoading] = useState(true);
   const [categoryError, setCategoryError] = useState("");
 
+  /* Fetches the list of categories from the CategoryService on component mount. */
   useEffect(() => {
     const fetchCategories = async () => {
       setCategoryLoading(true);
@@ -117,12 +122,22 @@ function Header() {
     fetchCategories();
   }, []);
 
+  /**
+   * Toggles the state of the mobile navigation drawer.
+   */
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  /**
+   * Updates the search term state based on the input value.
+   */
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
+  /**
+   * Handles the search submission event, navigating to the search results page
+   * and clearing the search term input.
+   */
   const handleSearchSubmit = (e) => {
     if ((e.key && e.key === "Enter") || e.type === "click") {
       e.preventDefault();
@@ -232,7 +247,7 @@ function Header() {
                 minWidth: 40,
                 color:
                   location.pathname === "/products" &&
-                  !location.search.includes("categoryId")
+                    !location.search.includes("categoryId")
                     ? colors.primary.main
                     : "inherit",
               }}
@@ -268,59 +283,63 @@ function Header() {
 
           {dynamicDrawerCategories.length > 0
             ? dynamicDrawerCategories.map((item) => {
-                const isActive =
-                  location.pathname === "/products" &&
-                  location.search === `?categoryId=${item.id}`;
-                return (
-                  <ListItem
-                    button="true"
-                    key={item.id}
-                    component={RouterLink}
-                    to={item.path}
-                    onClick={handleDrawerToggle}
-                    selected={isActive}
-                    sx={{
-                      py: 1.2,
-                      pl: isActive ? 1.5 : 2,
-                      "&.Mui-selected": {
-                        backgroundColor: alpha(colors.primary.main, 0.08),
-                        borderLeft: `4px solid ${colors.primary.main}`,
-                        "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
-                          color: colors.primary.main,
-                          fontWeight: 500,
-                        },
+              const isActive =
+                location.pathname === "/products" &&
+                location.search === `?categoryId=${item.id}`;
+              return (
+                <ListItem
+                  button="true"
+                  key={item.id}
+                  component={RouterLink}
+                  to={item.path}
+                  onClick={handleDrawerToggle}
+                  selected={isActive}
+                  sx={{
+                    py: 1.2,
+                    pl: isActive ? 1.5 : 2,
+                    "&.Mui-selected": {
+                      backgroundColor: alpha(colors.primary.main, 0.08),
+                      borderLeft: `4px solid ${colors.primary.main}`,
+                      "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
+                        color: colors.primary.main,
+                        fontWeight: 500,
                       },
-                      "&:hover": {
-                        backgroundColor: alpha(colors.primary.main, 0.04),
+                    },
+                    "&:hover": {
+                      backgroundColor: alpha(colors.primary.main, 0.04),
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40 }}>
+                    {React.cloneElement(item.icon, {
+                      sx: {
+                        color: isActive
+                          ? colors.primary.main
+                          : theme.palette.action.active,
                       },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      {React.cloneElement(item.icon, {
-                        sx: {
-                          color: isActive
-                            ? colors.primary.main
-                            : theme.palette.action.active,
-                        },
-                      })}
-                    </ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItem>
-                );
-              })
-            : !categoryLoading && (
-                <ListItem sx={{ py: 1.5 }}>
-                  <ListItemText
-                    primary="No hay categorías disponibles."
-                    sx={{ textAlign: "center", color: "text.secondary" }}
-                  />
+                    })}
+                  </ListItemIcon>
+                  <ListItemText primary={item.text} />
                 </ListItem>
-              )}
+              );
+            })
+            : !categoryLoading && (
+              <ListItem sx={{ py: 1.5 }}>
+                <ListItemText
+                  primary="No hay categorías disponibles."
+                  sx={{ textAlign: "center", color: "text.secondary" }}
+                />
+              </ListItem>
+            )}
         </List>
       )}
     </Box>
   );
 
+  /**
+   * Handles clicking the profile icon, navigating to the profile page
+   * if authenticated, or the login page otherwise. Closes the drawer if open.
+   */
   const handleProfileClick = () => {
     if (mobileOpen) setMobileOpen(false);
     if (isAuthenticated) {

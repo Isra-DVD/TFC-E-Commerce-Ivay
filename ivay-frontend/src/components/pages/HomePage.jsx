@@ -33,6 +33,9 @@ import iconGarantia from "../../assets/images/icons/icon-garantia.png";
 import iconNovedades from "../../assets/images/icons/icon-novedades.png";
 import bannerOfertas from "../../assets/images/banner-ofertas-semana.png";
 
+/**
+ * Renders a small icon and title for a feature.
+ */
 const FeatureIcon = ({ feature }) => (
   <Box sx={{ textAlign: "center", p: 1 }}>
     <img
@@ -80,6 +83,10 @@ const features = [
 
 const MAX_PRODUCTS_DISPLAY = 6;
 
+/**
+ * Renders the home page of the application, featuring promotional banners,
+ * top products, category highlights, key features, and products with special offers.
+ */
 function HomePage() {
   const theme = useTheme();
 
@@ -90,6 +97,7 @@ function HomePage() {
   const [errorTop, setErrorTop] = useState("");
   const [errorSinIva, setErrorSinIva] = useState("");
 
+  /* Effect hook to fetch initial product data (top sellers and "Sin IVA") on component mount. */
   useEffect(() => {
     const fetchTopProducts = async () => {
       setLoadingTop(true);
@@ -129,6 +137,8 @@ function HomePage() {
     fetchSinIvaProducts();
   }, []);
 
+  /* Renders a section displaying a list of products with a title,
+   handling loading, error, and empty states, and a 'View more' button. */
   const renderProductSection = (
     title,
     products,

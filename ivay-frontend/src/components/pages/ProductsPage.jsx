@@ -27,6 +27,11 @@ import { layout } from '../../constants/styles';
 
 const PRODUCTS_PER_PAGE = 12;
 
+/**
+ * Renders a page displaying a list of products. Products can be filtered
+ * by category based on URL parameters or query strings. Includes pagination
+ * and sorting options.
+ */
 const ProductsPage = () => {
     const { categoryIdFromParams } = useParams();
 
@@ -45,6 +50,8 @@ const ProductsPage = () => {
     const [error, setError] = useState('');
     const [sortBy, setSortBy] = useState('default');
 
+    /* Effect hook to fetch products and category details based on the
+     effectiveCategoryId, current page, and sorting preference. */
     useEffect(() => {
         const fetchProductsAndCategory = async () => {
             setLoading(true);
@@ -81,16 +88,24 @@ const ProductsPage = () => {
         fetchProductsAndCategory();
     }, [effectiveCategoryId, page, sortBy]);
 
+    /**
+     * Handles changing the current page of the product list.
+     */
     const handlePageChange = (event, value) => {
         setPage(value);
         window.scrollTo(0, 0);
     };
 
+    /**
+     * Handles changing the sorting criteria for the product list.
+     */
     const handleSortChange = (event) => {
         setSortBy(event.target.value);
         setPage(1);
     };
 
+    /* Memoized computation to sort and slice the product list
+     based on the current sorting criteria and page. */
     const processedProducts = useMemo(() => {
         let sortedProducts = [...products];
 
@@ -126,9 +141,9 @@ const ProductsPage = () => {
                     Inicio
                 </MuiLink>
                 {category ?
-                    [ // Return an array of elements
+                    [
                         <MuiLink
-                            key="products-link" // Add keys when rendering arrays of elements
+                            key="products-link"
                             component={RouterLink}
                             underline="hover"
                             color="inherit"
@@ -136,7 +151,7 @@ const ProductsPage = () => {
                         >
                             Productos
                         </MuiLink>,
-                        <Typography key="category-name" color="text.primary"> {/* Add keys */}
+                        <Typography key="category-name" color="text.primary">
                             {category.name}
                         </Typography>
                     ]

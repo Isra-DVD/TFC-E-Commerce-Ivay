@@ -22,6 +22,10 @@ import CategoryService from '../../service/category.service';
 import ProductCard from '../common/ProductCard';
 import { layout } from '../../constants/styles';
 
+/**
+ * Renders the search results page based on a query parameter.
+ * Displays lists of matching products and categories.
+ */
 const SearchResultsPage = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q');
@@ -31,6 +35,8 @@ const SearchResultsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    /* Effect hook that fetches search results for products and categories
+     based on the 'query' parameter. Handles loading and error states. */
     useEffect(() => {
         if (!query) {
             setLoading(false);

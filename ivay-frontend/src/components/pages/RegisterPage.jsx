@@ -13,6 +13,11 @@ import AuthLayout from "../layout/AuthLayout";
 import UserService from "../../service/user.service.js";
 import { useAuth } from "../../context/AuthContext";
 
+/**
+ * Renders the registration page, allowing new users to create an account.
+ * Handles form submission, password validation, calls the user service,
+ * and attempts to log in the user upon successful registration.
+ */
 function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -34,10 +39,18 @@ function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  /**
+   * Handles changes in the form input fields, updating the formData state.
+   */
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  /**
+   * Handles the form submission for user registration.
+   * Validates passwords, calls the user service to create the user,
+   * and attempts to log in the user upon success.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -71,8 +84,8 @@ function RegisterPage() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Error al registrar la cuenta."
+        err.message ||
+        "Error al registrar la cuenta."
       );
     } finally {
       setLoading(false);

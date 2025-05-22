@@ -15,7 +15,10 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { colors } from "../../constants/styles";
 import placeholder from "../../assets/images/product-placeholder.png"
 
-
+/**
+ * Renders a single row for an item in the shopping cart,
+ * displaying product details, quantity controls, and a remove option.
+ */
 const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
     const product = item.product;
 
@@ -27,6 +30,9 @@ const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
         );
     }
 
+    /**
+     * Handles updating the quantity of the item, validating the new quantity.
+     */
     const handleQuantityUpdate = (newQuantity) => {
         const quantity = parseInt(newQuantity, 10);
         if (!isNaN(quantity) && quantity >= 1 && quantity <= (product.stock || 99)) {

@@ -17,7 +17,10 @@ const brandLogos = [
   { src: corsairLogo, alt: "Corsair Logo" },
 ];
 
-
+/**
+ * Renders the footer component of the website, including brand logos,
+ * company information, commitments, and copyright details.
+ */
 function Footer() {
   return (
     <Box

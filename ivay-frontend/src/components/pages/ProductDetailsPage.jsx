@@ -23,6 +23,11 @@ import ProductCard from "../common/ProductCard";
 import { colors, layout } from "../../constants/styles";
 import placeholder from "../../assets/images/product-placeholder.png";
 
+/**
+ * Renders the details page for a specific product.
+ * Displays product information, price, stock status, an add-to-cart button,
+ * and a section for similar products.
+ */
 const ProductDetailsPage = () => {
   const { productId } = useParams();
   const { user, isAuthenticated } = useAuth();
@@ -34,6 +39,10 @@ const ProductDetailsPage = () => {
   const [error, setError] = useState("");
   const [cartMessage, setCartMessage] = useState({ type: "", text: "" });
 
+  /**
+   * Effect hook that fetches product details based on the productId from the   
+   * URL, and also fetches a list of similar products.
+   */
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
@@ -51,8 +60,9 @@ const ProductDetailsPage = () => {
         console.error("Error fetching product data:", e);
         setError(
           e.response?.data?.message ||
-            "No se pudo cargar la información del producto."
+          "No se pudo cargar la información del producto."
         );
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -63,6 +73,10 @@ const ProductDetailsPage = () => {
     }
   }, [productId]);
 
+  /**
+   * Handles adding the current product to the user's cart.
+   * Requires user authentication. Communicates with the backend service.
+   */
   const handleAddToCart = async () => {
     if (!product) return;
 
@@ -194,6 +208,7 @@ const ProductDetailsPage = () => {
               {product.name}
             </Typography>
 
+            {/* Description */}
             <Paper
               variant="outlined"
               sx={{
@@ -210,6 +225,8 @@ const ProductDetailsPage = () => {
               </Typography>
             </Paper>
 
+
+            {/* Price and Discount */}
             <Box sx={{ my: 3 }}>
               {originalPrice && (
                 <Typography
@@ -249,6 +266,7 @@ const ProductDetailsPage = () => {
               )}
             </Box>
 
+            {/* Stock Status */}
             <Typography
               variant="body2"
               sx={{
@@ -262,6 +280,7 @@ const ProductDetailsPage = () => {
                 : "Agotado temporalmente"}
             </Typography>
 
+            {/* Add to Cart Button */}
             <Button
               variant="contained"
               startIcon={<AddShoppingCartIcon />}
@@ -281,6 +300,7 @@ const ProductDetailsPage = () => {
             >
               Añadir al carrito
             </Button>
+            {/* Cart Action Message */}
             {cartMessage.text && (
               <Alert severity={cartMessage.type} sx={{ mt: 2, maxWidth: 400 }}>
                 {cartMessage.text}

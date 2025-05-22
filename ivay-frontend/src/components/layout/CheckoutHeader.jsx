@@ -1,4 +1,3 @@
-// src/components/CheckoutHeader.jsx
 import React from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
@@ -71,6 +70,9 @@ const CustomStepIconRoot = styled("div")(({ theme, ownerState }) => ({
   }),
 }));
 
+/**
+ * Custom component to render step icons in the stepper, showing a checkmark for completed steps.
+ */
 function CustomStepIcon(props) {
   const { active, completed, className, icon } = props;
   return (
@@ -87,6 +89,10 @@ function CustomStepIcon(props) {
   );
 }
 
+/**
+ * Renders the header component for the checkout process,
+ * displaying the site logo and a step-by-step progress indicator.
+ */
 function CheckoutHeader() {
   const theme = useTheme();
   const location = useLocation();
