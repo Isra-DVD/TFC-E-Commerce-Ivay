@@ -1,0 +1,123 @@
+/* The main chat window container, usually a child of #n8n-chat-widget */
+.n8n-chat-window-card {
+    width: 370px !important;
+    /* Slightly wider to accommodate padding */
+    max-width: 90vw !important;
+    height: 550px !important;
+    /* Slightly taller */
+    max-height: 80vh !important;
+
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15) !important;
+    font-family: 'Roboto', 'Arial', sans-serif !important;
+    background-color: #f9f9f9 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.n8n-chat-header {
+    /* n8n usually prefixes its classes */
+    background-color: #673AB7 !important;
+    /* Your desired purple */
+    color: white !important;
+    padding: 12px 18px !important;
+    /* Slightly more padding */
+    border-top-left-radius: 11px !important;
+    /* Match parent's border-radius minus border width */
+    border-top-right-radius: 11px !important;
+    flex-shrink: 0 !important;
+    /* Prevent header from shrinking */
+}
+
+/* Target the text element inside the header if it's not an h2 or if you need more specificity */
+.n8n-chat-header .n8n-chat-header-text {
+    /* Or whatever class n8n uses for the header text span/div */
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.n8n-chat-messages-container {
+    /* n8n usually prefixes this too */
+    padding: 15px !important;
+    overflow-y: auto !important;
+    /* Ensure scrolling */
+    flex-grow: 1 !important;
+    /* Allow this to take up available space */
+    display: flex;
+    flex-direction: column;
+}
+
+/* User messages */
+.n8n-chat-message.n8n-chat-message-user .n8n-chat-message-bubble {
+    background-color: #5E35B1 !important;
+    /* A slightly different purple for user, distinct from header */
+    color: white !important;
+    border-radius: 18px 18px 5px 18px !important;
+    /* More rounded, different corner for tail */
+    padding: 10px 14px !important;
+    max-width: 80% !important;
+    margin-left: auto !important;
+    align-self: flex-end !important;
+    margin-bottom: 8px !important;
+}
+
+/* Bot messages */
+.n8n-chat-message.n8n-chat-message-bot .n8n-chat-message-bubble {
+    background-color: #FFFFFF !important;
+    color: #333333 !important;
+    border: 1px solid #E0E0E0 !important;
+    border-radius: 18px 18px 18px 5px !important;
+    /* More rounded, different corner for tail */
+    padding: 10px 14px !important;
+    max-width: 80% !important;
+    align-self: flex-start !important;
+    margin-bottom: 8px !important;
+}
+
+.n8n-chat-composer-container {
+    /* n8n usually prefixes this */
+    border-top: 1px solid #E0E0E0 !important;
+    padding: 10px 15px !important;
+    background-color: #ffffff !important;
+    flex-shrink: 0 !important;
+    /* Prevent composer from shrinking */
+}
+
+.n8n-chat-input {
+    /* This class name is often correct */
+    border: 1px solid #D1D1D1 !important;
+    border-radius: 20px !important;
+    padding: 10px 15px !important;
+    font-size: 0.95rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.n8n-chat-input:focus {
+    border-color: #673AB7 !important;
+    box-shadow: 0 0 0 2px rgba(103, 58, 183, 0.2) !important;
+}
+
+.n8n-chat-send-button svg {
+    /* This class name is often correct */
+    fill: #673AB7 !important;
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.n8n-chat-send-button:hover svg {
+    fill: #512DA8 !important;
+    /* Darker shade on hover */
+}
+
+/* Ensure the launch button is also styled if you are not using initialResponseType: 'open' */
+.n8n-chat-launcher-button {
+    background-color: #673AB7 !important;
+    /* Add other styles for the launcher button if needed */
+}
+
+.n8n-chat-launcher-button svg {
+    fill: white !important;
+}
