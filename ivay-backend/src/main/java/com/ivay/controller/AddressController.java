@@ -187,8 +187,7 @@ public class AddressController {
 	})
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize(
-		    "hasAnyRole('ADMIN','SUPERADMIN') " +
-		    "or #dto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id"
+		    "hasAnyRole('ADMIN','SUPERADMIN') or #dto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id"
 		  )
 	public ResponseEntity<ApiResponseDto<AddressResponseDto>> create(@Valid @RequestBody AddressRequestDto dto, Authentication auth) {
 

@@ -19,6 +19,7 @@ const getAddressesByUserId = async (userId) => {
 };
 
 const createAddress = async (addressRequestDto) => {
+  console.log(addressRequestDto);
   const response = await axios.post(ADDRESS_API_URL, addressRequestDto);
   return response.data.data;
 };

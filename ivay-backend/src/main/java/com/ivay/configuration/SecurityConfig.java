@@ -71,6 +71,8 @@ public class SecurityConfig {
 
                 // direcciones
                 .requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
                 .requestMatchers("/api/addresses/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
                 // órdenes
