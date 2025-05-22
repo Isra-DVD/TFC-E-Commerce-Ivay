@@ -1,6 +1,5 @@
 package com.ivay.configuration;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,8 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,118 +25,126 @@ import com.ivay.service.impl.UserDetailsServiceImpl;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http
-				.csrf(csrf -> csrf.disable())
-				.cors(Customizer.withDefaults())
-				.authorizeHttpRequests(auth -> auth
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Rutas públicas de docs y error
+        String[] PUBLIC_DOCS = {
+            "/doc/swagger-ui.html",
+            "/doc/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/error"
+        };
+        // GET públicos
+        String[] PUBLIC_GET = {
+            "/api/products",
+            "/api/products/filter",
+            "/api/products/{productId}",
+            "/api/categories",
+            "/api/categories/filter",
+            "/api/categories/{categoryId}",
+            "/api/categories/{categoryId}/products"
+        };
+        // POST públicos ( auth / registro )
+        String[] PUBLIC_POST = {
+            "/api/auth/**",
+            "/api/users"
+        };
+        // Rutas que sólo requieren autenticación (cualquier rol)
+        String[] AUTHENTICATED = {
+            "/api/users/me/**",
+            "/api/cart-items/**",
+            "/api/users/{userId}/cart-items",
+            "/api/orders"
+        };
 
-						.requestMatchers(
-								"/doc/swagger-ui.html",
-								"/doc/swagger-ui/**",
-								"/v3/api-docs/**"
-								).permitAll()
-						
-						.requestMatchers("/error").permitAll()
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth
+                // públicas
+                .requestMatchers(PUBLIC_DOCS).permitAll()
+                .requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
+                .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
 
-						.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-						.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/products/filter").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/products/{productId}").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}/products").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories/filter").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/categories/{categoryId}").permitAll()
-						.requestMatchers(HttpMethod.PUT, "/api/users/me/profile").authenticated()
-						.requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
-						.requestMatchers(HttpMethod.PATCH, "/api/users/me/password").authenticated()
+                // autenticado genérico
+                .requestMatchers(AUTHENTICATED).authenticated()
 
-						.requestMatchers(HttpMethod.GET, "/api/addresses").hasAnyRole("SUPERADMIN", "ADMIN")  
-						.requestMatchers(HttpMethod.GET, "/api/addresses/{id}").hasAnyRole("SUPERADMIN", "ADMIN") 
-						.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
-						.requestMatchers(HttpMethod.DELETE, "/api/addresses/{id}").authenticated()
-						.requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
-						.requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
+                // direcciones
+                .requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
+                .requestMatchers("/api/addresses/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-						.requestMatchers(HttpMethod.GET, "/api/cart-items/{cartItemId}").authenticated()
-						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/cart-items").authenticated()
-						.requestMatchers(HttpMethod.POST, "/api/cart-items").authenticated()
-						.requestMatchers(HttpMethod.PATCH, "/api/cart-items/{cartItemId}/quantity").authenticated()
-						.requestMatchers(HttpMethod.DELETE, "/api/cart-items/{cartItemId}").authenticated()
-						.requestMatchers(HttpMethod.DELETE, "/api/users/{userId}/cart-items").authenticated()
+                // órdenes
+                .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
 
-						.requestMatchers(HttpMethod.POST, "/api/categories").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.PUT, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.DELETE, "/api/categories/{categoryId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                // order-items
+                .requestMatchers("/api/order-items/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-						.requestMatchers(HttpMethod.GET, "/api/orders").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/orders/{orderId}/items").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
-						.requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "api/order-items/{orderItemId}").hasAnyRole("SUPERADMIN", "ADMIN")
+                // categorías
+                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.PUT,  "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
-						
-						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/order-items").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/products/{productId}/cart-items").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.PUT, "/api/products/{productId}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.DELETE, "/api/products/{productId}").hasAnyRole("SUPERADMIN", "ADMIN","MANAGER")
+                // productos
+                .requestMatchers(HttpMethod.POST,   "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET,    "/api/products/{productId}/cart-items")
+                    .hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET,    "/api/products/{productId}/order-items")
+                    .hasAnyRole("SUPERADMIN", "ADMIN")
 
-						.requestMatchers(HttpMethod.GET, "/api/roles").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/roles/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.POST, "/api/roles").hasAnyRole("SUPERADMIN")
-						.requestMatchers(HttpMethod.PUT, "/api/roles/{id}").hasAnyRole("SUPERADMIN")
-						.requestMatchers(HttpMethod.DELETE, "/api/roles/{id}").hasAnyRole("SUPERADMIN")
+                // roles
+                .requestMatchers("/api/roles/**").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/roles/**").hasRole("SUPERADMIN")
+                .requestMatchers(HttpMethod.PUT,  "/api/roles/**").hasRole("SUPERADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/roles/**").hasRole("SUPERADMIN")
 
-						.requestMatchers(HttpMethod.GET, "/api/suppliers").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.GET, "/api/suppliers/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.POST, "/api/suppliers").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.PUT, "/api/suppliers/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-						.requestMatchers(HttpMethod.DELETE, "/api/suppliers/{id}").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+                // suppliers
+                .requestMatchers("/api/suppliers/**")
+                    .hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
-						.requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
-						.requestMatchers(HttpMethod.DELETE, "/api/users").hasAnyRole("SUPERADMIN", "ADMIN")
-						
-						.anyRequest().authenticated()
+                // usuarios (sólo ADMIN/SUPERADMIN pueden gestionar)
+                .requestMatchers(HttpMethod.GET,    "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-						)
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-				.httpBasic(Customizer.withDefaults())
-				.build();
-	}
+                // cualquier otra petición requiere autenticación
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(Customizer.withDefaults());
 
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception { 
-		return authenticationConfiguration.getAuthenticationManager();
-	}
+        return http.build();
+    }
 
-	@Bean
-	AuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) throws Exception {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
 
-		provider.setPasswordEncoder(passwordEncoder());
-		provider.setUserDetailsService(userDetailsService);
+    @Bean
+    AuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
+    }
 
-		return provider;
-	}
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
-	JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
-	}
-
+    @Bean
+    JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
 }

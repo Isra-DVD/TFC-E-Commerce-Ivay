@@ -21,17 +21,17 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { layout, colors } from "../../constants/styles";
 import ProductCard from "../common/ProductCard";
 import ProductService from "../../service/product.service";
-import promoLaptopImg from '../../assets/images/category/promo-laptop.jpg';
-import promoMonitorImg from '../../assets/images/category/promo-monitor.jpg';
-import promoComponentsImg from '../../assets/images/category/promo-components.jpg';
-import promoTvImg from '../../assets/images/category/promo-tv.jpg';
-import iconOferta from '../../assets/images/icons/icon-oferta.png';
-import iconEnvio from '../../assets/images/icons/icon-envio.png';
-import icon24h from '../../assets/images/icons/icon-24h.png';
-import iconDev from '../../assets/images/icons/icon-dev.png';
-import iconGarantia from '../../assets/images/icons/icon-garantia.png';
-import iconNovedades from '../../assets/images/icons/icon-novedades.png';
-import bannerOfertas from '../../assets/images/banner-ofertas-semana.png'
+import promoLaptopImg from "../../assets/images/category/promo-laptop.jpg";
+import promoMonitorImg from "../../assets/images/category/promo-monitor.jpg";
+import promoComponentsImg from "../../assets/images/category/promo-components.jpg";
+import promoTvImg from "../../assets/images/category/promo-tv.jpg";
+import iconOferta from "../../assets/images/icons/icon-oferta.png";
+import iconEnvio from "../../assets/images/icons/icon-envio.png";
+import icon24h from "../../assets/images/icons/icon-24h.png";
+import iconDev from "../../assets/images/icons/icon-dev.png";
+import iconGarantia from "../../assets/images/icons/icon-garantia.png";
+import iconNovedades from "../../assets/images/icons/icon-novedades.png";
+import bannerOfertas from "../../assets/images/banner-ofertas-semana.png";
 
 const FeatureIcon = ({ feature }) => (
   <Box sx={{ textAlign: "center", p: 1 }}>
@@ -168,7 +168,14 @@ function HomePage() {
       );
     }
     return (
-      <Box sx={{ mb: 5 }}>
+      <Box
+        sx={{
+          mb: 5,
+          maxWidth: 1250,
+          mx: "auto",
+          px: { xs: 1, sm: 2 },
+        }}
+      >
         <Box
           sx={{
             display: "flex",
