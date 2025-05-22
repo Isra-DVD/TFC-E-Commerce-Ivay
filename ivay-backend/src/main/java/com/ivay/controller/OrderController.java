@@ -25,52 +25,73 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.*;
 
+/**
+ * REST controller for managing orders.
+ *
+ * Exposes endpoints to list, retrieve, create, update, and delete orders,
+ * as well as to list order items for a given order.
+ *
+ * All responses are wrapped in {@link ApiResponseDto} or return an error
+ * payload {@link ApiError}.
+ *
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:5174/"})
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:5174" })
 @Tag(name = "Order", description = "Endpoints for managing orders")
 public class OrderController {
 
     private final OrderService orderService;
 
+    /**
+     * Retrieve all orders.
+     *
+     * @return HTTP 200 with list of {@link OrderResponseDto}
+     */
     @Operation(
         summary     = "Fetch all orders",
-        description = "Retrieve a list of all orders from the database",
-        tags        = { "Order" }
+        description = "Retrieve a list of all orders in the system"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Orders fetched successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "200", description = "Orders fetched successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderResponseDto.class }
+                    subTypes       = { OrderResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "OrdersList",
-                    value = """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:00:00.000Z",
+                      "message": "Orders fetched successfully",
+                      "code": 200,
+                      "data": [
                         {
-                          "timestamp": "2025-05-06T17:00:00.000Z",
-                          "message": "Orders fetched successfully",
-                          "code": 200,
-                          "data": [
-                            { "orderId": 1, "userId": 3, "total": 2400.00, "status": "CONFIRMED" },
-                            { "orderId": 2, "userId": 4, "total":  800.00, "status": "PENDING" }
-                          ]
+                          "id": 1,
+                          "userId": 3,
+                          "billDate": "2025-05-06T10:00:00",
+                          "paymentMethod": "CARD",
+                          "globalDiscount": 0,
+                          "totalAmount": 2400.00,
+                          "totalAmountDiscounted": 2400.00,
+                          "tax": 0
+                        },
+                        {
+                          "id": 2,
+                          "userId": 4,
+                          "billDate": "2025-05-06T11:00:00",
+                          "paymentMethod": "PAYPAL",
+                          "globalDiscount": 0.10,
+                          "totalAmount": 1000.00,
+                          "totalAmountDiscounted": 900.00,
+                          "tax": 0
                         }
-                        """
+                      ]
+                    }
+                    """
                 )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "500",
-            description  = "Internal server error",
-            content      = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema    = @Schema(implementation = ApiError.class)
             )
         )
     })
@@ -79,43 +100,51 @@ public class OrderController {
         List<OrderResponseDto> orders = orderService.getAllOrders();
         ApiResponseDto<List<OrderResponseDto>> response =
             new ApiResponseDto<>("Orders fetched successfully", HttpStatus.OK.value(), orders);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieve all orders for a specific user.
+     *
+     * @param userId the user’s identifier
+     * @return HTTP 200 with list of {@link OrderResponseDto}
+     */
     @Operation(
         summary     = "Fetch orders by user ID",
-        description = "Retrieve all orders placed by a specific user",
-        tags        = { "Order" }
+        description = "Retrieve all orders placed by a specific user"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "User's orders fetched successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "200", description = "User's orders fetched successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderResponseDto.class }
+                    subTypes       = { OrderResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "UserOrders",
-                    value = """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:02:00.000Z",
+                      "message": "User's orders fetched successfully",
+                      "code": 200,
+                      "data": [
                         {
-                          "timestamp": "2025-05-06T17:02:00.000Z",
-                          "message": "User's orders fetched successfully",
-                          "code": 200,
-                          "data": [
-                            { "orderId": 1, "userId": 3, "total": 2400.00, "status": "CONFIRMED" }
-                          ]
+                          "id": 1,
+                          "userId": 3,
+                          "billDate": "2025-05-06T10:00:00",
+                          "paymentMethod": "CARD",
+                          "globalDiscount": 0,
+                          "totalAmount": 2400.00,
+                          "totalAmountDiscounted": 2400.00,
+                          "tax": 0
                         }
-                        """
+                      ]
+                    }
+                    """
                 )
             )
         ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "User not found",
-            content      = @Content(
+        @ApiResponse(responseCode = "404", description = "User not found",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
@@ -129,41 +158,49 @@ public class OrderController {
         List<OrderResponseDto> orders = orderService.getOrdersByUserId(userId);
         ApiResponseDto<List<OrderResponseDto>> response =
             new ApiResponseDto<>("User's orders fetched successfully", HttpStatus.OK.value(), orders);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieve a single order by its ID.
+     *
+     * @param orderId the order’s identifier
+     * @return HTTP 200 with {@link OrderResponseDto}
+     */
     @Operation(
         summary     = "Fetch an order by ID",
-        description = "Retrieve a single order using its ID",
-        tags        = { "Order" }
+        description = "Retrieve a single order using its ID"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Order fetched successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "200", description = "Order fetched successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderResponseDto.class }
+                    subTypes       = { OrderResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "OrderDetail",
-                    value = """
-                        {
-                          "timestamp": "2025-05-06T17:04:00.000Z",
-                          "message": "Order fetched successfully",
-                          "code": 200,
-                          "data": { "orderId": 1, "userId": 3, "total": 2400.00, "status": "CONFIRMED" }
-                        }
-                        """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:04:00.000Z",
+                      "message": "Order fetched successfully",
+                      "code": 200,
+                      "data": {
+                        "id": 1,
+                        "userId": 3,
+                        "billDate": "2025-05-06T10:00:00",
+                        "paymentMethod": "CARD",
+                        "globalDiscount": 0,
+                        "totalAmount": 2400.00,
+                        "totalAmountDiscounted": 2400.00,
+                        "tax": 0
+                      }
+                    }
+                    """
                 )
             )
         ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Order not found",
-            content      = @Content(
+        @ApiResponse(responseCode = "404", description = "Order not found",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
@@ -177,43 +214,50 @@ public class OrderController {
         OrderResponseDto order = orderService.getOrderById(orderId);
         ApiResponseDto<OrderResponseDto> response =
             new ApiResponseDto<>("Order fetched successfully", HttpStatus.OK.value(), order);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieve all items for a given order.
+     *
+     * @param orderId the order’s identifier
+     * @return HTTP 200 with list of {@link OrderItemResponseDto}
+     */
     @Operation(
         summary     = "Fetch order items by order ID",
-        description = "Retrieve all items belonging to a specific order",
-        tags        = { "Order" }
+        description = "Retrieve all items belonging to a specific order"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Order items fetched successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "200", description = "Order items fetched successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderItemResponseDto.class }
+                    subTypes       = { OrderItemResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "OrderItemsList",
-                    value = """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:06:00.000Z",
+                      "message": "Order items fetched successfully",
+                      "code": 200,
+                      "data": [
                         {
-                          "timestamp": "2025-05-06T17:06:00.000Z",
-                          "message": "Order items fetched successfully",
-                          "code": 200,
-                          "data": [
-                            { "orderItemId": 10, "orderId": 1, "productId": 1, "quantity": 2, "unitPrice": 1200.00 }
-                          ]
+                          "id": 10,
+                          "orderId": 1,
+                          "productId": 1,
+                          "quantity": 2,
+                          "discount": 0,
+                          "price": 1200.00,
+                          "totalPrice": 2400.00
                         }
-                        """
+                      ]
+                    }
+                    """
                 )
             )
         ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Order not found",
-            content      = @Content(
+        @ApiResponse(responseCode = "404", description = "Order not found",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
@@ -227,131 +271,157 @@ public class OrderController {
         List<OrderItemResponseDto> items = orderService.getOrderItemsByOrderId(orderId);
         ApiResponseDto<List<OrderItemResponseDto>> response =
             new ApiResponseDto<>("Order items fetched successfully", HttpStatus.OK.value(), items);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Create a new order.
+     *
+     * Only the authenticated user matching userId in payload or an ADMIN/SUPERADMIN may create.
+     *
+     * @param createOrderRequestDto payload with userId, paymentMethod, discount, and items
+     * @return HTTP 201 with created {@link OrderResponseDto}
+     */
     @Operation(
         summary     = "Create a new order",
-        description = "Place a new order in the system",
-        tags        = { "Order" }
+        description = "Place a new order in the system"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "201",
-            description  = "Order created successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "201", description = "Order created successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderResponseDto.class }
+                    subTypes       = { OrderResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "OrderCreated",
-                    value = """
-                        {
-                          "timestamp": "2025-05-06T17:08:00.000Z",
-                          "message": "Order created successfully",
-                          "code": 201,
-                          "data": { "orderId": 3, "userId": 5, "total": 1500.00, "status": "PENDING" }
-                        }
-                        """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:08:00.000Z",
+                      "message": "Order created successfully",
+                      "code": 201,
+                      "data": {
+                        "id": 3,
+                        "userId": 5,
+                        "billDate": "2025-05-06T12:00:00",
+                        "paymentMethod": "CARD",
+                        "globalDiscount": 0.05,
+                        "totalAmount": 1500.00,
+                        "totalAmountDiscounted": 1425.00,
+                        "tax": 0
+                      }
+                    }
+                    """
                 )
             )
         ),
-        @ApiResponse(
-            responseCode = "400",
-            description  = "Invalid input",
-            content      = @Content(
+        @ApiResponse(responseCode = "400", description = "Invalid request body",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
         )
     })
-    @PostMapping(value = "/orders", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+        value    = "/orders",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN') or #createOrderRequestDto.userId == @userEntityServiceImpl.getByUsername(authentication.name).id")
     public ResponseEntity<ApiResponseDto<OrderResponseDto>> createOrder(
-        @Parameter(description = "Order creation payload", required = true, schema = @Schema(implementation = CreateOrderRequestDto.class))
+        @Parameter(description = "Order creation payload", required = true,
+                   schema = @Schema(implementation = CreateOrderRequestDto.class))
         @Valid @RequestBody CreateOrderRequestDto createOrderRequestDto
     ) {
-        OrderResponseDto createdOrder = orderService.createOrder(createOrderRequestDto);
+        OrderResponseDto created = orderService.createOrder(createOrderRequestDto);
         ApiResponseDto<OrderResponseDto> response =
-            new ApiResponseDto<>("Order created successfully", HttpStatus.CREATED.value(), createdOrder);
+            new ApiResponseDto<>("Order created successfully", HttpStatus.CREATED.value(), created);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Update an existing order.
+     *
+     * @param orderId        identifier of the order to update
+     * @param updateOrderDto payload containing fields to update
+     * @return HTTP 200 with updated {@link OrderResponseDto}
+     */
     @Operation(
         summary     = "Update an existing order",
-        description = "Modify an existing order's details using its ID",
-        tags        = { "Order" }
+        description = "Modify an existing order's details using its ID"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Order updated successfully",
-            content      = @Content(
+        @ApiResponse(responseCode = "200", description = "Order updated successfully",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(
                     implementation = ApiResponseDto.class,
-                    subTypes      = { OrderResponseDto.class }
+                    subTypes       = { OrderResponseDto.class }
                 ),
-                examples = @ExampleObject(
-                    name  = "OrderUpdated",
-                    value = """
-                        {
-                          "timestamp": "2025-05-06T17:10:00.000Z",
-                          "message": "Order updated successfully",
-                          "code": 200,
-                          "data": { "orderId": 1, "userId": 3, "total": 2400.00, "status": "SHIPPED" }
-                        }
-                        """
+                examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-05-06T17:10:00.000Z",
+                      "message": "Order updated successfully",
+                      "code": 200,
+                      "data": {
+                        "id": 1,
+                        "userId": 3,
+                        "billDate": "2025-05-06T10:00:00",
+                        "paymentMethod": "PAYPAL",
+                        "globalDiscount": 0.10,
+                        "totalAmount": 2400.00,
+                        "totalAmountDiscounted": 2160.00,
+                        "tax": 0
+                      }
+                    }
+                    """
                 )
             )
         ),
-        @ApiResponse(
-            responseCode = "400",
-            description  = "Invalid input",
-            content      = @Content(
+        @ApiResponse(responseCode = "400", description = "Invalid request body",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
         ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Order not found",
-            content      = @Content(
+        @ApiResponse(responseCode = "404", description = "Order not found",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
         )
     })
-    @PutMapping(value = "/orders/{orderId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(
+        value    = "/orders/{orderId}",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<ApiResponseDto<OrderResponseDto>> updateOrder(
         @Parameter(description = "Identifier of the order", required = true)
         @PathVariable Long orderId,
-        @Parameter(description = "Order update payload", required = true, schema = @Schema(implementation = UpdateOrderDto.class))
+        @Parameter(description = "Order update payload", required = true,
+                   schema = @Schema(implementation = UpdateOrderDto.class))
         @Valid @RequestBody UpdateOrderDto updateOrderDto
     ) {
-        OrderResponseDto updatedOrder = orderService.updateOrder(orderId, updateOrderDto);
+        OrderResponseDto updated = orderService.updateOrder(orderId, updateOrderDto);
         ApiResponseDto<OrderResponseDto> response =
-            new ApiResponseDto<>("Order updated successfully", HttpStatus.OK.value(), updatedOrder);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            new ApiResponseDto<>("Order updated successfully", HttpStatus.OK.value(), updated);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Delete an order by its ID.
+     *
+     * @param orderId identifier of the order to delete
+     * @return HTTP 204 No Content
+     */
     @Operation(
         summary     = "Delete an order by ID",
-        description = "Remove an order from the database using its ID",
-        tags        = { "Order" }
+        description = "Remove an order from the system using its ID"
     )
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "204",
-            description  = "Order deleted successfully",
-            content      = @Content
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Order not found",
-            content      = @Content(
+        @ApiResponse(responseCode = "204", description = "Order deleted successfully", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Order not found",
+            content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema    = @Schema(implementation = ApiError.class)
             )
@@ -363,6 +433,6 @@ public class OrderController {
         @PathVariable Long orderId
     ) {
         orderService.deleteOrder(orderId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 }
