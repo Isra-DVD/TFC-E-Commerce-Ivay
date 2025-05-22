@@ -20,131 +20,181 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.ivay.jwt.JwtAuthenticationFilter;
 import com.ivay.service.impl.UserDetailsServiceImpl;
 
+/**
+ * Configuration class for Spring Security.
+ *
+ * This class defines the security filter chain, authentication provider,
+ * password encoder, and JWT authentication filter for the application.
+ *
+ * It configures:
+ * - CSRF protection disabled
+ * - CORS with default settings
+ * - Public access to API documentation and certain GET/POST endpoints
+ * - Role-based access control for protected resources
+ * - Stateless session management
+ * - JWT-based authentication filter
+ * - HTTP Basic authentication as a fallback
+ *
+ * @since 1.0.0
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Rutas públicas de docs y error
-        String[] PUBLIC_DOCS = {
-            "/doc/swagger-ui.html",
-            "/doc/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/error"
-        };
-        // GET públicos
-        String[] PUBLIC_GET = {
-            "/api/products",
-            "/api/products/filter",
-            "/api/products/{productId}",
-            "/api/categories",
-            "/api/categories/filter",
-            "/api/categories/{categoryId}",
-            "/api/categories/{categoryId}/products"
-        };
-        // POST públicos ( auth / registro )
-        String[] PUBLIC_POST = {
-            "/api/auth/**",
-            "/api/users"
-        };
-        // Rutas que sólo requieren autenticación (cualquier rol)
-        String[] AUTHENTICATED = {
-            "/api/users/me/**",
-            "/api/cart-items/**",
-            "/api/users/{userId}/cart-items",
-            "/api/orders"
-        };
+	/**
+	 * Configures the main security filter chain.
+	 *
+	 * This method defines:
+	 * - Disabled CSRF protection
+	 * - CORS with default configuration
+	 * - Public, authenticated, and role-restricted request matchers
+	 * - Stateless session management
+	 * - JWT authentication filter before UsernamePasswordAuthenticationFilter
+	 * - HTTP Basic authentication support
+	 *
+	 * @param http the HttpSecurity to configure
+	 * @return the configured SecurityFilterChain
+	 * @throws Exception if an error occurs while building the security filter chain
+	 */
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth
-                // públicas
-                .requestMatchers(PUBLIC_DOCS).permitAll()
-                .requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
-                .requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
+		String[] PUBLIC_DOCS = {
+				"/doc/swagger-ui.html",
+				"/doc/swagger-ui/**",
+				"/v3/api-docs/**",
+				"/error"
+		};
 
-                // autenticado genérico
-                .requestMatchers(AUTHENTICATED).authenticated()
+		String[] PUBLIC_GET = {
+				"/api/products",
+				"/api/products/filter",
+				"/api/products/{productId}",
+				"/api/categories",
+				"/api/categories/filter",
+				"/api/categories/{categoryId}",
+				"/api/categories/{categoryId}/products"
+		};
 
-                // direcciones
-                .requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
-                .requestMatchers("/api/addresses/**").hasAnyRole("SUPERADMIN", "ADMIN")
+		String[] PUBLIC_POST = {
+				"/api/auth/**",
+				"/api/users"
+		};
 
-                // órdenes
-                .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
+		String[] AUTHENTICATED = {
+				"/api/users/me/**",
+				"/api/cart-items/**",
+				"/api/users/{userId}/cart-items",
+				"/api/orders"
+		};
 
-                // order-items
-                .requestMatchers("/api/order-items/**").hasAnyRole("SUPERADMIN", "ADMIN")
+		http
+		.csrf(csrf -> csrf.disable())
+		.cors(Customizer.withDefaults())
+		.authorizeHttpRequests(auth -> auth
 
-                // categorías
-                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.PUT,  "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(PUBLIC_DOCS).permitAll()
+				.requestMatchers(HttpMethod.GET, PUBLIC_GET).permitAll()
+				.requestMatchers(HttpMethod.POST, PUBLIC_POST).permitAll()
 
-                // productos
-                .requestMatchers(HttpMethod.POST,   "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.PUT,    "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.GET,    "/api/products/{productId}/cart-items")
-                    .hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.GET,    "/api/products/{productId}/order-items")
-                    .hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(AUTHENTICATED).authenticated()
 
-                // roles
-                .requestMatchers("/api/roles/**").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/roles/**").hasRole("SUPERADMIN")
-                .requestMatchers(HttpMethod.PUT,  "/api/roles/**").hasRole("SUPERADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/roles/**").hasRole("SUPERADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/addresses/users/{userId}").authenticated()
+				.requestMatchers(HttpMethod.POST, "/api/addresses").authenticated()
+				.requestMatchers(HttpMethod.PUT, "/api/addresses/{id}").authenticated()
+				.requestMatchers("/api/addresses/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-                // suppliers
-                .requestMatchers("/api/suppliers/**")
-                    .hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/users/{userId}/orders").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.PUT, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.DELETE, "/api/orders/{orderId}").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
 
-                // usuarios (sólo ADMIN/SUPERADMIN pueden gestionar)
-                .requestMatchers(HttpMethod.GET,    "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.PUT,    "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers("/api/order-items/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-                // cualquier otra petición requiere autenticación
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .httpBasic(Customizer.withDefaults());
+				.requestMatchers(HttpMethod.POST, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.PUT,  "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
-        return http.build();
-    }
+				.requestMatchers(HttpMethod.POST,   "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.PUT,    "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.GET,    "/api/products/{productId}/cart-items")
+				.hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
+				.requestMatchers(HttpMethod.GET,    "/api/products/{productId}/order-items")
+				.hasAnyRole("SUPERADMIN", "ADMIN")
 
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+				.requestMatchers("/api/roles/**").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/roles/**").hasRole("SUPERADMIN")
+				.requestMatchers(HttpMethod.PUT,  "/api/roles/**").hasRole("SUPERADMIN")
+				.requestMatchers(HttpMethod.DELETE, "/api/roles/**").hasRole("SUPERADMIN")
 
-    @Bean
-    AuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsService);
-        return provider;
-    }
+				.requestMatchers("/api/suppliers/**")
+				.hasAnyRole("SUPERADMIN", "ADMIN", "MANAGER")
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+				.requestMatchers(HttpMethod.GET,    "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.PUT,    "/api/users/{id}").hasAnyRole("SUPERADMIN", "ADMIN")
+				.requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
 
-    @Bean
-    JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
+				.anyRequest().authenticated()
+				)
+		.sessionManagement(session -> session
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+		.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+		.httpBasic(Customizer.withDefaults());
+
+		return http.build();
+	}
+
+	/**
+	 * Exposes the AuthenticationManager bean.
+	 *
+	 * @param authConfig the AuthenticationConfiguration to obtain the manager from
+	 * @return the AuthenticationManager used by Spring Security
+	 * @throws Exception if the authentication manager cannot be retrieved
+	 */
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+		return authConfig.getAuthenticationManager();
+	}
+
+	/**
+	 * Defines the AuthenticationProvider that uses a DAO-based approach.
+	 *
+	 * This provider uses a PasswordEncoder and a custom UserDetailsServiceImpl to authenticate users.
+	 *
+	 * @param userDetailsService the user details service implementation
+	 * @return a configured DaoAuthenticationProvider
+	 */
+	@Bean
+	AuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(passwordEncoder());
+		provider.setUserDetailsService(userDetailsService);
+		return provider;
+	}
+
+	/**
+	 * Defines the PasswordEncoder bean.
+	 *
+	 * @return a BCryptPasswordEncoder instance for hashing passwords
+	 */
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	/**
+	 * Defines the JWT authentication filter bean.
+	 *
+	 * This filter extracts and validates JWT tokens from incoming requests
+	 * and sets the authentication in the security context.
+	 *
+	 * @return a new JwtAuthenticationFilter instance
+	 */
+	@Bean
+	JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
+	}
 }
