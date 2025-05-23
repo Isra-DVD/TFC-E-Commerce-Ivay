@@ -31,8 +31,13 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping(value = "/api/roles", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:5174" })
-@Tag(name = "Role", description = "Endpoints for managing roles")
+@CrossOrigin(origins = {
+	    "http://localhost:3000",
+	    "http://localhost:3001",
+	    "http://localhost:5173",
+	    "http://localhost:5174",
+	    "http://localhost:5678"
+	})@Tag(name = "Role", description = "Endpoints for managing roles")
 public class RoleController {
 
     @Autowired

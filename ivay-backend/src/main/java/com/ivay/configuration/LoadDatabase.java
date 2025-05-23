@@ -12,117 +12,78 @@ import com.ivay.entity.UserEntity;
 import com.ivay.repository.RoleRepository;
 import com.ivay.repository.UserRepository;
 
-/**
- * Database initializer that seeds default roles and example users.
- *
- * On application startup, this component creates four roles:
- * SUPERADMIN, ADMIN, MANAGER, and CLIENT,
- * and four corresponding user accounts for development and testing purposes.
- *
- * @since 1.0.0
- */
+import javax.sql.DataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 
-// @Configuration 	// Uncomment to enable database initialization
+@Configuration
 public class LoadDatabase {
 
-	/**
-	 * Repository for performing CRUD operations on {@link Role} entities.
-	 */
-	@Autowired
-	RoleRepository roleRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
+    @Autowired
+    private DataSource dataSource;
 
-	/**
-	 * Defines and returns a {@link CommandLineRunner} bean that will run
-	 * on application startup to seed the database.
-	 *
-	 * This runner performs the following steps:
-	 * - Creates and saves four default roles.
-	 * - Creates and saves four example users, each assigned one of the roles.
-	 *
-	 * @param userRepository the repository for performing CRUD operations on {@link UserEntity} instances
-	 * @return a {@code CommandLineRunner} that initializes the database at startup
-	 */
-	@Bean
-	CommandLineRunner initDatabase(UserRepository userRepository) {
-		return arg -> {
+    @Bean
+    CommandLineRunner initDatabase(UserRepository userRepository) {
+        return args -> {
 
-			Role roleSuperAdmin = Role.builder()
-					.roleName("SUPERADMIN")
-					.build();
+            // Si ya hay usuarios, no hacer nada
+            if (userRepository.count() > 0) {
+                System.out.println("🔁 Usuarios ya existentes en la base de datos. Saltando carga inicial.");
+                return;
+            }
 
-			Role roleAdmin = Role.builder()
-					.roleName("ADMIN")
-					.build();
+            System.out.println("🚀 Ejecutando carga inicial de datos...");
 
-			Role roleManager = Role.builder()
-					.roleName("MANAGER")
-					.build();
+            // Insertar roles
+            Role roleSuperAdmin = Role.builder().roleName("SUPERADMIN").build();
+            Role roleAdmin = Role.builder().roleName("ADMIN").build();
+            Role roleManager = Role.builder().roleName("MANAGER").build();
+            Role roleClient = Role.builder().roleName("CLIENT").build();
 
-			Role roleClient= Role.builder()
-					.roleName("CLIENT")
-					.build();
+            List<Role> savedRoles = roleRepository.saveAll(
+                List.of(roleSuperAdmin, roleAdmin, roleManager, roleClient)
+            );
 
-			List<Role> savedRoles = roleRepository.saveAll(List.of(roleSuperAdmin, roleAdmin, roleManager, roleClient));
+            // Insertar usuarios
+            UserEntity userAlex = UserEntity.builder()
+                .name("Alexis").fullName("Alexis mi Capitán").email("correo1@gmail.com")
+                .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
+                .phone("111222333").userAddress("address1").isEnabled(true)
+                .accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true)
+                .role(savedRoles.get(0)).build();
 
+            UserEntity userJose = UserEntity.builder()
+                .name("Jose").fullName("Jose El Pajuelo").email("correo2@gmail.com")
+                .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
+                .phone("444555666").userAddress("address2").isEnabled(true)
+                .accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true)
+                .role(savedRoles.get(1)).build();
 
-			UserEntity userAlex = UserEntity.builder()
-					.name("Alexis")
-					.fullName("Alexis mi Capitán")
-					.email("correo1@gmail.com")
-					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
-					.phone("111222333")
-					.userAddress("address1")
-					.isEnabled(true)
-					.accountNoExpired(true)
-					.accountNoLocked(true)
-					.credentialNoExpired(true)
-					.role(savedRoles.get(0))
-					.build();
+            UserEntity userDaniel = UserEntity.builder()
+                .name("Daniel").fullName("Daniel Rovira").email("correo3@gmail.com")
+                .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
+                .phone("777888999").userAddress("address3").isEnabled(true)
+                .accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true)
+                .role(savedRoles.get(2)).build();
 
-			UserEntity userJose = UserEntity.builder()
-					.name("Jose")
-					.fullName("Jose El Pajuelo")
-					.email("correo2@gmail.com")
-					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
-					.phone("444555666")
-					.userAddress("address2")
-					.isEnabled(true)
-					.accountNoExpired(true)
-					.accountNoLocked(true)
-					.credentialNoExpired(true)
-					.role(savedRoles.get(1))
-					.build();
+            UserEntity userAndres = UserEntity.builder()
+                .name("Andres").fullName("Andres Teresitas").email("correo4@gmail.com")
+                .password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
+                .phone("123456789").userAddress("address4").isEnabled(true)
+                .accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true)
+                .role(savedRoles.get(3)).build();
 
-			UserEntity userDaniel = UserEntity.builder()
-					.name("Daniel")
-					.fullName("Daniel Rovira")
-					.email("correo3@gmail.com")
-					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
-					.phone("777888999")
-					.userAddress("address3")
-					.isEnabled(true)
-					.accountNoExpired(true)
-					.accountNoLocked(true)
-					.credentialNoExpired(true)
-					.role(savedRoles.get(2))
-					.build();
+            userRepository.saveAll(List.of(userAlex, userJose, userDaniel, userAndres));
 
-			UserEntity userAndres = UserEntity.builder()
-					.name("Andres")
-					.fullName("Andres Teresitas")
-					.email("correo4@gmail.com")
-					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC")
-					.phone("123456789")
-					.userAddress("address4")
-					.isEnabled(true)
-					.accountNoExpired(true)
-					.accountNoLocked(true)
-					.credentialNoExpired(true)
-					.role(savedRoles.get(3))
-					.build();
+            // Ejecutar script SQL solo si es la primera vez
+            Resource sqlScript = new ClassPathResource("sql/data.sql");
+            ScriptUtils.executeSqlScript(dataSource.getConnection(), sqlScript);
 
-			userRepository.saveAll(List.of(userAlex, userJose, userDaniel, userAndres));
-		};
-	}
+            System.out.println("✅ Carga inicial completada.");
+        };
+    }
 }

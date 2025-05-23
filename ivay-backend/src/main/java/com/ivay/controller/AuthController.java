@@ -1,7 +1,6 @@
 package com.ivay.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,13 @@ import jakarta.validation.Valid;
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {
+	    "http://localhost:3000",
+	    "http://localhost:3001",
+	    "http://localhost:5173",
+	    "http://localhost:5174",
+	    "http://localhost:5678"
+	})
 public class AuthController {
 
     @Autowired

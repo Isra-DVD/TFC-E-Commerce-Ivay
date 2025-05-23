@@ -1,0 +1,60 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: ivay_db
+    environment:
+      MYSQL_ROOT_PASSWORD: Toor.toor1
+      MYSQL_DATABASE: TFC-E-Commerce-Ivay
+      MYSQL_USER: usuarioexterno
+      MYSQL_PASSWORD: Toor.toor1
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: ivay_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: Toor.toor1
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  backend:
+    build: ./ivay-backend
+    container_name: ivay_backend
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/TFC-E-Commerce-Ivay?serverTimezone=UTC&createDatabaseIfNotExist=true
+      DB_USER: usuarioexterno
+      DB_PASSWORD: Toor.toor1
+      JWT_SECRET_KEY: 964ffdb5e95797ad2be8a036924d97a1df90a004b69e25093959be7d5104601b
+    depends_on:
+      - mysql
+
+  frontend-cliente:
+    build: ./ivay-frontend
+    container_name: ivay_frontend_cliente
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8081/api
+    depends_on:
+      - backend
+
+  frontend-gestor:
+    build: ./ivay-dashboard
+    container_name: ivay_frontend_gestor
+    ports:
+      - "3001:3000"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8081/api
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
