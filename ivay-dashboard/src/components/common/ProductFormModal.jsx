@@ -235,6 +235,7 @@ const ProductFormModal = ({
    */
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("🟢 handleSubmit ejecutado");
     const validationError = validateForm();
     if (validationError) {
       setInternalError(validationError);
@@ -562,7 +563,6 @@ const ProductFormModal = ({
             Cancelar
           </Button>
           <Button
-            onClick={handleSubmit}
             type="submit"
             variant="contained"
             disabled={currentOverallSubmitting}
