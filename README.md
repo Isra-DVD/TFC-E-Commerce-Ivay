@@ -91,8 +91,17 @@ This repository contains the source code for both the backend (Java Spring Boot)
 
    - Docker
    - Docker Compose
+   - Make sure ivay-backend\wait-for-it.sh has LF (Line Feed) instead of CRLF (Carriage Return)
 
 2. **Build and run**:
+
+   ```bash
+   cd ivay-backend
+   ```
+
+   ```bash
+   ./mvn clean package -DskipTests
+   ```
 
    ```bash
    docker-compose up --build
@@ -111,12 +120,16 @@ This repository contains the source code for both the backend (Java Spring Boot)
 
 These are passed via Docker Compose or `.env` file:
 
-| Variable         | Description                           |
-| ---------------- | ------------------------------------- |
-| `DB_URL`         | JDBC connection string                |
-| `DB_USER`        | MySQL username                        |
-| `DB_PASSWORD`    | MySQL password                        |
-| `JWT_SECRET_KEY` | JWT signing secret for authentication |
+| Variable                        | Description                             |
+| ------------------------------- | --------------------------------------- |
+| `DB_URL`                        | JDBC connection string                  |
+| `DB_USER`                       | MySQL username                          |
+| `DB_PASSWORD`                   | MySQL password                          |
+| `JWT_SECRET_KEY`                | JWT signing secret for authentication   |
+| `VITE_API_BASE_URL`             | Frontend base API URL                   |
+| `VITE_CLOUDINARY_CLOUD_NAME`    | Cloudinary cloud name                   |
+| `VITE_CLOUDINARY_UPLOAD_PRESET` | Cloudinary unsigned upload preset       |
+| `VITE_CLOUDINARY_UPLOAD_URL`    | Full upload URL endpoint for Cloudinary |
 
 ---
 
@@ -129,6 +142,44 @@ When the backend starts, it executes a custom class `LoadDatabase` which:
 - Optionally runs an SQL script (`data.sql`) for additional data
 
 > ⚠️ Make sure your database is clean to avoid errors like `Duplicate entry`.
+
+---
+
+## n8n Integration – AI Shopping Assistant
+
+This project includes an **AI assistant** built with [n8n](https://n8n.io/) for handling natural language product queries via LangChain and Google Gemini.
+The code used for this Agent creation is located in `./n8n-flows/ivay-assistant.json`.
+
+### 🔌 Installation
+
+Use Docker to run n8n with local persistence:
+
+```bash
+docker run -it --rm --name n8n -p 5678:5678 -v %USERPROFILE%\.n8n:/home/node/.n8n n8nio/n8n
+```
+
+> On Linux/macOS, replace `%USERPROFILE%\.n8n` with `~/.n8n`
+
+Access the editor at [http://localhost:5678](http://localhost:5678).
+
+### 🧠 Agent Setup
+
+The n8n workflow includes:
+
+- Google Gemini Chat Model
+- LangChain AI Agent
+- Memory buffer for chat context
+- HTTP request tools to fetch products and categories
+
+It supports smart search with natural language and automatically formats responses with pricing, discounts, and categories.
+
+### 🧪 Example Queries
+
+- "What are your best offers?"
+- "Show me discounted monitors."
+- "¿Qué categorías tienen?"
+
+All answers are formatted in the user’s language and include final prices and discounts when applicable.
 
 ---
 

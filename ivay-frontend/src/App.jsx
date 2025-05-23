@@ -255,8 +255,7 @@ export default function App() {
       );
     }
 
-    const n8nWebhookUrl =
-      "http://localhost:5678/webhook/b59f4673-ff9e-47ff-b1b6-06b4f58d5c65/chat";
+    const n8nWebhookUrl = import.meta.env.VITE_N8N_WEB_HOOK;
 
     const chatOptions = {
       webhookUrl: n8nWebhookUrl,

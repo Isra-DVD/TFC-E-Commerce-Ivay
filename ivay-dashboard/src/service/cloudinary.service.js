@@ -1,11 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
-const CLOUDINARY_CLOUD_NAME = "dyn7gewrg";
-const CLOUDINARY_UPLOAD_PRESET = "camilo";
-const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const CLOUDINARY_UPLOAD_URL = import.meta.env.VITE_CLOUDINARY_UPLOAD_URL;
 
-const cloudinaryApi = axios.create({
-});
+const cloudinaryApi = axios.create({});
 
 /**
  * Uploads an image file to Cloudinary using an unsigned upload preset.
@@ -16,25 +15,31 @@ const cloudinaryApi = axios.create({
  * @throws {Error} If the upload fails.
  */
 const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    try {
-        const response = await cloudinaryApi.post(CLOUDINARY_UPLOAD_URL, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Cloudinary Service Upload Error:', error.response?.data || error.message, error);
-        throw new Error(error.response?.data?.error?.message || 'Cloudinary image upload failed.');
-    }
+  try {
+    const response = await cloudinaryApi.post(CLOUDINARY_UPLOAD_URL, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Cloudinary Service Upload Error:",
+      error.response?.data || error.message,
+      error
+    );
+    throw new Error(
+      error.response?.data?.error?.message || "Cloudinary image upload failed."
+    );
+  }
 };
 
 const CloudinaryService = {
-    uploadImage,
+  uploadImage,
 };
 
 export default CloudinaryService;

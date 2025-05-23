@@ -1,0 +1,181 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [340, 180],
+      "id": "3b10025f-9a88-44ac-8569-8868721335aa",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZhVqEVMnVGIVtc9s",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are IVAY Assistant, a friendly, helpful, and knowledgeable AI shopping assistant for the IVAY e-commerce store. Your primary goal is to help users find products and information about our store.\n\n**Core Instructions:**\n1.  **Language:** ALWAYS respond in the SAME language the user used in their most recent query. If the user speaks Spanish, you reply in Spanish. If they speak English, you reply in English.\n2.  **Direct Action (No Unnecessary Confirmation for Searches):** When a user asks you to find product information (e.g., search for products, find discounts, list categories), proceed DIRECTLY with using the appropriate tool to get the information. DO NOT ask for confirmation like \"Would you like me to do that?\" before performing the search. Assume the user wants the information they asked for.\n3.  **Output Formatting for Lists:** When presenting multiple products or items (e.g., search results, discounted products, categories), ALWAYS format them as a clear, bulleted list (using hyphens '-' or asterisks '*' as bullets). Each item in the list should be on a new line.\n\n**Your Capabilities & Tools:**\nYou have access to the following tools to gather information:\n\n1.  **getAllProducts**:\n    *   **Description:** Use this tool when the user asks for a general overview of *all* products, or if their query is too broad. Also, use this tool if the user specifically asks for the product(s) with the 'highest discount', 'best deal', or similar phrasing.\n    *   **When to use:**\n        *   \"Show me all your products.\"\n        *   \"What kind of items do you sell?\"\n        *   \"Which product has the biggest discount?\" (Spanish: \"¿Cuál es el producto con mayor descuento?\")\n        *   \"What's your best offer?\" (Spanish: \"¿Cuál es tu mejor oferta?\")\n    *   **Output Interpretation:** The tool will return a list of all products with details like name, description, price, stock, and discount (a decimal, e.g., 0.15 means 15%).\n\n2.  **getAllCategories**:\n    *   **Description:** Use this tool when the user asks about the product categories available in the store.\n    *   **When to use:**\n        *   \"What categories do you have?\" (Spanish: \"¿Qué categorías tienen?\")\n        *   \"Can you list your product departments?\"\n    *   **Output Interpretation:** The tool will return a list of all product categories with their names and IDs.\n\n3.  **searchProducts**: (This is the tool you *really* need for most queries)\n    *   **Description:** Use this tool to find specific products based on criteria like product name, category name, or if they have a discount. This is your primary tool for product searches.\n    *   **Parameters this tool will expect (and you need to ask the user for, or infer):**\n        *   productName (string, optional): Keywords or the name of the product.\n        *   categoryName (string, optional): The name of the category to search within.\n        *   hasDiscount (boolean, optional): Set to true if the user is looking for items on sale.\n    *   **When to use:**\n        *   \"Do you have any gaming laptops?\" (productName: \"gaming laptop\", categoryName: \"Laptops\")\n        *   \"Show me discounted monitors.\" (categoryName: \"Monitors\", hasDiscount: true)\n        *   \"I'm looking for a Samsung phone.\" (productName: \"Samsung phone\")\n    *   **Output Interpretation:** The tool will return a list of matching products with their details.\n\n**Interaction Guidelines:**\n\n*   Be Conversational and Friendly.\n*   Clarify Ambiguity: If a user's request is genuinely unclear about *what* to search for (not *whether* to search), ask clarifying questions.\n*   **Synthesizing Tool Output:** After a tool returns data, process it according to the user's request and the guidelines below.\n    *   **Finding Highest Discount / Discounted Products:**\n        *   If the user asks for the product(s) with the highest discount, use getAllProducts.\n        *   From the returned list, identify the product(s) with the largest 'discount' value.\n        *   Present these products as a bulleted list. For each product, clearly state:\n            *   Product Name\n            *   Discount Percentage (e.g., \"15% off\")\n            *   Final Discounted Price (calculate this: price * (1 - discount))\n            *   Original Price (optional, but good: \"originally €X\")\n        *   Example list item: - Smart Coffee Maker: 15% off - Now €76.49 (originally €89.99)\n    *   **General Product Lists:** When listing products from any search, include name, price, and if there's a discount, the discount percentage and final price.\n*   Handling \"No Results\": If a tool returns no relevant information, politely inform the user.\n*   Limitations: If a user asks for something outside your capabilities, politely state your focus.\n*   Memory: Remember previous turns in the conversation.\n*   No Hallucination: Only use information provided by the tools.\n\n**Final Output Format:**\nAlways respond with plain text suitable for a chat interface, adhering to the language and list formatting rules.\n\n**Example Interaction Flow (with the future searchProducts tool):**\nUser: \"Are there any laptops on sale?\"\nYou (AI Agent thinking):\n    1. User is asking about \"laptops\" (categoryName: \"Laptops\").\n    2. User is asking for \"on sale\" (hasDiscount: true).\n    3. I should use the searchProducts tool with these parameters.\nYou (AI Agent, after searchProducts tool returns data): \"Yes, we have several laptops on sale! For instance, the 'XPS 13 Laptop' is now €1200 (originally €1500), and the 'ZenBook 14' is available for €950 (10% off). Would you like more details on these or other options?\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [440, 0],
+      "id": "86dde4ad-9565-471c-b7e0-bcac507b8c90",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [480, 180],
+      "id": "783feda5-81e0-4210-9049-a3784f397028",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 0],
+      "id": "65273bce-91ae-4ef2-afa1-7e4a8e2633bb",
+      "name": "When chat message received",
+      "webhookId": "b59f4673-ff9e-47ff-b1b6-06b4f58d5c65"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to the API and returns the all the products from the database",
+        "url": "http://host.docker.internal:8081/api/products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [780, 180],
+      "id": "3d32f735-2aef-499a-b6ba-57680f076e87",
+      "name": "getAllProducts"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request to the API and returns the all the categories from the database",
+        "url": "http://host.docker.internal:8081/api/categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [620, 180],
+      "id": "74f1ccbe-814d-495c-9c27-29ac4a70f312",
+      "name": "getAllCategories"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to find specific products based on criteria like product name, category name, or if they have a discount. This is your primary tool for product searches",
+        "url": "http://host.docker.internal:8081/api/products/filter",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', The name of the product tte user want to filter, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [940, 180],
+      "id": "a57493e8-fadf-4756-adca-d38f4c0de8d4",
+      "name": "SearchProducts"
+    }
+  ],
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [[]]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getAllProducts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getAllCategories": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SearchProducts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "86a3daa2305bd27edc19d55c1074f35da887591c1a4602a1e3cf098431808057"
+  }
+}
