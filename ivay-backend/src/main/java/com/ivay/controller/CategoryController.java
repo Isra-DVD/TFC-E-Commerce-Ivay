@@ -38,8 +38,13 @@ import io.swagger.v3.oas.annotations.media.*;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:5174" })
-@Tag(name = "Category", description = "Endpoints for managing categories")
+@CrossOrigin(origins = {
+	    "http://localhost:3000",
+	    "http://localhost:3001",
+	    "http://localhost:5173",
+	    "http://localhost:5174",
+	    "http://localhost:5678"
+	})@Tag(name = "Category", description = "Endpoints for managing categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
