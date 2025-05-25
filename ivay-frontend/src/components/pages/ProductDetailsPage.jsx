@@ -40,7 +40,7 @@ const ProductDetailsPage = () => {
   const [cartMessage, setCartMessage] = useState({ type: "", text: "" });
 
   /**
-   * Effect hook that fetches product details based on the productId from the   
+   * Effect hook that fetches product details based on the productId from the
    * URL, and also fetches a list of similar products.
    */
   useEffect(() => {
@@ -60,7 +60,7 @@ const ProductDetailsPage = () => {
         console.error("Error fetching product data:", e);
         setError(
           e.response?.data?.message ||
-          "No se pudo cargar la información del producto."
+            "No se pudo cargar la información del producto."
         );
         setProduct(null);
       } finally {
@@ -133,10 +133,10 @@ const ProductDetailsPage = () => {
     );
   }
 
-  const originalPrice =
+  const discountedPrice =
     product.discount > 0
-      ? (product.price / (1 - product.discount)).toFixed(2)
-      : null;
+      ? product.price * (1 - product.discount)
+      : product.price;
 
   return (
     <Container
@@ -225,10 +225,9 @@ const ProductDetailsPage = () => {
               </Typography>
             </Paper>
 
-
             {/* Price and Discount */}
             <Box sx={{ my: 3 }}>
-              {originalPrice && (
+              {product.discount > 0 && (
                 <Typography
                   variant="h6"
                   color="text.secondary"
@@ -239,7 +238,7 @@ const ProductDetailsPage = () => {
                     fontSize: "1.1rem",
                   }}
                 >
-                  PVPR: €{originalPrice}
+                  PVPR: €{product.price.toFixed(2)}
                 </Typography>
               )}
               <Typography
@@ -249,7 +248,7 @@ const ProductDetailsPage = () => {
                 fontWeight="bold"
                 sx={{ display: "inline-block" }}
               >
-                Precio: €{product.price.toFixed(2)}
+                Precio: €{discountedPrice.toFixed(2)}
               </Typography>
               {product.discount > 0 && (
                 <Chip
