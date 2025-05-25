@@ -96,14 +96,6 @@ This repository contains the source code for both the backend (Java Spring Boot)
 2. **Build and run**:
 
    ```bash
-   cd ivay-backend
-   ```
-
-   ```bash
-   ./mvn clean package -DskipTests
-   ```
-
-   ```bash
    docker-compose up --build
    ```
 

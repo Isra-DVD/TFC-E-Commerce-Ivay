@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
-#   Use this script to test if a given TCP host/port are available
+#
+# wait-for-it.sh
+# ----------------
+# This script waits for a specific TCP host and port to become available.
+# It is typically used to delay the start of dependent services (e.g., wait for a database to be ready).
+#
+# USAGE:
+#   ./wait-for-it.sh host:port [-s] [-t timeout] [-q] [-- command args]
+#
+# OPTIONS:
+#   -h HOST | --host=HOST           Host or IP to test
+#   -p PORT | --port=PORT           TCP port to test
+#   -t TIMEOUT | --timeout=TIMEOUT Timeout in seconds (0 = no timeout; default = 15)
+#   -s | --strict                   Only execute the following command if the host:port becomes available
+#   -q | --quiet                    Suppress output messages
+#   -- COMMAND ARGS                 Command to execute after the host:port becomes available
+#
 
 WAITFORIT_cmdname=${0##*/}
 
@@ -50,7 +66,7 @@ wait_for() {
 }
 
 wait_for_wrapper() {
-  # In order to support SIGINT during timeout: http://unix.stackexchange.com/a/57692
+  # This allows SIGINT to be passed through to the timeout process
   if [[ $WAITFORIT_QUIET -eq 1 ]]; then
     timeout $WAITFORIT_BUSYTIMEFLAG $WAITFORIT_TIMEOUT "$0" --quiet --child --host=$WAITFORIT_HOST --port=$WAITFORIT_PORT --timeout=$WAITFORIT_TIMEOUT &
   else
@@ -72,7 +88,7 @@ WAITFORIT_TIMEOUT=15
 WAITFORIT_STRICT=0
 WAITFORIT_QUIET=0
 
-# check to see if timeout is from busybox?
+# Check if 'timeout' is the BusyBox version
 WAITFORIT_BUSYTIMEFLAG=""
 if timeout --help 2>&1 | grep -q BusyBox; then
   WAITFORIT_ISBUSY=1
@@ -81,6 +97,7 @@ else
   WAITFORIT_ISBUSY=0
 fi
 
+# Argument parsing
 for arg in "$@"
 do
   case "$arg" in
@@ -148,11 +165,13 @@ if [[ "$WAITFORIT_HOST" == "" || "$WAITFORIT_PORT" == "" ]]; then
   usage
 fi
 
+# Child execution path
 if [[ "${WAITFORIT_CHILD}" -gt 0 ]]; then
   wait_for
   WAITFORIT_RESULT=$?
   exit $WAITFORIT_RESULT
 else
+  # Decide between direct wait or wrapper with timeout
   if [[ "$WAITFORIT_TIMEOUT" -gt 0 ]]; then
     wait_for_wrapper
     WAITFORIT_RESULT=$?
@@ -162,6 +181,7 @@ else
   fi
 fi
 
+# Run the target command if available
 if [[ "$WAITFORIT_CLI" != "" ]]; then
   if [[ $WAITFORIT_RESULT -ne 0 && $WAITFORIT_STRICT -eq 1 ]]; then
     echoerr "$WAITFORIT_cmdname: strict mode, refusing to execute subprocess"
