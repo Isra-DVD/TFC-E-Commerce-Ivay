@@ -194,7 +194,7 @@ const CartPage = () => {
                 typeof item.product.price === "number" &&
                 typeof item.quantity === "number"
             ) {
-                return total + Number(item.product.price) * item.quantity;
+                return total + Number(item.product.price) * (1 - item.product.discount) * item.quantity;
             }
             return total;
         }, 0);

@@ -42,9 +42,9 @@ const CartItemRow = ({ item, onQuantityChange, onRemoveItem }) => {
         }
     };
 
-    const itemSubtotal = product.price * item.quantity;
-    const itemOriginalSubtotal = product.discount > 0
-        ? (product.price / (1 - product.discount)) * item.quantity
+    const itemOriginalSubtotal = product.price * item.quantity;
+    const itemSubtotal = product.discount > 0
+        ? (product.price * (1 - product.discount)) * item.quantity
         : null;
 
     return (

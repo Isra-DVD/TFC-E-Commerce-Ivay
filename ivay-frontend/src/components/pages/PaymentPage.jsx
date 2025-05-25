@@ -135,7 +135,7 @@ const PaymentPage = () => {
   const totalPrice = useMemo(
     () =>
       cartItems.reduce(
-        (sum, it) => sum + (it.product.price || 0) * it.quantity,
+        (sum, it) => sum + (it.product.price || 0) * (1 - it.product.discount) * it.quantity,
         0
       ),
     [cartItems]
@@ -308,7 +308,7 @@ const PaymentPage = () => {
                     helperText={errors.cardNumber}
                     inputProps={{ maxLength: 16 }}
                   />
-                  <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 2 } }}>
+                  <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 1 } }}>
                     <TextField
                       fullWidth
                       required
@@ -319,7 +319,7 @@ const PaymentPage = () => {
                       error={!!errors.expiryDate}
                       helperText={errors.expiryDate}
                       placeholder="MM/AA"
-                      sx={{ pr: { sm: 2 } }}
+                      sx={{ pr: { sm: 1 } }}
                     />
                     <TextField
                       fullWidth

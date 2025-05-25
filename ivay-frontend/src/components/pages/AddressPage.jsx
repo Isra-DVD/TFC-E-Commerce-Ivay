@@ -149,7 +149,7 @@ const AddressPage = () => {
   const totalPrice = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + (item.product?.price || 0) * item.quantity,
+        (sum, item) => sum + (item.product?.price || 0) * (1 - item.product.discount) * item.quantity,
         0
       ),
     [cartItems]
