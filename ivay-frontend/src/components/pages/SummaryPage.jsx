@@ -53,7 +53,9 @@ const SummaryPage = () => {
             if (fetchedProduct) {
               productDetails = {
                 ...fetchedProduct,
-                price: (parseFloat(fetchedProduct.price) || 0) * (1 - fetchedProduct.discount),
+                price:
+                  (parseFloat(fetchedProduct.price) || 0) *
+                  (1 - fetchedProduct.discount),
               };
             }
           } catch (productError) {
@@ -65,7 +67,9 @@ const SummaryPage = () => {
         } else if (item.product) {
           productDetails = {
             ...item.product,
-            price: (parseFloat(item.product.price) || 0) * (1 - item.product.discount),
+            price:
+              (parseFloat(item.product.price) || 0) *
+              (1 - item.product.discount),
           };
         }
 
@@ -92,7 +96,7 @@ const SummaryPage = () => {
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + (item.product.price || 0) * (1 - item.product.discount) * (item.quantity || 1),
+        (sum, item) => sum + (item.product.price || 0) * (item.quantity || 1),
         0
       ),
     [cartItems]
